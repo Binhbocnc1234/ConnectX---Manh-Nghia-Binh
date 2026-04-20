@@ -1,22 +1,35 @@
-# Kaggle-ConnectX
-In this machine learning project from kaggle, we are required to make an agent that plays the game of ConnectX using reinforcement learning. The agent takes in various parametres such as the size of the board, the mark assigned to the agent, the current configuration of the board and returns a number of the column that it thinks is the best move for the game. Each agent is then evaluated by playing with other agents and then assigned a skill level.
+# Ngữ cảnh
 
-## This repository contains one agent:
+Với sự hỗ trợ từ AI, solution, thậm chí có cả giải thích thuật toán. Việc bây giờ chỉ cần là hiểu, cải tiến và thuyết trình cho thầy
 
-1. In the first agent I have implemented a simple minimax algorithm with a custom heuristic function and one step look-ahead. This Folder contains the agent as as a py file and a jupyter notebook with a detailed walkthrough of the intutions behind the making of the agent and the custom heuristic function.(The skill of the agent is 1069.7 at the time of writing ranking 54th on the leaderboard). 
+File **MinimaxAgent.py**: là solution từ trên mạng, đạt 1000 điểm(rank khoảng 50th), file Bình commit lên đã có thêm comment giải thích từng function từ copilot
 
-   You can also visit "https://www.kaggle.com/sidagar/getting-1000-score-using-only-minimax"  to view the explanation notebook over kaggle.
+File **Agent-Explanation.ipynb** : notebook giải thích từ chính chủ
 
-       P.S.: I have uploaded the whole notebook in HTML format separately for reference.
-       If you only want to see the notebook you can download and view the HTML version or visit the kaggle link to view it.
+File **test_agent.py**: là file giúp ae chạy/test solution ở local. 
 
-       If you however wish to run the code on your own, you can either:
 
-       1. Download the ipynb format of the notebook and run it on your computer. Before running please make sure to install 
-       all the relevant libraries.
-           
-       2. Visit kaggle links provided and fork the pinned version of the notebook and then run the notebook.
+# Chia việc
 
-**My Kaggle username is "[sidagar](https://www.kaggle.com/sidagar)" without quotes.**
-       
+Trước khi nhận việc, mọi người cần phải hiểu đề bài
 
+Nhiệm vụ A: Hiểu thuật toán Minimax, hiểu hàm score_move_a(), score_move_b() và hàm agent()
+
+Nhiệm vụ B: Hiểu hàm Heuristic: count_windows() và get_heuristic()
+
+Nghĩ thuật toán cho tương lai: Bình
+
+Sau khi hiểu, mỗi người làm slide độc lập, format slide(cỡ chữ, tiêu đề, font) thống nhất sau. 
+
+Tiêu chuẩn slide: để sau, hôm thứ 4 hỏi thầy đã. Bình cần hỏi thời lượng thuyết trình bao lâu, vì nó sẽ ảnh hưởng đến dung lượng slide
+
+
+# Nguyên tắc làm việc
+
+**Chủ động**: ae có thắc mắc nào, hoặc có chỗ nào ae cảm thấy chưa chắc chắn/sai, hoặc có sáng kiến, ví dụ như là thấy tự làm thuật toán dễ hiểu hơn là hiểu, hoặc trục trặc... thì nên báo mọi người
+
+Những tuần gần đây ai cũng trong giai đoạn thi, thế nên tuần nào bận thì thôi, tuần nào rảnh thì phải trả nợ cho tuần trước
+
+Thường thì nhóm trưởng sẽ cố gắng chia việc đều(độ khó và khối lượng như nhau), nhưng thực tế không có gì là tuyệt đối, nên Bình để 2 ae chọn việc
+
+Đánh giá: có lẽ thầy cũng giống cô Trúc Linh, để mọi người tự chia. Nếu đúng là như vậy thì ai làm nhiều thì điểm cao thôi, ngoài nhiệm vụ được giao thì sáng kiến cũng là cách để đóng góp
