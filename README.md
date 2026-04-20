@@ -6,7 +6,7 @@ File **MinimaxAgent.py**: là solution từ trên mạng, đạt 1000 điểm(ra
 
 File **Agent-Explanation.ipynb** : notebook giải thích từ chính chủ
 
-File **test_agent.py**: là file giúp ae chạy/test solution ở local. 
+File **test.py**: là file giúp ae chạy/test solution ở local. 
 
 
 # Chia việc
