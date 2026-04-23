@@ -25,11 +25,9 @@ Format slide: cỡ chữ 28 cho text, cỡ chữ 36 dành riêng cho tiêu đề
 
 **Gợi ý** nội dung: 
 
-Làm rõ ưu nhược điểm thuật toán, độ phức tạp, tại sao áp dụng thuật toán đó trong bài ConnectX, trong ConnectX, thuật toán đó trông như thế nào?
+Làm rõ ưu nhược điểm thuật toán, độ phức tạp, tại sao áp dụng thuật toán đó? Thuật toán đó trông như thế nào trong bài ConnectX?
 
-Những thuật toán như minimax, alpha_beta, machine learning... không cần phải minh họa lại bằng hình vì mọi người đã học và hình dung ra rồi
-
-Không cần show code và giải thích từng dòng lên slide. Tập trung vào ý tưởng
+Không cần show code và giải thích từng dòng lên slide. Tập trung vào ý tưởng và minh họa
 
 Anyway, bên trên là gợi ý thôi, tùy cơ ứng biến
 
