@@ -15,14 +15,23 @@ Trước khi nhận việc, mọi người cần phải hiểu đề bài
 
 Nhiệm vụ A: Hiểu thuật toán Minimax, hiểu hàm score_move_a(), score_move_b() và hàm agent()
 
-Nhiệm vụ B: Hiểu hàm Heuristic: count_windows() và get_heuristic()
+Nhiệm vụ B: Hiểu hàm Heuristic: checkwindow(), count_windows(), get_heuristic() và cải tiến heuristic
 
 Nghĩ thuật toán cho tương lai: Bình
 
-Sau khi hiểu, mỗi người làm slide độc lập, format slide(cỡ chữ, tiêu đề, font) thống nhất sau. 
+Sau khi hiểu, mỗi người làm slide độc lập
 
-Tiêu chuẩn slide: để sau, hôm thứ 4 hỏi thầy đã. Bình cần hỏi thời lượng thuyết trình bao lâu, vì nó sẽ ảnh hưởng đến dung lượng slide
+Format slide: cỡ chữ 28 cho text, cỡ chữ 36 dành riêng cho tiêu đề, background mặc định(trắng), font chữ Aptos hoặc Calibri. Hình vẽ có thể chuyên nghiệp hoặc vào paint vẽ tay cũng được
 
+**Gợi ý** nội dung: 
+
+Làm rõ ưu nhược điểm thuật toán, độ phức tạp, tại sao áp dụng thuật toán đó trong bài ConnectX, trong ConnectX, thuật toán đó trông như thế nào?
+
+Những thuật toán như minimax, alpha_beta, machine learning... không cần phải minh họa lại bằng hình vì mọi người đã học và hình dung ra rồi
+
+Không cần show code và giải thích từng dòng lên slide. Tập trung vào ý tưởng
+
+Anyway, bên trên là gợi ý thôi, tùy cơ ứng biến
 
 # Nguyên tắc làm việc
 
@@ -31,5 +40,3 @@ Tiêu chuẩn slide: để sau, hôm thứ 4 hỏi thầy đã. Bình cần hỏ
 Những tuần gần đây ai cũng trong giai đoạn thi, thế nên tuần nào bận thì thôi, tuần nào rảnh thì phải trả nợ cho tuần trước
 
 Thường thì nhóm trưởng sẽ cố gắng chia việc đều(độ khó và khối lượng như nhau), nhưng thực tế không có gì là tuyệt đối, nên Bình để 2 ae chọn việc
-
-Đánh giá: có lẽ thầy cũng giống cô Trúc Linh, để mọi người tự chia. Nếu đúng là như vậy thì ai làm nhiều thì điểm cao thôi, ngoài nhiệm vụ được giao thì sáng kiến cũng là cách để đóng góp. Mọi người cùng thống nhất

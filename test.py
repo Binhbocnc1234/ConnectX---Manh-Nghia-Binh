@@ -3,6 +3,7 @@ import webbrowser
 import os
 import MinimaxAgent
 import test_agent
+
 # tạo môi trường
 env = make("connectx", debug=True)
 
