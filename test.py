@@ -8,7 +8,7 @@ import test_agent
 env = make("connectx", debug=True)
 
 # cho bot đánh nhau
-env.run([test_agent.agent, "negamax"])
+env.run([MinimaxAgent.agent, MinimaxAgent.agent])
 
 # render HTML
 html = env.render(mode="html")

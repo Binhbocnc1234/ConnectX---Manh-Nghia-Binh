@@ -34,22 +34,8 @@ def drop_piece(grid, col, mark, config):
     return next_grid
 
 
-def check_window(window, num_discs, piece, config):
-    """
-    Kiểm tra cửa sổ có hợp lệ không.
-    
-    Ý nghĩa:
-    - Trả về True nếu cửa sổ chứa đúng num_discs quân 'piece' và phần còn lại trống (0)
-    - Ví dụ: window=[1,1,0,0], num_discs=2, piece=1 → True
-    
-    Phụ thuộc: Không gọi hàm khác
-    Được gọi bởi: count_windows()
-    
-    Ví dụ:
-    >>> window = [1, 1, 0, 0]
-    >>> check_window(window, 2, 1, config)  # 2 quân 1, 2 trống
-    True
-    >>> check_window(window, 1, 1, config)  # 1 quân 1, 3 trống (sai)
-    False
-    """
-    return (window.count(piece) == num_discs and window.count(0) == config.inarow-num_discs)
+def check_window(window, piece, config):
+    if window.count((piece%2)+1)==0:
+        return window.count(piece)
+    else:
+        return -1

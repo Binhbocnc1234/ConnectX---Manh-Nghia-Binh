@@ -1,6 +1,20 @@
 import random
+import time
 import numpy as np
 from foundation import *
+
+
+class SearchTimeout(Exception):
+    """Raised when minimax search exceeds the global time budget."""
+
+
+MAX_THINK_TIME = 1.6
+SEARCH_DEADLINE = float("inf")
+
+
+def _check_timeout():
+    if time.perf_counter() >= SEARCH_DEADLINE:
+        raise SearchTimeout()
 
 # ============================================================================
 # CẤU TRÚC CODE
@@ -35,15 +49,20 @@ def get_heuristic(grid, mark, config):
     Phụ thuộc: count_windows()
     """
     score = 0
+    num = count_windows(grid,mark,config)
     for i in range(config.inarow):
-        num  = count_windows (grid,i+1,mark,config)
-        score += (4**(i+1))*num
+        if (i==(config.inarow-1) and num[i+1] >= 1):
+            return float("inf")
+        score += (4**(i))*num[i+1]
+    num_opp = count_windows (grid,mark%2+1,config)
     for i in range(config.inarow):
-        num_opp = count_windows (grid,i+1,mark%2+1,config)
-        score-= (2**((2*i)+3))*num_opp
+        if (i==(config.inarow-1) and num_opp[i+1] >= 1):
+            return float ("-inf")
+        score-= (2**((2*i)+1))*num_opp[i+1]
     return score
 
-def count_windows(grid, num_discs, piece, config):
+
+def count_windows(grid, piece, config):
     """
     Đếm số lượng "cửa sổ" (window - 4 ô liên tiếp) chứa đúng num_discs quân của player.
     
@@ -55,40 +74,42 @@ def count_windows(grid, num_discs, piece, config):
     Phụ thuộc: check_window()
     Được gọi bởi: get_heuristic()
     """
-    num_windows = 0
+    num_windows = np.zeros(config.inarow+1)
     # horizontal
     for row in range(config.rows):
         for col in range(config.columns-(config.inarow-1)):
             window = list(grid[row, col:col+config.inarow])
-            if check_window(window, num_discs, piece, config):
-                num_windows += 1
+            type_window = check_window(window, piece, config)
+            if type_window != -1:
+                num_windows[type_window] += 1
     # vertical
     for row in range(config.rows-(config.inarow-1)):
         for col in range(config.columns):
             window = list(grid[row:row+config.inarow, col])
-            if check_window(window, num_discs, piece, config):
-                num_windows += 1
+            type_window = check_window(window, piece, config)
+            if type_window != -1:
+                num_windows[type_window] += 1
     # positive diagonal
     for row in range(config.rows-(config.inarow-1)):
         for col in range(config.columns-(config.inarow-1)):
             window = list(grid[range(row, row+config.inarow), range(col, col+config.inarow)])
-            if check_window(window, num_discs, piece, config):
-                num_windows += 1
+            type_window = check_window(window, piece, config)
+            if type_window != -1:
+                num_windows[type_window] += 1
     # negative diagonal
     for row in range(config.inarow-1, config.rows):
         for col in range(config.columns-(config.inarow-1)):
             window = list(grid[range(row, row-config.inarow, -1), range(col, col+config.inarow)])
-            if check_window(window, num_discs, piece, config):
-                num_windows += 1
+            type_window = check_window(window, piece, config)
+            if type_window != -1:
+                num_windows[type_window] += 1
     return num_windows
-
 
 
 # ============================================================================
 # MINIMAX DECISION TREE LAYER - Quyết định nước đi tối ưu
 # ============================================================================
 
-# Tính điểm khi đến lượt bạn (maximize)
 def score_move_a(grid, col, mark, config,n_steps=1):
     """
     Minimax Layer: Tính điểm khi ĐẾN LƯỢT BẠN.
@@ -100,43 +121,44 @@ def score_move_a(grid, col, mark, config,n_steps=1):
     
     Phụ thuộc: drop_piece(), get_heuristic(), score_move_b()
     Được gọi bởi: score_move_b() (đệ quy), agent()
-    
+    Độ phức tạp : 7^n_steps vì từ mỗi state thì có 6 cột để thả piece
     Tham số:
     - n_steps: Độ sâu tìm kiếm (lookahead)
     """
+    _check_timeout()
     next_grid = drop_piece(grid, col, mark, config)
     valid_moves = [col for col in range (config.columns) if next_grid[0][col]==0]
-    if len(valid_moves)==0 or n_steps ==0:
-        score = get_heuristic(next_grid, mark, config)
+    score = get_heuristic(next_grid, mark, config)
+    #Since we have just dropped our piece there is only the possibility of us getting 4 in a row and not the opponent.
+    #Thus score can only be +infinity.
+    if len(valid_moves)==0 or n_steps ==0 or score == float("inf"):
         return score
     else :
-        scores = [score_move_b(next_grid,col,mark,config,n_steps-1) for col in valid_moves]
+        scores = []
+        for next_col in valid_moves:
+            _check_timeout()
+            scores.append(score_move_b(next_grid, next_col, mark, config, n_steps-1))
         score = min(scores)
     return score
 
-#  Tính điểm khi đến lượt đối thủ (minimize)
 def score_move_b(grid, col, mark, config,n_steps):
     """
     Minimax Layer: Tính điểm khi ĐẾN LƯỢT ĐỐI THỦ.
-    
-    Ý nghĩa:
-    - Đối thủ thả quân vào cột col
-    - Nếu game kết thúc (board đầy hoặc hết bước), đánh giá heuristic
-    - Còn nước đi: gọi score_move_a() cho tất cả cột của bạn, lấy MAX (bạn chọn tối ưu)
-    
-    Phụ thuộc: drop_piece(), get_heuristic(), score_move_a()
-    Được gọi bởi: score_move_a() (đệ quy)
-    
-    Tham số:
-    - n_steps: Độ sâu tìm kiếm (lookahead)
     """
+    _check_timeout()
     next_grid = drop_piece(grid,col,(mark%2)+1,config)
     valid_moves = [col for col in range (config.columns) if next_grid[0][col]==0]
-    if len(valid_moves)==0 or n_steps ==0:
-        score = get_heuristic(next_grid, mark, config)
+    score = get_heuristic(next_grid, mark, config)
+    #The converse is true here.
+    #Since we have just dropped opponent piece there is only the possibility of opponent getting 4 in a row and not us.
+    #Thus score can only be -infinity.
+    if len(valid_moves)==0 or n_steps ==0 or score == float ("-inf"):
         return score
     else :
-        scores = [score_move_a(next_grid,col,mark,config,n_steps-1) for col in valid_moves]
+        scores = []
+        for next_col in valid_moves:
+            _check_timeout()
+            scores.append(score_move_a(next_grid, next_col, mark, config, n_steps-1))
         score = max(scores)
     return score
 
@@ -146,7 +168,7 @@ def agent(obs, config):
     
     Ý nghĩa:
     - Kiếm tất cả nước đi hợp lệ
-    - Dùng minimax để tính điểm cho mỗi nước đi (1 step lookahead)
+    - Dùng minimax để tính điểm cho mỗi nước đi
     - Chọn nước đi có điểm cao nhất (random nếu có nhiều)
     
     Phụ thuộc: score_move_a()
@@ -154,12 +176,38 @@ def agent(obs, config):
     
     Input:
     - obs: observation (board, mark của bạn)
-    - config: cấu hình game (rows, columns, inarow)
+    - config: cấu hình game (rows = 6, columns = 7, inarow = 4)
     
     Output: Cột (0 đến columns-1) để thả quân
     """
+    global SEARCH_DEADLINE
+    SEARCH_DEADLINE = time.perf_counter() + MAX_THINK_TIME
+
     valid_moves = [c for c in range(config.columns) if obs.board[c] == 0]
+    if not valid_moves:
+        return 0
+
+    center_col = config.columns // 2
+    best_move = min(valid_moves, key=lambda c: abs(c - center_col))
+    best_score = float("-inf")
+    scores = {}
+
     grid = np.asarray(obs.board).reshape(config.rows, config.columns)
-    scores = dict(zip(valid_moves, [score_move_a(grid, col, obs.mark, config,1) for col in valid_moves]))
-    max_cols = [key for key in scores.keys() if scores[key] == max(scores.values())]
-    return random.choice(max_cols)
+    try:
+        for col in valid_moves:
+            _check_timeout()
+            score = score_move_a(grid, col, obs.mark, config, 3)
+            scores[col] = score
+            if score > best_score:
+                best_score = score
+                best_move = col
+    except SearchTimeout:
+        # Return best move found so far when time budget is exhausted.
+        return best_move
+
+    top_cols = [col for col, score in scores.items() if score == best_score]
+
+    if top_cols:
+        return random.choice(top_cols)
+    return best_move
+
