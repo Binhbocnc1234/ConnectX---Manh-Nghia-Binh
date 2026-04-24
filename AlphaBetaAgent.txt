@@ -9,13 +9,19 @@ class SearchTimeout(Exception):
     """Raised when minimax search exceeds the global time budget."""
 
 
-MAX_THINK_TIME = 1.6
+MAX_THINK_TIME = 1.85
 SEARCH_DEADLINE = float("inf")
 
 
 def _check_timeout():
     if time.perf_counter() >= SEARCH_DEADLINE:
         raise SearchTimeout()
+
+
+def _ordered_moves(valid_moves, config):
+    """Ưu tiên cột gần trung tâm để tăng hiệu quả alpha-beta pruning."""
+    center_col = config.columns // 2
+    return sorted(valid_moves, key=lambda c: abs(c - center_col))
 
 # ============================================================================
 # CẤU TRÚC CODE
@@ -111,7 +117,7 @@ def count_windows(grid, piece, config):
 # MINIMAX DECISION TREE LAYER - Quyết định nước đi tối ưu
 # ============================================================================
 
-def score_move_a(grid, col, mark, config,n_steps=1):
+def score_move_a(grid, col, mark, config, n_steps=1, alpha=float("-inf"), beta=float("inf")):
     """
     Minimax Layer: Tính điểm khi ĐẾN LƯỢT BẠN.
     
@@ -122,7 +128,9 @@ def score_move_a(grid, col, mark, config,n_steps=1):
     
     Phụ thuộc: drop_piece(), get_heuristic(), score_move_b()
     Được gọi bởi: score_move_b() (đệ quy), agent()
-    Độ phức tạp : 7^n_steps vì từ mỗi state thì có 6 cột để thả piece
+    Độ phức tạp:
+    - Minimax thường: O(b^d)
+    - Alpha-beta (best case): O(b^(d/2))
     Tham số:
     - n_steps: Độ sâu tìm kiếm (lookahead)
     """
@@ -134,15 +142,20 @@ def score_move_a(grid, col, mark, config,n_steps=1):
     #Thus score can only be +infinity.
     if len(valid_moves)==0 or n_steps ==0 or score == float("inf"):
         return score
-    else :
-        scores = []
-        for next_col in valid_moves:
+    else:
+        value = float("inf")
+        ordered_moves = _ordered_moves(valid_moves, config)
+        for next_col in ordered_moves:
             _check_timeout()
-            scores.append(score_move_b(next_grid, next_col, mark, config, n_steps-1))
-        score = min(scores)
+            child_score = score_move_b(next_grid, next_col, mark, config, n_steps-1, alpha, beta)
+            value = min(value, child_score)
+            beta = min(beta, value)
+            if beta <= alpha:
+                break
+        return value
     return score
 
-def score_move_b(grid, col, mark, config,n_steps):
+def score_move_b(grid, col, mark, config, n_steps, alpha=float("-inf"), beta=float("inf")):
     """
     Minimax Layer: Tính điểm khi ĐẾN LƯỢT ĐỐI THỦ.
     """
@@ -155,22 +168,33 @@ def score_move_b(grid, col, mark, config,n_steps):
     #Thus score can only be -infinity.
     if len(valid_moves)==0 or n_steps ==0 or score == float ("-inf"):
         return score
-    else :
-        scores = []
-        for next_col in valid_moves:
+    else:
+        value = float("-inf")
+        ordered_moves = _ordered_moves(valid_moves, config)
+        for next_col in ordered_moves:
             _check_timeout()
-            scores.append(score_move_a(next_grid, next_col, mark, config, n_steps-1))
-        score = max(scores)
+            child_score = score_move_a(next_grid, next_col, mark, config, n_steps-1, alpha, beta)
+            value = max(value, child_score)
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return value
     return score
 
 def agent(obs, config):
     """
-    HÀM CHÍNH: Chọn nước đi tốt nhất cho AI.
+    HÀM CHÍNH: Chọn nước đi tốt nhất cho AI (với Iterative Deepening).
     
     Ý nghĩa:
     - Kiếm tất cả nước đi hợp lệ
-    - Dùng minimax để tính điểm cho mỗi nước đi
-    - Chọn nước đi có điểm cao nhất (random nếu có nhiều)
+    - Dùng Iterative Deepening: tìm kiếm độ sâu 1→2→3→4→5... cho đến hết thời gian
+    - Trả về nước đi tốt nhất từ độ sâu sâu nhất đã hoàn thành
+    - Nếu hết thời gian, dùng nước đi tốt nhất từ độ sâu trước đó
+    
+    Iterative Deepening:
+    - Overhead: 18% node thêm (b/(b-1) = 6.5/5.5)
+    - Lợi ích: Tận dụng 100% time budget, tự động chọn độ sâu phù hợp
+    - Di chuyển tốt nhất từ độ sâu n-1 giúp move ordering ở độ sâu n
     
     Phụ thuộc: score_move_a()
     Được gọi bởi: Kaggle environment
@@ -181,7 +205,7 @@ def agent(obs, config):
     
     Output: Cột (0 đến columns-1) để thả quân
     """
-    global SEARCH_DEADLINE, MOVE_LOG
+    global SEARCH_DEADLINE
     start_time = time.perf_counter()
     SEARCH_DEADLINE = start_time + MAX_THINK_TIME
 
@@ -191,29 +215,42 @@ def agent(obs, config):
 
     center_col = config.columns // 2
     best_move = min(valid_moves, key=lambda c: abs(c - center_col))
-    best_score = float("-inf")
-    scores = {}
-
     grid = np.asarray(obs.board).reshape(config.rows, config.columns)
+    last_completed_depth = 0
+    # Iterative Deepening: progressively search depths 1→2→3→...
     try:
-        for col in valid_moves:
+        for depth in range(1, 20):  # 20 is practical max (will timeout before reaching)
             _check_timeout()
-            score = score_move_a(grid, col, obs.mark, config, 3)
-            scores[col] = score
-            if score > best_score:
-                best_score = score
-                best_move = col
+            depth_best_score = float("-inf")
+            depth_best_move = best_move
+            scores = {}
+            alpha = float("-inf")
+            beta = float("inf")
+            
+            for col in _ordered_moves(valid_moves, config):
+                _check_timeout()
+                score = score_move_a(grid, col, obs.mark, config, depth, alpha, beta)
+                scores[col] = score
+                if score > depth_best_score:
+                    depth_best_score = score
+                    depth_best_move = col
+                alpha = max(alpha, depth_best_score)
+            
+            # Successfully completed this depth, keep only the best move from this depth.
+            top_cols = [col for col, score in scores.items() if score == depth_best_score]
+            if top_cols:
+                depth_best_move = random.choice(top_cols)
+            best_move = depth_best_move
+            last_completed_depth = depth
+    
     except SearchTimeout:
-        # Return best move found so far when time budget is exhausted.
+        # Return best move found from previous completed depth
         pass
-
-    top_cols = [col for col, score in scores.items() if score == best_score]
-
-    if top_cols:
-        best_move = random.choice(top_cols)
     
     # Track think time
     think_time = time.perf_counter() - start_time
-    log_system.log_move("MinimaxAgent", best_move, think_time)
+    print("Reached depth:", last_completed_depth)
+    log_system.log_move("AlphaBetaAgent", best_move, think_time)
     
     return best_move
+

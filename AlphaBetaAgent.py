@@ -153,7 +153,6 @@ def score_move_a(grid, col, mark, config, n_steps=1, alpha=float("-inf"), beta=f
             if beta <= alpha:
                 break
         return value
-    return score
 
 def score_move_b(grid, col, mark, config, n_steps, alpha=float("-inf"), beta=float("inf")):
     """
@@ -210,32 +209,28 @@ def agent(obs, config):
     center_col = config.columns // 2
     best_move = min(valid_moves, key=lambda c: abs(c - center_col))
     best_score = float("-inf")
-    scores = {}
-    alpha = float("-inf")
-    beta = float("inf")
+    reachedDepth = 0
 
     grid = np.asarray(obs.board).reshape(config.rows, config.columns)
     try:
-        for col in _ordered_moves(valid_moves, config):
-            _check_timeout()
-            score = score_move_a(grid, col, obs.mark, config, 4, alpha, beta)
-            scores[col] = score
-            if score > best_score:
-                best_score = score
-                best_move = col
-            alpha = max(alpha, best_score)
+        for depth in range(1, 20):
+            alpha = float("-inf")
+            beta = float("inf")
+            for col in _ordered_moves(valid_moves, config):
+                _check_timeout()
+                score = score_move_a(grid, col, obs.mark, config, depth, alpha, beta)
+                if score > best_score:
+                    best_score = score
+                    best_move = col
+                alpha = max(alpha, best_score)
+            reachedDepth = depth
     except SearchTimeout:
         # Return best move found so far when time budget is exhausted.
         pass
-
-    top_cols = [col for col, score in scores.items() if score == best_score]
-
-    if top_cols:
-        best_move = random.choice(top_cols)
     
     # Track think time
+    print("Reached Depth:", reachedDepth)
     think_time = time.perf_counter() - start_time
     log_system.log_move("AlphaBetaAgent", best_move, think_time)
     
     return best_move
-
