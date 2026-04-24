@@ -17,6 +17,12 @@ def _check_timeout():
     if time.perf_counter() >= SEARCH_DEADLINE:
         raise SearchTimeout()
 
+
+def _ordered_moves(valid_moves, config):
+    """Ưu tiên cột gần trung tâm để tăng hiệu quả alpha-beta pruning."""
+    center_col = config.columns // 2
+    return sorted(valid_moves, key=lambda c: abs(c - center_col))
+
 # ============================================================================
 # CẤU TRÚC CODE
 # ============================================================================
@@ -111,7 +117,7 @@ def count_windows(grid, piece, config):
 # MINIMAX DECISION TREE LAYER - Quyết định nước đi tối ưu
 # ============================================================================
 
-def score_move_a(grid, col, mark, config,n_steps=1):
+def score_move_a(grid, col, mark, config, n_steps=1, alpha=float("-inf"), beta=float("inf")):
     """
     Minimax Layer: Tính điểm khi ĐẾN LƯỢT BẠN.
     
@@ -122,7 +128,9 @@ def score_move_a(grid, col, mark, config,n_steps=1):
     
     Phụ thuộc: drop_piece(), get_heuristic(), score_move_b()
     Được gọi bởi: score_move_b() (đệ quy), agent()
-    Độ phức tạp : 7^n_steps vì từ mỗi state thì có 6 cột để thả piece
+    Độ phức tạp:
+    - Minimax thường: O(b^d)
+    - Alpha-beta (best case): O(b^(d/2))
     Tham số:
     - n_steps: Độ sâu tìm kiếm (lookahead)
     """
@@ -134,15 +142,20 @@ def score_move_a(grid, col, mark, config,n_steps=1):
     #Thus score can only be +infinity.
     if len(valid_moves)==0 or n_steps ==0 or score == float("inf"):
         return score
-    else :
-        scores = []
-        for next_col in valid_moves:
+    else:
+        value = float("inf")
+        ordered_moves = _ordered_moves(valid_moves, config)
+        for next_col in ordered_moves:
             _check_timeout()
-            scores.append(score_move_b(next_grid, next_col, mark, config, n_steps-1))
-        score = min(scores)
+            child_score = score_move_b(next_grid, next_col, mark, config, n_steps-1, alpha, beta)
+            value = min(value, child_score)
+            beta = min(beta, value)
+            if beta <= alpha:
+                break
+        return value
     return score
 
-def score_move_b(grid, col, mark, config,n_steps):
+def score_move_b(grid, col, mark, config, n_steps, alpha=float("-inf"), beta=float("inf")):
     """
     Minimax Layer: Tính điểm khi ĐẾN LƯỢT ĐỐI THỦ.
     """
@@ -155,12 +168,17 @@ def score_move_b(grid, col, mark, config,n_steps):
     #Thus score can only be -infinity.
     if len(valid_moves)==0 or n_steps ==0 or score == float ("-inf"):
         return score
-    else :
-        scores = []
-        for next_col in valid_moves:
+    else:
+        value = float("-inf")
+        ordered_moves = _ordered_moves(valid_moves, config)
+        for next_col in ordered_moves:
             _check_timeout()
-            scores.append(score_move_a(next_grid, next_col, mark, config, n_steps-1))
-        score = max(scores)
+            child_score = score_move_a(next_grid, next_col, mark, config, n_steps-1, alpha, beta)
+            value = max(value, child_score)
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return value
     return score
 
 def agent(obs, config):
@@ -193,16 +211,19 @@ def agent(obs, config):
     best_move = min(valid_moves, key=lambda c: abs(c - center_col))
     best_score = float("-inf")
     scores = {}
+    alpha = float("-inf")
+    beta = float("inf")
 
     grid = np.asarray(obs.board).reshape(config.rows, config.columns)
     try:
-        for col in valid_moves:
+        for col in _ordered_moves(valid_moves, config):
             _check_timeout()
-            score = score_move_a(grid, col, obs.mark, config, 3)
+            score = score_move_a(grid, col, obs.mark, config, 4, alpha, beta)
             scores[col] = score
             if score > best_score:
                 best_score = score
                 best_move = col
+            alpha = max(alpha, best_score)
     except SearchTimeout:
         # Return best move found so far when time budget is exhausted.
         pass
@@ -214,7 +235,7 @@ def agent(obs, config):
     
     # Track think time
     think_time = time.perf_counter() - start_time
-    log_system.log_move("MinimaxAgent", best_move, think_time)
+    log_system.log_move("AlphaBetaAgent", best_move, think_time)
     
     return best_move
 
