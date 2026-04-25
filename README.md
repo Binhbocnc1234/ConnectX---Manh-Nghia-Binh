@@ -8,6 +8,11 @@ File **Agent-Explanation.ipynb** : notebook giải thích từ chính chủ
 
 File **test.py**: là file giúp ae chạy/test solution ở local
 
+File **AlphaBetaAgent.py** thừa kế tất cả những gì từ MinimaxAgent.py, thuật toán search có thêm cải tiến:
+
+- Alpha-beta
+- iterative deepening: thay vì cố định depth = 3 là terminate thì giờ ta sẽ bắt đầu chạy từ depth = 1, 2, 3, 4... Cứ chạy cho đến khi nào TimeOut thì raise error
+
 Xem kĩ 2 video sau đây:
 
 Cấu trúc repository: https://streamable.com/0j29xc
