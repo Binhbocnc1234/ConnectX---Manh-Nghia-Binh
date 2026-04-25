@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-04-25T09:31:40.494180",
+    "timestamp": "2026-04-25T15:25:33.451063",
     "game": "ConnectX",
     "config": {
       "rows": 6,
@@ -12,296 +12,296 @@
     {
       "move_number": 0,
       "agent": "AlphaBetaAgent",
-      "move": 2,
-      "think_time": 1.8598,
-      "timestamp": "2026-04-25T09:31:42.424462"
+      "move": 3,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T15:25:35.369421"
     },
     {
       "move_number": 1,
       "agent": "MinimaxAgent",
-      "move": 1,
-      "think_time": 1.5703,
-      "timestamp": "2026-04-25T09:31:44.007355"
+      "move": 5,
+      "think_time": 1.5897,
+      "timestamp": "2026-04-25T15:25:36.970559"
     },
     {
       "move_number": 2,
       "agent": "AlphaBetaAgent",
       "move": 3,
-      "think_time": 1.8532,
-      "timestamp": "2026-04-25T09:31:45.872085"
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T15:25:38.832557"
     },
     {
       "move_number": 3,
       "agent": "MinimaxAgent",
-      "move": 2,
-      "think_time": 1.6003,
-      "timestamp": "2026-04-25T09:31:47.484429"
+      "move": 3,
+      "think_time": 1.5613,
+      "timestamp": "2026-04-25T15:25:40.405855"
     },
     {
       "move_number": 4,
       "agent": "AlphaBetaAgent",
-      "move": 4,
-      "think_time": 1.8564,
-      "timestamp": "2026-04-25T09:31:49.352779"
+      "move": 2,
+      "think_time": 1.85,
+      "timestamp": "2026-04-25T15:25:42.267673"
     },
     {
       "move_number": 5,
       "agent": "MinimaxAgent",
-      "move": 5,
-      "think_time": 1.3513,
-      "timestamp": "2026-04-25T09:31:50.715851"
+      "move": 0,
+      "think_time": 1.5383,
+      "timestamp": "2026-04-25T15:25:43.818237"
     },
     {
       "move_number": 6,
       "agent": "AlphaBetaAgent",
-      "move": 4,
-      "think_time": 1.8601,
-      "timestamp": "2026-04-25T09:31:52.587605"
+      "move": 1,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T15:25:45.680603"
     },
     {
       "move_number": 7,
       "agent": "MinimaxAgent",
       "move": 4,
-      "think_time": 1.5536,
-      "timestamp": "2026-04-25T09:31:54.154137"
+      "think_time": 1.317,
+      "timestamp": "2026-04-25T15:25:47.008855"
     },
     {
       "move_number": 8,
       "agent": "AlphaBetaAgent",
       "move": 4,
-      "think_time": 1.8552,
-      "timestamp": "2026-04-25T09:31:56.023118"
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T15:25:48.871770"
     },
     {
       "move_number": 9,
       "agent": "MinimaxAgent",
-      "move": 3,
-      "think_time": 1.6001,
-      "timestamp": "2026-04-25T09:31:57.636526"
+      "move": 2,
+      "think_time": 1.5068,
+      "timestamp": "2026-04-25T15:25:50.391450"
     },
     {
       "move_number": 10,
       "agent": "AlphaBetaAgent",
-      "move": 1,
-      "think_time": 1.8543,
-      "timestamp": "2026-04-25T09:31:59.504243"
+      "move": 4,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T15:25:52.253345"
     },
     {
       "move_number": 11,
       "agent": "MinimaxAgent",
-      "move": 4,
-      "think_time": 1.6003,
-      "timestamp": "2026-04-25T09:32:01.117692"
+      "move": 3,
+      "think_time": 1.4457,
+      "timestamp": "2026-04-25T15:25:53.712087"
     },
     {
       "move_number": 12,
       "agent": "AlphaBetaAgent",
-      "move": 2,
-      "think_time": 1.8565,
-      "timestamp": "2026-04-25T09:32:02.988959"
+      "move": 4,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T15:25:55.574962"
     },
     {
       "move_number": 13,
       "agent": "MinimaxAgent",
-      "move": 2,
-      "think_time": 1.6004,
-      "timestamp": "2026-04-25T09:32:04.603814"
+      "move": 4,
+      "think_time": 1.1809,
+      "timestamp": "2026-04-25T15:25:56.768868"
     },
     {
       "move_number": 14,
       "agent": "AlphaBetaAgent",
-      "move": 5,
-      "think_time": 1.8511,
-      "timestamp": "2026-04-25T09:32:06.467632"
+      "move": 2,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T15:25:58.631224"
     },
     {
       "move_number": 15,
       "agent": "MinimaxAgent",
-      "move": 5,
-      "think_time": 1.4417,
-      "timestamp": "2026-04-25T09:32:07.923420"
+      "move": 3,
+      "think_time": 1.2536,
+      "timestamp": "2026-04-25T15:25:59.898304"
     },
     {
       "move_number": 16,
       "agent": "AlphaBetaAgent",
-      "move": 5,
-      "think_time": 1.8601,
-      "timestamp": "2026-04-25T09:32:09.796102"
+      "move": 3,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T15:26:01.760119"
     },
     {
       "move_number": 17,
       "agent": "MinimaxAgent",
-      "move": 3,
-      "think_time": 1.3187,
-      "timestamp": "2026-04-25T09:32:11.127852"
+      "move": 2,
+      "think_time": 0.6866,
+      "timestamp": "2026-04-25T15:26:02.458926"
     },
     {
       "move_number": 18,
       "agent": "AlphaBetaAgent",
-      "move": 3,
-      "think_time": 1.8541,
-      "timestamp": "2026-04-25T09:32:12.995643"
+      "move": 2,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T15:26:04.320793"
     },
     {
       "move_number": 19,
       "agent": "MinimaxAgent",
-      "move": 0,
-      "think_time": 1.1696,
-      "timestamp": "2026-04-25T09:32:14.177763"
+      "move": 5,
+      "think_time": 0.5864,
+      "timestamp": "2026-04-25T15:26:04.919263"
     },
     {
       "move_number": 20,
       "agent": "AlphaBetaAgent",
-      "move": 3,
-      "think_time": 1.8526,
-      "timestamp": "2026-04-25T09:32:16.045795"
+      "move": 4,
+      "think_time": 1.85,
+      "timestamp": "2026-04-25T15:26:06.780983"
     },
     {
       "move_number": 21,
       "agent": "MinimaxAgent",
-      "move": 3,
-      "think_time": 1.1697,
-      "timestamp": "2026-04-25T09:32:17.228212"
+      "move": 2,
+      "think_time": 0.3026,
+      "timestamp": "2026-04-25T15:26:07.095112"
     },
     {
       "move_number": 22,
       "agent": "AlphaBetaAgent",
-      "move": 2,
-      "think_time": 1.8551,
-      "timestamp": "2026-04-25T09:32:19.096057"
+      "move": 0,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T15:26:08.957080"
     },
     {
       "move_number": 23,
       "agent": "MinimaxAgent",
-      "move": 1,
-      "think_time": 0.6029,
-      "timestamp": "2026-04-25T09:32:19.712119"
+      "move": 0,
+      "think_time": 0.1547,
+      "timestamp": "2026-04-25T15:26:09.124245"
     },
     {
       "move_number": 24,
       "agent": "AlphaBetaAgent",
-      "move": 2,
-      "think_time": 1.8526,
-      "timestamp": "2026-04-25T09:32:21.577232"
+      "move": 0,
+      "think_time": 1.8513,
+      "timestamp": "2026-04-25T15:26:10.988230"
     },
     {
       "move_number": 25,
       "agent": "MinimaxAgent",
-      "move": 6,
-      "think_time": 0.3253,
-      "timestamp": "2026-04-25T09:32:21.914799"
+      "move": 0,
+      "think_time": 0.1481,
+      "timestamp": "2026-04-25T15:26:11.147248"
     },
     {
       "move_number": 26,
       "agent": "AlphaBetaAgent",
       "move": 0,
-      "think_time": 1.854,
-      "timestamp": "2026-04-25T09:32:23.781692"
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T15:26:13.009278"
     },
     {
       "move_number": 27,
       "agent": "MinimaxAgent",
-      "move": 6,
-      "think_time": 0.3194,
-      "timestamp": "2026-04-25T09:32:24.113238"
+      "move": 1,
+      "think_time": 0.056,
+      "timestamp": "2026-04-25T15:26:13.077328"
     },
     {
       "move_number": 28,
       "agent": "AlphaBetaAgent",
-      "move": 6,
-      "think_time": 1.8539,
-      "timestamp": "2026-04-25T09:32:25.980415"
+      "move": 1,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T15:26:14.939328"
     },
     {
       "move_number": 29,
       "agent": "MinimaxAgent",
-      "move": 6,
-      "think_time": 0.2687,
-      "timestamp": "2026-04-25T09:32:26.261720"
+      "move": 1,
+      "think_time": 0.0489,
+      "timestamp": "2026-04-25T15:26:15.001511"
     },
     {
       "move_number": 30,
       "agent": "AlphaBetaAgent",
-      "move": 0,
-      "think_time": 1.8525,
-      "timestamp": "2026-04-25T09:32:28.129293"
+      "move": 5,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T15:26:16.863974"
     },
     {
       "move_number": 31,
       "agent": "MinimaxAgent",
-      "move": 0,
-      "think_time": 0.3803,
-      "timestamp": "2026-04-25T09:32:28.523405"
+      "move": 5,
+      "think_time": 0.0423,
+      "timestamp": "2026-04-25T15:26:16.918906"
     },
     {
       "move_number": 32,
       "agent": "AlphaBetaAgent",
-      "move": 4,
-      "think_time": 1.8517,
-      "timestamp": "2026-04-25T09:32:30.388970"
+      "move": 5,
+      "think_time": 1.2955,
+      "timestamp": "2026-04-25T15:26:18.226780"
     },
     {
       "move_number": 33,
       "agent": "MinimaxAgent",
-      "move": 0,
-      "think_time": 0.1534,
-      "timestamp": "2026-04-25T09:32:30.554317"
+      "move": 5,
+      "think_time": 0.035,
+      "timestamp": "2026-04-25T15:26:18.273037"
     },
     {
       "move_number": 34,
       "agent": "AlphaBetaAgent",
-      "move": 1,
-      "think_time": 1.8531,
-      "timestamp": "2026-04-25T09:32:32.420272"
+      "move": 6,
+      "think_time": 0.2427,
+      "timestamp": "2026-04-25T15:26:18.526805"
     },
     {
       "move_number": 35,
       "agent": "MinimaxAgent",
       "move": 6,
-      "think_time": 0.1051,
-      "timestamp": "2026-04-25T09:32:32.537518"
+      "think_time": 0.0115,
+      "timestamp": "2026-04-25T15:26:18.550728"
     },
     {
       "move_number": 36,
       "agent": "AlphaBetaAgent",
-      "move": 1,
-      "think_time": 1.1154,
-      "timestamp": "2026-04-25T09:32:33.667220"
+      "move": 6,
+      "think_time": 0.2417,
+      "timestamp": "2026-04-25T15:26:18.803505"
     },
     {
       "move_number": 37,
       "agent": "MinimaxAgent",
-      "move": 1,
-      "think_time": 0.0659,
-      "timestamp": "2026-04-25T09:32:33.750311"
+      "move": 6,
+      "think_time": 0.01,
+      "timestamp": "2026-04-25T15:26:18.824598"
     },
     {
       "move_number": 38,
       "agent": "AlphaBetaAgent",
-      "move": 5,
-      "think_time": 0.2581,
-      "timestamp": "2026-04-25T09:32:34.021328"
+      "move": 1,
+      "think_time": 0.1173,
+      "timestamp": "2026-04-25T15:26:18.952755"
     },
     {
       "move_number": 39,
       "agent": "MinimaxAgent",
-      "move": 0,
-      "think_time": 0.0082,
-      "timestamp": "2026-04-25T09:32:34.046737"
+      "move": 1,
+      "think_time": 0.0039,
+      "timestamp": "2026-04-25T15:26:18.970419"
     },
     {
       "move_number": 40,
       "agent": "AlphaBetaAgent",
-      "move": 5,
-      "think_time": 0.0805,
-      "timestamp": "2026-04-25T09:32:34.148710"
+      "move": 6,
+      "think_time": 0.0189,
+      "timestamp": "2026-04-25T15:26:19.000733"
     },
     {
       "move_number": 41,
       "agent": "MinimaxAgent",
       "move": 6,
-      "think_time": 0.0007,
-      "timestamp": "2026-04-25T09:32:34.165220"
+      "think_time": 0.0005,
+      "timestamp": "2026-04-25T15:26:19.014050"
     }
   ],
   "statistics": {
@@ -309,13 +309,13 @@
     "agents": {
       "AlphaBetaAgent": {
         "total_moves": 21,
-        "total_think_time": 34.8403,
-        "avg_think_time": 1.6591
+        "total_think_time": 31.5212,
+        "avg_think_time": 1.501
       },
       "MinimaxAgent": {
         "total_moves": 21,
-        "total_think_time": 18.2059,
-        "avg_think_time": 0.8669
+        "total_think_time": 13.4798,
+        "avg_think_time": 0.6419
       }
     }
   }

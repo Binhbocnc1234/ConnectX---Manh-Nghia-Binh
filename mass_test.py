@@ -55,4 +55,4 @@ def get_win_percentages(agent1, agent2, n_rounds=100):
     print("Number of Invalid Plays by Agent 1:", outcomes.count([None, 0]))
     print("Number of Invalid Plays by Agent 2:", outcomes.count([0, None]))
 
-get_win_percentages(AlphaBetaAgent.agent, MinimaxAgent.agent, 5)
+get_win_percentages(AlphaBetaAgent.agent, MinimaxAgent.agent, n_rounds=5)

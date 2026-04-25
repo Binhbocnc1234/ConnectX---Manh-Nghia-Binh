@@ -139,8 +139,7 @@ def score_move_a(grid, col, mark, config, n_steps=1, alpha=float("-inf"), beta=f
     next_grid = drop_piece(grid, col, mark, config)
     valid_moves = [col for col in range (config.columns) if next_grid[0][col]==0]
     score = get_heuristic(next_grid, mark, config)
-    if (is_timeout()):
-        return score
+    _check_timeout()
     #Since we have just dropped our piece there is only the possibility of us getting 4 in a row and not the opponent.
     #Thus score can only be +infinity.
     if len(valid_moves)==0 or n_steps ==0 or score == float("inf"):
@@ -163,8 +162,7 @@ def score_move_b(grid, col, mark, config, n_steps, alpha=float("-inf"), beta=flo
     next_grid = drop_piece(grid,col,(mark%2)+1,config)
     valid_moves = [col for col in range (config.columns) if next_grid[0][col]==0]
     score = get_heuristic(next_grid, mark, config)
-    if (is_timeout()):
-        return score
+    _check_timeout()
     #The converse is true here.
     #Since we have just dropped opponent piece there is only the possibility of opponent getting 4 in a row and not us.
     #Thus score can only be -infinity.
@@ -180,7 +178,6 @@ def score_move_b(grid, col, mark, config, n_steps, alpha=float("-inf"), beta=flo
             if alpha >= beta:
                 break
         return value
-    return score
 
 def agent(obs, config):
     """
@@ -211,11 +208,11 @@ def agent(obs, config):
     center_col = config.columns // 2
     best_move = min(valid_moves, key=lambda c: abs(c - center_col))
     best_score = float("-inf")
-    reachedDepth = 0
+    reachedDepth = 1
 
     grid = np.asarray(obs.board).reshape(config.rows, config.columns)
     try:
-        for depth in range(1, 20):
+        for depth in range(reachedDepth - 1, 20):
             alpha = float("-inf")
             beta = float("inf")
             for col in _ordered_moves(valid_moves, config):

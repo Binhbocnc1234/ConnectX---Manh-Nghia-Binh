@@ -26,9 +26,10 @@ After dropping a checker, one of these occurs:
 An Agent receives:
 
 - **Board Configuration**:
-  - Number of columns
-  - Number of rows
-  - Number of checkers needed in a row to win
+  - Number of columns = 7
+  - Number of rows = 6
+  - Number of checkers needed in a row to win = 4
+  - Above numbers are fixed, constant for every matches
 
 - **Board State** (serialized grid):
   - `0` = Empty cell

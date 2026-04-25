@@ -1,0 +1,10 @@
+Tranposition Table
+Iterative Deepening
+Quiescene Search
+    Ý tưởng: Sau khi đạt depth limit, tiếp tục tìm kiếm chỉ các nước "bạo động" (chiến thắng, chặn opponent)
+
+    Tác dụng:
+
+    Tránh "horizon effect" (AI dừng tính sớm vì không thấy mối nguy ở tầng sâu)
+    Đánh giá board thực sự, không bị ảnh hưởng bởi cutoff nhân tạo
+    Độ khó: ⭐⭐⭐
