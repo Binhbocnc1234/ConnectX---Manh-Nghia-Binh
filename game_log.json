@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-04-25T15:25:33.451063",
+    "timestamp": "2026-04-25T17:02:03.352775",
     "game": "ConnectX",
     "config": {
       "rows": 6,
@@ -12,310 +12,1670 @@
     {
       "move_number": 0,
       "agent": "AlphaBetaAgent",
-      "move": 3,
-      "think_time": 1.8503,
-      "timestamp": "2026-04-25T15:25:35.369421"
+      "move": 2,
+      "think_time": 1.85,
+      "timestamp": "2026-04-25T17:02:05.267887"
     },
     {
       "move_number": 1,
-      "agent": "MinimaxAgent",
-      "move": 5,
-      "think_time": 1.5897,
-      "timestamp": "2026-04-25T15:25:36.970559"
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:02:07.179306"
     },
     {
       "move_number": 2,
       "agent": "AlphaBetaAgent",
       "move": 3,
-      "think_time": 1.8505,
-      "timestamp": "2026-04-25T15:25:38.832557"
+      "think_time": 1.85,
+      "timestamp": "2026-04-25T17:02:09.093708"
     },
     {
       "move_number": 3,
-      "agent": "MinimaxAgent",
+      "agent": "AlphaBetaAgent",
       "move": 3,
-      "think_time": 1.5613,
-      "timestamp": "2026-04-25T15:25:40.405855"
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:02:11.012306"
     },
     {
       "move_number": 4,
       "agent": "AlphaBetaAgent",
-      "move": 2,
-      "think_time": 1.85,
-      "timestamp": "2026-04-25T15:25:42.267673"
+      "move": 1,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:02:12.931158"
     },
     {
       "move_number": 5,
-      "agent": "MinimaxAgent",
-      "move": 0,
-      "think_time": 1.5383,
-      "timestamp": "2026-04-25T15:25:43.818237"
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:02:14.849009"
     },
     {
       "move_number": 6,
       "agent": "AlphaBetaAgent",
-      "move": 1,
-      "think_time": 1.8501,
-      "timestamp": "2026-04-25T15:25:45.680603"
+      "move": 5,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:02:16.767919"
     },
     {
       "move_number": 7,
-      "agent": "MinimaxAgent",
-      "move": 4,
-      "think_time": 1.317,
-      "timestamp": "2026-04-25T15:25:47.008855"
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:02:18.688725"
     },
     {
       "move_number": 8,
       "agent": "AlphaBetaAgent",
-      "move": 4,
-      "think_time": 1.8505,
-      "timestamp": "2026-04-25T15:25:48.871770"
+      "move": 2,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:02:20.596941"
     },
     {
       "move_number": 9,
-      "agent": "MinimaxAgent",
-      "move": 2,
-      "think_time": 1.5068,
-      "timestamp": "2026-04-25T15:25:50.391450"
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:02:22.491023"
     },
     {
       "move_number": 10,
       "agent": "AlphaBetaAgent",
-      "move": 4,
-      "think_time": 1.8504,
-      "timestamp": "2026-04-25T15:25:52.253345"
+      "move": 5,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:02:24.381431"
     },
     {
       "move_number": 11,
-      "agent": "MinimaxAgent",
-      "move": 3,
-      "think_time": 1.4457,
-      "timestamp": "2026-04-25T15:25:53.712087"
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:02:26.262018"
     },
     {
       "move_number": 12,
       "agent": "AlphaBetaAgent",
-      "move": 4,
-      "think_time": 1.8504,
-      "timestamp": "2026-04-25T15:25:55.574962"
+      "move": 0,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:02:28.138126"
     },
     {
       "move_number": 13,
-      "agent": "MinimaxAgent",
-      "move": 4,
-      "think_time": 1.1809,
-      "timestamp": "2026-04-25T15:25:56.768868"
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:02:30.011615"
     },
     {
       "move_number": 14,
       "agent": "AlphaBetaAgent",
-      "move": 2,
-      "think_time": 1.8503,
-      "timestamp": "2026-04-25T15:25:58.631224"
+      "move": 0,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:02:31.886998"
     },
     {
       "move_number": 15,
-      "agent": "MinimaxAgent",
-      "move": 3,
-      "think_time": 1.2536,
-      "timestamp": "2026-04-25T15:25:59.898304"
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.85,
+      "timestamp": "2026-04-25T17:02:33.759997"
     },
     {
       "move_number": 16,
       "agent": "AlphaBetaAgent",
-      "move": 3,
-      "think_time": 1.8501,
-      "timestamp": "2026-04-25T15:26:01.760119"
+      "move": 1,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:02:35.633677"
     },
     {
       "move_number": 17,
-      "agent": "MinimaxAgent",
-      "move": 2,
-      "think_time": 0.6866,
-      "timestamp": "2026-04-25T15:26:02.458926"
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 0.4756,
+      "timestamp": "2026-04-25T17:02:36.127502"
     },
     {
       "move_number": 18,
       "agent": "AlphaBetaAgent",
-      "move": 2,
-      "think_time": 1.8501,
-      "timestamp": "2026-04-25T15:26:04.320793"
+      "move": 0,
+      "think_time": 0.1006,
+      "timestamp": "2026-04-25T17:02:36.244703"
     },
     {
       "move_number": 19,
-      "agent": "MinimaxAgent",
-      "move": 5,
-      "think_time": 0.5864,
-      "timestamp": "2026-04-25T15:26:04.919263"
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 0.0365,
+      "timestamp": "2026-04-25T17:02:36.295129"
     },
     {
       "move_number": 20,
       "agent": "AlphaBetaAgent",
-      "move": 4,
-      "think_time": 1.85,
-      "timestamp": "2026-04-25T15:26:06.780983"
+      "move": 6,
+      "think_time": 0.0185,
+      "timestamp": "2026-04-25T17:02:36.328322"
     },
     {
       "move_number": 21,
-      "agent": "MinimaxAgent",
+      "agent": "AlphaBetaAgent",
       "move": 2,
-      "think_time": 0.3026,
-      "timestamp": "2026-04-25T15:26:07.095112"
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:03:34.827576"
     },
     {
       "move_number": 22,
       "agent": "AlphaBetaAgent",
-      "move": 0,
-      "think_time": 1.8503,
-      "timestamp": "2026-04-25T15:26:08.957080"
+      "move": 3,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:03:36.741975"
     },
     {
       "move_number": 23,
-      "agent": "MinimaxAgent",
-      "move": 0,
-      "think_time": 0.1547,
-      "timestamp": "2026-04-25T15:26:09.124245"
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:03:38.659789"
     },
     {
       "move_number": 24,
       "agent": "AlphaBetaAgent",
-      "move": 0,
-      "think_time": 1.8513,
-      "timestamp": "2026-04-25T15:26:10.988230"
+      "move": 4,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:03:40.589056"
     },
     {
       "move_number": 25,
-      "agent": "MinimaxAgent",
-      "move": 0,
-      "think_time": 0.1481,
-      "timestamp": "2026-04-25T15:26:11.147248"
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:03:42.519105"
     },
     {
       "move_number": 26,
       "agent": "AlphaBetaAgent",
-      "move": 0,
-      "think_time": 1.8501,
-      "timestamp": "2026-04-25T15:26:13.009278"
+      "move": 4,
+      "think_time": 1.8518,
+      "timestamp": "2026-04-25T17:03:44.448011"
     },
     {
       "move_number": 27,
-      "agent": "MinimaxAgent",
-      "move": 1,
-      "think_time": 0.056,
-      "timestamp": "2026-04-25T15:26:13.077328"
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:03:46.402055"
     },
     {
       "move_number": 28,
       "agent": "AlphaBetaAgent",
-      "move": 1,
-      "think_time": 1.8503,
-      "timestamp": "2026-04-25T15:26:14.939328"
+      "move": 2,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:03:48.339194"
     },
     {
       "move_number": 29,
-      "agent": "MinimaxAgent",
-      "move": 1,
-      "think_time": 0.0489,
-      "timestamp": "2026-04-25T15:26:15.001511"
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:03:50.272415"
     },
     {
       "move_number": 30,
       "agent": "AlphaBetaAgent",
-      "move": 5,
-      "think_time": 1.8504,
-      "timestamp": "2026-04-25T15:26:16.863974"
+      "move": 3,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:03:52.205241"
     },
     {
       "move_number": 31,
-      "agent": "MinimaxAgent",
-      "move": 5,
-      "think_time": 0.0423,
-      "timestamp": "2026-04-25T15:26:16.918906"
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:03:54.136328"
     },
     {
       "move_number": 32,
       "agent": "AlphaBetaAgent",
-      "move": 5,
-      "think_time": 1.2955,
-      "timestamp": "2026-04-25T15:26:18.226780"
+      "move": 3,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:03:56.062491"
     },
     {
       "move_number": 33,
-      "agent": "MinimaxAgent",
-      "move": 5,
-      "think_time": 0.035,
-      "timestamp": "2026-04-25T15:26:18.273037"
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:03:57.981312"
     },
     {
       "move_number": 34,
       "agent": "AlphaBetaAgent",
       "move": 6,
-      "think_time": 0.2427,
-      "timestamp": "2026-04-25T15:26:18.526805"
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:03:59.894769"
     },
     {
       "move_number": 35,
-      "agent": "MinimaxAgent",
+      "agent": "AlphaBetaAgent",
       "move": 6,
-      "think_time": 0.0115,
-      "timestamp": "2026-04-25T15:26:18.550728"
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:04:01.803678"
     },
     {
       "move_number": 36,
       "agent": "AlphaBetaAgent",
-      "move": 6,
-      "think_time": 0.2417,
-      "timestamp": "2026-04-25T15:26:18.803505"
+      "move": 3,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:04:03.702018"
     },
     {
       "move_number": 37,
-      "agent": "MinimaxAgent",
-      "move": 6,
-      "think_time": 0.01,
-      "timestamp": "2026-04-25T15:26:18.824598"
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:04:05.590437"
     },
     {
       "move_number": 38,
       "agent": "AlphaBetaAgent",
-      "move": 1,
-      "think_time": 0.1173,
-      "timestamp": "2026-04-25T15:26:18.952755"
+      "move": 6,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:04:07.479439"
     },
     {
       "move_number": 39,
-      "agent": "MinimaxAgent",
-      "move": 1,
-      "think_time": 0.0039,
-      "timestamp": "2026-04-25T15:26:18.970419"
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:04:09.367548"
     },
     {
       "move_number": 40,
       "agent": "AlphaBetaAgent",
-      "move": 6,
-      "think_time": 0.0189,
-      "timestamp": "2026-04-25T15:26:19.000733"
+      "move": 0,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:04:11.253270"
     },
     {
       "move_number": 41,
-      "agent": "MinimaxAgent",
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:04:13.141154"
+    },
+    {
+      "move_number": 42,
+      "agent": "AlphaBetaAgent",
       "move": 6,
-      "think_time": 0.0005,
-      "timestamp": "2026-04-25T15:26:19.014050"
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:04:15.030010"
+    },
+    {
+      "move_number": 43,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:04:16.910997"
+    },
+    {
+      "move_number": 44,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8511,
+      "timestamp": "2026-04-25T17:04:18.788434"
+    },
+    {
+      "move_number": 45,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8511,
+      "timestamp": "2026-04-25T17:04:20.666991"
+    },
+    {
+      "move_number": 46,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:04:22.546440"
+    },
+    {
+      "move_number": 47,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:04:24.418240"
+    },
+    {
+      "move_number": 48,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:04:26.291402"
+    },
+    {
+      "move_number": 49,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 0.742,
+      "timestamp": "2026-04-25T17:04:27.053106"
+    },
+    {
+      "move_number": 50,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 0.0303,
+      "timestamp": "2026-04-25T17:04:27.102060"
+    },
+    {
+      "move_number": 51,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:04:29.069182"
+    },
+    {
+      "move_number": 52,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:04:30.983148"
+    },
+    {
+      "move_number": 53,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:04:32.910704"
+    },
+    {
+      "move_number": 54,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:04:34.835829"
+    },
+    {
+      "move_number": 55,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:04:36.767718"
+    },
+    {
+      "move_number": 56,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:04:38.700913"
+    },
+    {
+      "move_number": 57,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:04:40.630730"
+    },
+    {
+      "move_number": 58,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:04:42.557033"
+    },
+    {
+      "move_number": 59,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:04:44.481640"
+    },
+    {
+      "move_number": 60,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:04:46.398896"
+    },
+    {
+      "move_number": 61,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:04:48.311023"
+    },
+    {
+      "move_number": 62,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:04:50.222425"
+    },
+    {
+      "move_number": 63,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:04:52.113586"
+    },
+    {
+      "move_number": 64,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:04:54.003491"
+    },
+    {
+      "move_number": 65,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:04:55.895183"
+    },
+    {
+      "move_number": 66,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8511,
+      "timestamp": "2026-04-25T17:04:57.790603"
+    },
+    {
+      "move_number": 67,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:04:59.679716"
+    },
+    {
+      "move_number": 68,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:05:01.562422"
+    },
+    {
+      "move_number": 69,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:05:03.451559"
+    },
+    {
+      "move_number": 70,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8518,
+      "timestamp": "2026-04-25T17:05:05.335590"
+    },
+    {
+      "move_number": 71,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:05:07.224888"
+    },
+    {
+      "move_number": 72,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:05:09.109732"
+    },
+    {
+      "move_number": 73,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:05:10.988503"
+    },
+    {
+      "move_number": 74,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:05:12.861071"
+    },
+    {
+      "move_number": 75,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:05:14.734145"
+    },
+    {
+      "move_number": 76,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:05:16.611342"
+    },
+    {
+      "move_number": 77,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:05:18.481382"
+    },
+    {
+      "move_number": 78,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:05:20.352683"
+    },
+    {
+      "move_number": 79,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:05:22.224136"
+    },
+    {
+      "move_number": 80,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.0074,
+      "timestamp": "2026-04-25T17:05:23.251363"
+    },
+    {
+      "move_number": 81,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 0.3034,
+      "timestamp": "2026-04-25T17:05:23.574198"
+    },
+    {
+      "move_number": 82,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 0.1259,
+      "timestamp": "2026-04-25T17:05:23.716191"
+    },
+    {
+      "move_number": 83,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 0.0907,
+      "timestamp": "2026-04-25T17:05:23.825591"
+    },
+    {
+      "move_number": 84,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 0.0586,
+      "timestamp": "2026-04-25T17:05:23.900226"
+    },
+    {
+      "move_number": 85,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 0.0201,
+      "timestamp": "2026-04-25T17:05:23.936644"
+    },
+    {
+      "move_number": 86,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:05:25.861705"
+    },
+    {
+      "move_number": 87,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:05:27.779137"
+    },
+    {
+      "move_number": 88,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8511,
+      "timestamp": "2026-04-25T17:05:29.699542"
+    },
+    {
+      "move_number": 89,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:05:31.633637"
+    },
+    {
+      "move_number": 90,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:05:33.561618"
+    },
+    {
+      "move_number": 91,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:05:35.498610"
+    },
+    {
+      "move_number": 92,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:05:37.435239"
+    },
+    {
+      "move_number": 93,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.85,
+      "timestamp": "2026-04-25T17:05:39.372131"
+    },
+    {
+      "move_number": 94,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:05:41.311649"
+    },
+    {
+      "move_number": 95,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:05:43.245631"
+    },
+    {
+      "move_number": 96,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:05:45.174591"
+    },
+    {
+      "move_number": 97,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:05:47.124482"
+    },
+    {
+      "move_number": 98,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.85,
+      "timestamp": "2026-04-25T17:05:49.062458"
+    },
+    {
+      "move_number": 99,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:05:50.993155"
+    },
+    {
+      "move_number": 100,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8511,
+      "timestamp": "2026-04-25T17:05:52.915537"
+    },
+    {
+      "move_number": 101,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:05:54.843372"
+    },
+    {
+      "move_number": 102,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:05:56.774256"
+    },
+    {
+      "move_number": 103,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:05:58.663941"
+    },
+    {
+      "move_number": 104,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8515,
+      "timestamp": "2026-04-25T17:06:00.548200"
+    },
+    {
+      "move_number": 105,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:06:02.440141"
+    },
+    {
+      "move_number": 106,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:06:04.324623"
+    },
+    {
+      "move_number": 107,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8511,
+      "timestamp": "2026-04-25T17:06:06.207109"
+    },
+    {
+      "move_number": 108,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:06:08.092086"
+    },
+    {
+      "move_number": 109,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:06:09.973849"
+    },
+    {
+      "move_number": 110,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:06:11.854445"
+    },
+    {
+      "move_number": 111,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:06:13.735499"
+    },
+    {
+      "move_number": 112,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:06:15.616971"
+    },
+    {
+      "move_number": 113,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:06:17.499852"
+    },
+    {
+      "move_number": 114,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 0.609,
+      "timestamp": "2026-04-25T17:06:18.133813"
+    },
+    {
+      "move_number": 115,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 0.238,
+      "timestamp": "2026-04-25T17:06:18.393596"
+    },
+    {
+      "move_number": 116,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 0.0508,
+      "timestamp": "2026-04-25T17:06:18.464097"
+    },
+    {
+      "move_number": 117,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:06:20.434869"
+    },
+    {
+      "move_number": 118,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:06:22.354026"
+    },
+    {
+      "move_number": 119,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:06:24.275507"
+    },
+    {
+      "move_number": 120,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:06:26.204277"
+    },
+    {
+      "move_number": 121,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:06:28.159261"
+    },
+    {
+      "move_number": 122,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:06:30.091700"
+    },
+    {
+      "move_number": 123,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:06:32.028341"
+    },
+    {
+      "move_number": 124,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:06:33.962607"
+    },
+    {
+      "move_number": 125,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:06:35.886808"
+    },
+    {
+      "move_number": 126,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:06:37.811840"
+    },
+    {
+      "move_number": 127,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8513,
+      "timestamp": "2026-04-25T17:06:39.732577"
+    },
+    {
+      "move_number": 128,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8534,
+      "timestamp": "2026-04-25T17:06:41.697857"
+    },
+    {
+      "move_number": 129,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:06:43.715855"
+    },
+    {
+      "move_number": 130,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:06:45.640575"
+    },
+    {
+      "move_number": 131,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:06:47.597055"
+    },
+    {
+      "move_number": 132,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:06:49.509535"
+    },
+    {
+      "move_number": 133,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:06:51.398483"
+    },
+    {
+      "move_number": 134,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8512,
+      "timestamp": "2026-04-25T17:06:53.286753"
+    },
+    {
+      "move_number": 135,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:06:55.173628"
+    },
+    {
+      "move_number": 136,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:06:57.061491"
+    },
+    {
+      "move_number": 137,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:06:58.946927"
+    },
+    {
+      "move_number": 138,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8512,
+      "timestamp": "2026-04-25T17:07:00.836592"
+    },
+    {
+      "move_number": 139,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:07:02.724084"
+    },
+    {
+      "move_number": 140,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:07:04.609779"
+    },
+    {
+      "move_number": 141,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:07:06.508486"
+    },
+    {
+      "move_number": 142,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:07:08.391111"
+    },
+    {
+      "move_number": 143,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:07:10.265696"
+    },
+    {
+      "move_number": 144,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:07:12.139034"
+    },
+    {
+      "move_number": 145,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:07:14.013827"
+    },
+    {
+      "move_number": 146,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:07:15.888459"
+    },
+    {
+      "move_number": 147,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.4345,
+      "timestamp": "2026-04-25T17:07:17.349104"
+    },
+    {
+      "move_number": 148,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 0.428,
+      "timestamp": "2026-04-25T17:07:17.798900"
+    },
+    {
+      "move_number": 149,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 0.0959,
+      "timestamp": "2026-04-25T17:07:17.913630"
+    },
+    {
+      "move_number": 150,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 0.0591,
+      "timestamp": "2026-04-25T17:07:17.991411"
+    },
+    {
+      "move_number": 151,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 0.0201,
+      "timestamp": "2026-04-25T17:07:18.031772"
+    },
+    {
+      "move_number": 152,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:07:19.960596"
+    },
+    {
+      "move_number": 153,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:07:21.878674"
+    },
+    {
+      "move_number": 154,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8511,
+      "timestamp": "2026-04-25T17:07:23.805817"
+    },
+    {
+      "move_number": 155,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:07:25.745730"
+    },
+    {
+      "move_number": 156,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:07:27.701898"
+    },
+    {
+      "move_number": 157,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:07:29.639575"
+    },
+    {
+      "move_number": 158,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:07:31.579303"
+    },
+    {
+      "move_number": 159,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:07:33.519708"
+    },
+    {
+      "move_number": 160,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:07:35.470787"
+    },
+    {
+      "move_number": 161,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:07:37.406427"
+    },
+    {
+      "move_number": 162,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:07:39.350234"
+    },
+    {
+      "move_number": 163,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:07:41.376856"
+    },
+    {
+      "move_number": 164,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:07:43.347104"
+    },
+    {
+      "move_number": 165,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:07:45.274439"
+    },
+    {
+      "move_number": 166,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:07:47.203534"
+    },
+    {
+      "move_number": 167,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:07:49.126105"
+    },
+    {
+      "move_number": 168,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:07:51.039448"
+    },
+    {
+      "move_number": 169,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:07:52.931828"
+    },
+    {
+      "move_number": 170,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:07:54.814710"
+    },
+    {
+      "move_number": 171,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:07:56.704571"
+    },
+    {
+      "move_number": 172,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:07:58.587584"
+    },
+    {
+      "move_number": 173,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:08:00.473051"
+    },
+    {
+      "move_number": 174,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:08:02.358364"
+    },
+    {
+      "move_number": 175,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:08:04.242053"
+    },
+    {
+      "move_number": 176,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 0.3202,
+      "timestamp": "2026-04-25T17:08:04.595033"
+    },
+    {
+      "move_number": 177,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 0.2688,
+      "timestamp": "2026-04-25T17:08:04.892337"
+    },
+    {
+      "move_number": 178,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:08:06.861382"
+    },
+    {
+      "move_number": 179,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:08:08.787751"
+    },
+    {
+      "move_number": 180,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8512,
+      "timestamp": "2026-04-25T17:08:10.752927"
+    },
+    {
+      "move_number": 181,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.85,
+      "timestamp": "2026-04-25T17:08:12.727135"
+    },
+    {
+      "move_number": 182,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8515,
+      "timestamp": "2026-04-25T17:08:14.671251"
+    },
+    {
+      "move_number": 183,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:08:16.631872"
+    },
+    {
+      "move_number": 184,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:08:18.569190"
+    },
+    {
+      "move_number": 185,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:08:20.502287"
+    },
+    {
+      "move_number": 186,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:08:22.431174"
+    },
+    {
+      "move_number": 187,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:08:24.354505"
+    },
+    {
+      "move_number": 188,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.852,
+      "timestamp": "2026-04-25T17:08:26.279191"
+    },
+    {
+      "move_number": 189,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:08:28.262675"
+    },
+    {
+      "move_number": 190,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:08:30.157942"
+    },
+    {
+      "move_number": 191,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8508,
+      "timestamp": "2026-04-25T17:08:32.050105"
+    },
+    {
+      "move_number": 192,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:08:33.941845"
+    },
+    {
+      "move_number": 193,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:08:35.833425"
+    },
+    {
+      "move_number": 194,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:08:37.724168"
+    },
+    {
+      "move_number": 195,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:08:39.613722"
+    },
+    {
+      "move_number": 196,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.85,
+      "timestamp": "2026-04-25T17:08:41.497526"
+    },
+    {
+      "move_number": 197,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:08:43.383512"
+    },
+    {
+      "move_number": 198,
+      "agent": "AlphaBetaAgent",
+      "move": 5,
+      "think_time": 1.85,
+      "timestamp": "2026-04-25T17:08:45.269689"
+    },
+    {
+      "move_number": 199,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:08:47.150999"
+    },
+    {
+      "move_number": 200,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:08:49.028109"
+    },
+    {
+      "move_number": 201,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:08:50.904878"
+    },
+    {
+      "move_number": 202,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:08:52.780590"
+    },
+    {
+      "move_number": 203,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:08:54.657718"
+    },
+    {
+      "move_number": 204,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8501,
+      "timestamp": "2026-04-25T17:08:56.531681"
+    },
+    {
+      "move_number": 205,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:08:58.407581"
+    },
+    {
+      "move_number": 206,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:09:00.283455"
+    },
+    {
+      "move_number": 207,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.0196,
+      "timestamp": "2026-04-25T17:09:01.326811"
+    },
+    {
+      "move_number": 208,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 0.6691,
+      "timestamp": "2026-04-25T17:09:02.018097"
+    },
+    {
+      "move_number": 209,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 0.2631,
+      "timestamp": "2026-04-25T17:09:02.302649"
+    },
+    {
+      "move_number": 210,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 0.0949,
+      "timestamp": "2026-04-25T17:09:02.421402"
+    },
+    {
+      "move_number": 211,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 0.0606,
+      "timestamp": "2026-04-25T17:09:02.503103"
+    },
+    {
+      "move_number": 212,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 0.0196,
+      "timestamp": "2026-04-25T17:09:02.541345"
+    },
+    {
+      "move_number": 213,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:09:04.467775"
+    },
+    {
+      "move_number": 214,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:09:06.388072"
+    },
+    {
+      "move_number": 215,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8505,
+      "timestamp": "2026-04-25T17:09:08.312344"
+    },
+    {
+      "move_number": 216,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8511,
+      "timestamp": "2026-04-25T17:09:10.241673"
+    },
+    {
+      "move_number": 217,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:09:12.175626"
+    },
+    {
+      "move_number": 218,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:09:14.116062"
+    },
+    {
+      "move_number": 219,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8511,
+      "timestamp": "2026-04-25T17:09:16.048481"
+    },
+    {
+      "move_number": 220,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:09:17.979941"
+    },
+    {
+      "move_number": 221,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8512,
+      "timestamp": "2026-04-25T17:09:19.904408"
+    },
+    {
+      "move_number": 222,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:09:21.832757"
+    },
+    {
+      "move_number": 223,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:09:23.752925"
+    },
+    {
+      "move_number": 224,
+      "agent": "AlphaBetaAgent",
+      "move": 2,
+      "think_time": 1.8513,
+      "timestamp": "2026-04-25T17:09:25.686989"
+    },
+    {
+      "move_number": 225,
+      "agent": "AlphaBetaAgent",
+      "move": 4,
+      "think_time": 1.851,
+      "timestamp": "2026-04-25T17:09:27.622873"
+    },
+    {
+      "move_number": 226,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8506,
+      "timestamp": "2026-04-25T17:09:29.548623"
+    },
+    {
+      "move_number": 227,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8525,
+      "timestamp": "2026-04-25T17:09:31.517449"
+    },
+    {
+      "move_number": 228,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8513,
+      "timestamp": "2026-04-25T17:09:33.425042"
+    },
+    {
+      "move_number": 229,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8509,
+      "timestamp": "2026-04-25T17:09:35.325203"
+    },
+    {
+      "move_number": 230,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:09:37.214986"
+    },
+    {
+      "move_number": 231,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:09:39.106652"
+    },
+    {
+      "move_number": 232,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8503,
+      "timestamp": "2026-04-25T17:09:41.000693"
+    },
+    {
+      "move_number": 233,
+      "agent": "AlphaBetaAgent",
+      "move": 6,
+      "think_time": 1.8504,
+      "timestamp": "2026-04-25T17:09:42.897635"
+    },
+    {
+      "move_number": 234,
+      "agent": "AlphaBetaAgent",
+      "move": 1,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:09:44.778632"
+    },
+    {
+      "move_number": 235,
+      "agent": "AlphaBetaAgent",
+      "move": 3,
+      "think_time": 1.8507,
+      "timestamp": "2026-04-25T17:09:46.662093"
+    },
+    {
+      "move_number": 236,
+      "agent": "AlphaBetaAgent",
+      "move": 0,
+      "think_time": 1.8502,
+      "timestamp": "2026-04-25T17:09:48.539952"
     }
   ],
   "statistics": {
-    "total_moves": 42,
+    "total_moves": 237,
     "agents": {
       "AlphaBetaAgent": {
-        "total_moves": 21,
-        "total_think_time": 31.5212,
-        "avg_think_time": 1.501
-      },
-      "MinimaxAgent": {
-        "total_moves": 21,
-        "total_think_time": 13.4798,
-        "avg_think_time": 0.6419
+        "total_moves": 237,
+        "total_think_time": 395.4469,
+        "avg_think_time": 1.6686
       }
     }
   }

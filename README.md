@@ -13,6 +13,8 @@ File **AlphaBetaAgent.py** thừa kế tất cả những gì từ MinimaxAgent.
 - Alpha-beta
 - iterative deepening: thay vì cố định depth = 3 là terminate thì giờ ta sẽ bắt đầu chạy từ depth = 1, 2, 3, 4... Cứ chạy cho đến khi nào TimeOut thì raise error
 
+https://www.kaggle.com/code/sidagar/making-minimax-20x-faster#Understanding-the-complexity-for-a-one-step-lookahead:
+
 Xem kĩ 2 video sau đây:
 
 Cấu trúc repository: https://streamable.com/0j29xc

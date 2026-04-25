@@ -2,9 +2,10 @@ from kaggle_environments import make
 import numpy as np
 import Agents.AlphaBetaAgent as AlphaBetaAgent
 import Agents.MinimaxAgent as MinimaxAgent
+import Agents.PremiumAgent as PremiumAgent
 
 def get_win_percentages(agent1, agent2, n_rounds=100):
-    config = {'rows': 10, 'columns': 7, 'inarow': 4}
+    config = {'rows': 6, 'columns': 7, 'inarow': 4}
     outcomes = []
 
     for game_idx in range(n_rounds):
@@ -55,4 +56,4 @@ def get_win_percentages(agent1, agent2, n_rounds=100):
     print("Number of Invalid Plays by Agent 1:", outcomes.count([None, 0]))
     print("Number of Invalid Plays by Agent 2:", outcomes.count([0, None]))
 
-get_win_percentages(AlphaBetaAgent.agent, MinimaxAgent.agent, n_rounds=5)
+get_win_percentages(AlphaBetaAgent.agent, PremiumAgent.agent, n_rounds=7)

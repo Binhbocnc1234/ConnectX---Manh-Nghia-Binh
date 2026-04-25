@@ -1,7 +1,7 @@
 import random
 import time
 import numpy as np
-from foundation import *
+from Agents.foundation import *
 import log_system
 
 

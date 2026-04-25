@@ -1,7 +1,8 @@
 import random
 import time
 import numpy as np
-from foundation import *
+from Agents.foundation import *
+from Agents.heuristic import *
 import log_system
 
 
@@ -40,79 +41,6 @@ def _ordered_moves(valid_moves, config):
 #   └─ score_move_b() - Tính điểm lượt đối thủ (dùng drop_piece, get_heuristic, score_move_a)
 #   └─ agent()        - Chọn nước đi tốt nhất (dùng score_move_a)
 # ============================================================================
-
-# ============================================================================
-# HEURISTIC EVALUATION LAYER - Đánh giá trạng thái board
-# ============================================================================
-
-def get_heuristic(grid, mark, config):
-    """
-    Tính điểm đánh giá (heuristic score) cho một trạng thái board.
-    
-    Ý nghĩa:
-    - Cộng điểm nếu bạn có nhiều quân liên tiếp (cơ hội thắng)
-    - Trừ điểm nếu đối thủ có nhiều quân liên tiếp (nguy hiểm)
-    - Sử dụng cấp số nhân: 2 quân = 4^2, 3 quân = 4^3, 4 quân = 4^4
-    
-    Phụ thuộc: count_windows()
-    """
-    score = 0
-    num = count_windows(grid,mark,config)
-    for i in range(config.inarow):
-        if (i==(config.inarow-1) and num[i+1] >= 1):
-            return float("inf")
-        score += (4**(i))*num[i+1]
-    num_opp = count_windows (grid,mark%2+1,config)
-    for i in range(config.inarow):
-        if (i==(config.inarow-1) and num_opp[i+1] >= 1):
-            return float ("-inf")
-        score-= (2**((2*i)+1))*num_opp[i+1]
-    return score
-
-
-def count_windows(grid, piece, config):
-    """
-    Đếm số lượng "cửa sổ" (window - 4 ô liên tiếp) chứa đúng num_discs quân của player.
-    
-    Ý nghĩa:
-    - Tìm tất cả các cửa sổ 4x1 (ngang, dọc, chéo) trên board
-    - Đếm có bao nhiêu cửa sổ chứa đúng num_discs quân của 'piece'
-    - Ví dụ: num_discs=2 → đếm cửa sổ có 2 quân (2 trống)
-    
-    Phụ thuộc: check_window()
-    Được gọi bởi: get_heuristic()
-    """
-    num_windows = np.zeros(config.inarow+1)
-    # horizontal
-    for row in range(config.rows):
-        for col in range(config.columns-(config.inarow-1)):
-            window = list(grid[row, col:col+config.inarow])
-            type_window = check_window(window, piece, config)
-            if type_window != -1:
-                num_windows[type_window] += 1
-    # vertical
-    for row in range(config.rows-(config.inarow-1)):
-        for col in range(config.columns):
-            window = list(grid[row:row+config.inarow, col])
-            type_window = check_window(window, piece, config)
-            if type_window != -1:
-                num_windows[type_window] += 1
-    # positive diagonal
-    for row in range(config.rows-(config.inarow-1)):
-        for col in range(config.columns-(config.inarow-1)):
-            window = list(grid[range(row, row+config.inarow), range(col, col+config.inarow)])
-            type_window = check_window(window, piece, config)
-            if type_window != -1:
-                num_windows[type_window] += 1
-    # negative diagonal
-    for row in range(config.inarow-1, config.rows):
-        for col in range(config.columns-(config.inarow-1)):
-            window = list(grid[range(row, row-config.inarow, -1), range(col, col+config.inarow)])
-            type_window = check_window(window, piece, config)
-            if type_window != -1:
-                num_windows[type_window] += 1
-    return num_windows
-
 
 # ============================================================================
 # MINIMAX DECISION TREE LAYER - Quyết định nước đi tối ưu
@@ -197,7 +125,7 @@ def agent(obs, config):
     
     Output: Cột (0 đến columns-1) để thả quân
     """
-    global SEARCH_DEADLINE, MOVE_LOG
+    global SEARCH_DEADLINE
     start_time = time.perf_counter()
     SEARCH_DEADLINE = start_time + MAX_THINK_TIME
 
@@ -207,28 +135,31 @@ def agent(obs, config):
 
     center_col = config.columns // 2
     best_move = min(valid_moves, key=lambda c: abs(c - center_col))
-    best_score = float("-inf")
-    reachedDepth = 1
+    last_completed_depth = 0
 
     grid = np.asarray(obs.board).reshape(config.rows, config.columns)
     try:
-        for depth in range(reachedDepth - 1, 20):
+        for depth in range(1, 20):
+            depth_best_score = float("-inf")
+            depth_best_move = best_move
             alpha = float("-inf")
             beta = float("inf")
             for col in _ordered_moves(valid_moves, config):
                 _check_timeout()
                 score = score_move_a(grid, col, obs.mark, config, depth, alpha, beta)
-                if score > best_score:
-                    best_score = score
-                    best_move = col
-                alpha = max(alpha, best_score)
-            reachedDepth = depth
+                if score > depth_best_score:
+                    depth_best_score = score
+                    depth_best_move = col
+                alpha = max(alpha, depth_best_score)
+
+            best_move = depth_best_move
+            last_completed_depth = depth
     except SearchTimeout:
         # Return best move found so far when time budget is exhausted.
         pass
     
     # Track think time
-    print("Reached Depth:", reachedDepth)
+    print("Reached Depth:", last_completed_depth)
     think_time = time.perf_counter() - start_time
     log_system.log_move("AlphaBetaAgent", best_move, think_time)
     
