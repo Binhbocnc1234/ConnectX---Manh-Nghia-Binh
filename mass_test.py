@@ -8,7 +8,7 @@ def get_win_percentages(agent1, agent2, n_rounds=100):
     outcomes = []
 
     for game_idx in range(n_rounds):
-        env = make("connectx", config=config, debug=True)
+        env = make("connectx", configuration=config, debug=True)
 
         # Alternate starting player to keep evaluation fair.
         if game_idx % 2 == 0:
