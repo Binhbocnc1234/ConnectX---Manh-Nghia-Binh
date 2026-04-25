@@ -1,9 +1,9 @@
 from kaggle_environments import make
 import webbrowser
 import os
-import log_system
-import AlphaBetaAgent
-import MinimaxAgent
+import log_system as log_system
+import Agents.AlphaBetaAgent as AlphaBetaAgent
+import Agents.MinimaxAgent as MinimaxAgent
 
 # Khởi tạo game log
 log_system.init_game_log()
@@ -12,6 +12,8 @@ log_system.init_game_log()
 env = make("connectx", debug=True)
 
 # cho bot đánh nhau
+# Agent đầu tiên: piece màu xanh có chữ K, đi trước
+# Agent thứ 2: piece màu xám hình con vịt
 env.run([AlphaBetaAgent.agent, MinimaxAgent.agent])
 
 # render HTML

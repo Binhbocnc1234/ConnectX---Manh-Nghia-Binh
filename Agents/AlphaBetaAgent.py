@@ -9,14 +9,15 @@ class SearchTimeout(Exception):
     """Raised when minimax search exceeds the global time budget."""
 
 
-MAX_THINK_TIME = 1.6
+MAX_THINK_TIME = 1.85
 SEARCH_DEADLINE = float("inf")
 
 
 def _check_timeout():
     if time.perf_counter() >= SEARCH_DEADLINE:
         raise SearchTimeout()
-
+def is_timeout():
+    return time.perf_counter() >= SEARCH_DEADLINE
 
 def _ordered_moves(valid_moves, config):
     """Ưu tiên cột gần trung tâm để tăng hiệu quả alpha-beta pruning."""
@@ -134,10 +135,12 @@ def score_move_a(grid, col, mark, config, n_steps=1, alpha=float("-inf"), beta=f
     Tham số:
     - n_steps: Độ sâu tìm kiếm (lookahead)
     """
-    _check_timeout()
+
     next_grid = drop_piece(grid, col, mark, config)
     valid_moves = [col for col in range (config.columns) if next_grid[0][col]==0]
     score = get_heuristic(next_grid, mark, config)
+    if (is_timeout()):
+        return score
     #Since we have just dropped our piece there is only the possibility of us getting 4 in a row and not the opponent.
     #Thus score can only be +infinity.
     if len(valid_moves)==0 or n_steps ==0 or score == float("inf"):
@@ -146,7 +149,6 @@ def score_move_a(grid, col, mark, config, n_steps=1, alpha=float("-inf"), beta=f
         value = float("inf")
         ordered_moves = _ordered_moves(valid_moves, config)
         for next_col in ordered_moves:
-            _check_timeout()
             child_score = score_move_b(next_grid, next_col, mark, config, n_steps-1, alpha, beta)
             value = min(value, child_score)
             beta = min(beta, value)
@@ -158,10 +160,11 @@ def score_move_b(grid, col, mark, config, n_steps, alpha=float("-inf"), beta=flo
     """
     Minimax Layer: Tính điểm khi ĐẾN LƯỢT ĐỐI THỦ.
     """
-    _check_timeout()
     next_grid = drop_piece(grid,col,(mark%2)+1,config)
     valid_moves = [col for col in range (config.columns) if next_grid[0][col]==0]
     score = get_heuristic(next_grid, mark, config)
+    if (is_timeout()):
+        return score
     #The converse is true here.
     #Since we have just dropped opponent piece there is only the possibility of opponent getting 4 in a row and not us.
     #Thus score can only be -infinity.
@@ -171,7 +174,6 @@ def score_move_b(grid, col, mark, config, n_steps, alpha=float("-inf"), beta=flo
         value = float("-inf")
         ordered_moves = _ordered_moves(valid_moves, config)
         for next_col in ordered_moves:
-            _check_timeout()
             child_score = score_move_a(next_grid, next_col, mark, config, n_steps-1, alpha, beta)
             value = max(value, child_score)
             alpha = max(alpha, value)
