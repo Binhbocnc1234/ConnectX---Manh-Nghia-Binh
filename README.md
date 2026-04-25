@@ -8,6 +8,11 @@ File **Agent-Explanation.ipynb** : notebook giải thích từ chính chủ
 
 File **test.py**: là file giúp ae chạy/test solution ở local
 
+Xem kĩ 2 video sau đây:
+
+Cấu trúc repository: https://streamable.com/0j29xc
+
+Cách nộp submission: https://streamable.com/8wy8f2
 
 # Chia việc
 
