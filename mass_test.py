@@ -1,16 +1,26 @@
 from kaggle_environments import make
+import argparse
 import numpy as np
 import Agents.AlphaBetaAgent as AlphaBetaAgent
-import Agents.MinimaxAgent as MinimaxAgent
-import Agents.PremiumAgent as PremiumAgent
+import Agents.BitboardAgent as BitBoardAgent
+import Agents.PrincipalVariationAgent as Principal
+import log_system
 
-def get_win_percentages(agent1, agent2, n_rounds=100):
+
+def is_early_loss(game_outcome, total_moves, move_limit=30):
+    if total_moves >= move_limit:
+        return False
+
+    return game_outcome in ([1, -1], [-1, 1], [None, 0], [0, None])
+
+
+def get_win_percentages(agent1, agent2, n_rounds=10):
     config = {'rows': 6, 'columns': 7, 'inarow': 4}
     outcomes = []
-
+    
     for game_idx in range(n_rounds):
-        env = make("connectx", configuration=config, debug=True)
-
+        log_system.init_game_log()
+        env = make("connectx", configuration=config, debug = True)
         # Alternate starting player to keep evaluation fair.
         if game_idx % 2 == 0:
             agents = [agent1, agent2]
@@ -51,9 +61,34 @@ def get_win_percentages(agent1, agent2, n_rounds=100):
             f"Tổng số nước đi: {total_moves} | Kết quả: {winner_text}"
         )
 
+        if is_early_loss(game_outcome, total_moves):
+            print(
+                f"Lỗi: ván {game_idx + 1} kết thúc bằng một trận thua khi chưa tới 30 nước đi. "
+                f"Hãy mở game_log.json để kiểm tra ván này."
+            )
+            break
+
     print("Agent 1 Win Percentage:", np.round(outcomes.count([1, -1]) / len(outcomes), 2))
     print("Agent 2 Win Percentage:", np.round(outcomes.count([-1, 1]) / len(outcomes), 2))
     print("Number of Invalid Plays by Agent 1:", outcomes.count([None, 0]))
     print("Number of Invalid Plays by Agent 2:", outcomes.count([0, None]))
 
-get_win_percentages(AlphaBetaAgent.agent, PremiumAgent.agent, n_rounds=7)
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Run repeated ConnectX matches for agent evaluation.")
+    parser.add_argument(
+        "--rounds",
+        type=int,
+        default=10,
+        help="Number of games to run (default: 10).",
+    )
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+    get_win_percentages(AlphaBetaAgent.agent, BitBoardAgent.agent, n_rounds=args.rounds)
+
+
+if __name__ == "__main__":
+    main()

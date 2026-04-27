@@ -8,8 +8,6 @@ import log_system
 class SearchTimeout(Exception):
     """Raised when minimax search exceeds the global time budget."""
 
-
-MAX_THINK_TIME = 1.6
 SEARCH_DEADLINE = float("inf")
 
 

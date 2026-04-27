@@ -3,8 +3,9 @@ import webbrowser
 import os
 import log_system as log_system
 import Agents.AlphaBetaAgent as AlphaBetaAgent
-import Agents.MinimaxAgent as MinimaxAgent
+import Agents.PrincipalVariationAgent as Principal
 import Agents.PremiumAgent as PremiumAgent
+import Agents.BitboardAgent as BitBoardAgent;
 
 # Khởi tạo game log
 log_system.init_game_log()
@@ -15,7 +16,7 @@ env = make("connectx", debug=True)
 # cho bot đánh nhau
 # Agent đầu tiên: piece màu xanh có chữ K, đi trước
 # Agent thứ 2: piece màu xám hình con vịt
-env.run([AlphaBetaAgent.agent, PremiumAgent.agent])
+env.run([AlphaBetaAgent.agent, Principal.agent])
 
 # render HTML
 html = env.render(mode="html")

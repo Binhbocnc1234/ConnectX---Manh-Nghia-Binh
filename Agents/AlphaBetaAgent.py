@@ -10,7 +10,7 @@ class SearchTimeout(Exception):
     """Raised when minimax search exceeds the global time budget."""
 
 
-MAX_THINK_TIME = 1.85
+# MAX_THINK_TIME = 1.85
 SEARCH_DEADLINE = float("inf")
 
 
@@ -64,7 +64,7 @@ def score_move_a(grid, col, mark, config, n_steps=1, alpha=float("-inf"), beta=f
     - n_steps: Độ sâu tìm kiếm (lookahead)
     """
 
-    next_grid = drop_piece(grid, col, mark, config)
+    next_grid = drop_piece(grid, col, mark)
     valid_moves = [col for col in range (config.columns) if next_grid[0][col]==0]
     score = get_heuristic(next_grid, mark, config)
     _check_timeout()
@@ -87,7 +87,7 @@ def score_move_b(grid, col, mark, config, n_steps, alpha=float("-inf"), beta=flo
     """
     Minimax Layer: Tính điểm khi ĐẾN LƯỢT ĐỐI THỦ.
     """
-    next_grid = drop_piece(grid,col,(mark%2)+1,config)
+    next_grid = drop_piece(grid,col,(mark%2)+1)
     valid_moves = [col for col in range (config.columns) if next_grid[0][col]==0]
     score = get_heuristic(next_grid, mark, config)
     _check_timeout()

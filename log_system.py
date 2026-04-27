@@ -74,7 +74,6 @@ def log_move(agent_name, move, think_time):
             "agent": agent_name,
             "move": int(move),
             "think_time": round(think_time, 4),
-            "timestamp": datetime.now().isoformat()
         }
         game_data["moves"].append(new_move)
         
