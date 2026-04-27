@@ -6,9 +6,9 @@ from Agents.foundation import *
 _BB_WINDOW_MASKS_CACHE = {}
 
 # Buff nhỏ để ưu tiên thế trận tốt, không đủ lớn để lấn át nguy cơ thắng/thua.
-BB_CENTER_BONUS = 2
-BB_FILL_BONUS = 1
-BB_BONUS_CAP = 12
+# BB_CENTER_BONUS = 2
+# BB_FILL_BONUS = 1
+# BB_BONUS_CAP = 12
 
 def get_heuristic(grid, mark, config):
     """
