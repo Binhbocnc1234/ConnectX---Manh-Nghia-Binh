@@ -2,9 +2,8 @@ from kaggle_environments import make
 import webbrowser
 import os
 import log_system as log_system
-import Agents.AlphaBetaAgent as AlphaBetaAgent
+import Agents.OpeningBook as OpeningBook
 import Agents.ZobristHasingAgent as Zob
-# import Agents.PrincipalVariationAgent_2 as PremiumAgent
 import Agents.BitboardAgent as BitBoardAgent;
 
 # Khởi tạo game log
@@ -16,7 +15,7 @@ env = make("connectx", debug=True)
 # cho bot đánh nhau
 # Agent đầu tiên: piece màu xanh có chữ K, đi trước
 # Agent thứ 2: piece màu xám hình con vịt
-env.run([Zob.agent, Zob.agent])
+env.run([OpeningBook.agent, Zob.agent])
 
 # render HTML
 html = env.render(mode="html")

@@ -5,11 +5,14 @@ from Agents.heuristic import get_heuristic_bb
 
 # https://grokipedia.com/page/Principal_variation_search
 def _ordered_moves():
-    """Uu tiên cột gần trung tâm"""
+    """Ưu tiên cột gần trung tâm"""
     return [3, 2, 4, 1, 5, 0, 6]
 
+MOVE_ORDER = _ordered_moves()
+
+
 def mirror_board(bb):
-    """Lật bitboard qua trục dọc"""
+    """Lật bitboard qua trục dọc (đối xứng trái-phải)."""
     m = 0
     m |= (bb & 0x7F) << 42          # Col 0 -> 6
     m |= (bb & (0x7F << 7)) << 28   # Col 1 -> 5
@@ -20,120 +23,217 @@ def mirror_board(bb):
     m |= (bb & (0x7F << 42)) >> 42  # Col 6 -> 0
     return m
 
-tt = {}  # Transposition Table
-MAX_TT_SIZE = 1048576  # 2^20 slots
+
+# -------------------------
+# Transposition Table (TT)
+# Zobrist + bucket + bound type + bestMove
+# -------------------------
+
+TT_BUCKETS = 1 << 23  # số bucket (power-of-two để dùng bitmask)
+TT_BUCKET_MASK = TT_BUCKETS - 1
+TT_BUCKET_SIZE = 4
+
+TT_EXACT = 0
+TT_LOWER = 1
+TT_UPPER = 2
+
+# dict[int bucketIndex] -> list[tuple(key64, depth, value, flag, bestMove)]
+tt = {}
+
+
+def _splitmix64(x: int) -> int:
+    x = (x + 0x9E3779B97F4A7C15) & 0xFFFFFFFFFFFFFFFF
+    z = x
+    z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9 & 0xFFFFFFFFFFFFFFFF
+    z = (z ^ (z >> 27)) * 0x94D049BB133111EB & 0xFFFFFFFFFFFFFFFF
+    return (z ^ (z >> 31)) & 0xFFFFFFFFFFFFFFFF
+
+
+def _make_zobrist_tables(seed: int = 0xC0FFEE):
+    # 49 bits/column representation (7*7) but we only ever use 6 bits per column.
+    z_me = [0] * 49
+    z_opp = [0] * 49
+    x = seed & 0xFFFFFFFFFFFFFFFF
+    for i in range(49):
+        x = _splitmix64(x)
+        z_me[i] = x
+        x = _splitmix64(x)
+        z_opp[i] = x
+    return z_me, z_opp
+
+
+_Z_ME, _Z_OPP = _make_zobrist_tables()
+
+
+def zobrist_hash(me: int, opp: int) -> int:
+    """Deterministic 64-bit Zobrist hash for (me, opp) bitboards."""
+    h = 0
+    bb = me
+    while bb:
+        lsb = bb & -bb
+        idx = lsb.bit_length() - 1
+        h ^= _Z_ME[idx]
+        bb ^= lsb
+    bb = opp
+    while bb:
+        lsb = bb & -bb
+        idx = lsb.bit_length() - 1
+        h ^= _Z_OPP[idx]
+        bb ^= lsb
+    return h & 0xFFFFFFFFFFFFFFFF
+
+
+def _canonical_tt_key(me: int, opp: int):
+    """Return (key64, flip) where flip=True means mirrored orientation chosen."""
+    key = zobrist_hash(me, opp)
+    m_me = mirror_board(me)
+    m_opp = mirror_board(opp)
+    m_key = zobrist_hash(m_me, m_opp)
+    if (m_key < key) or (m_key == key and (m_me, m_opp) < (me, opp)):
+        return m_key, True
+    return key, False
+
+
+def _tt_probe(key64: int, depth: int, alpha: float, beta: float):
+    """Probe TT.
+
+    Returns (hit_value_or_None, new_alpha, new_beta, bestMoveHint).
+    bestMoveHint can be used for move ordering even when no cutoff/EXACT hit.
+    """
+    idx = key64 & TT_BUCKET_MASK
+    bucket = tt.get(idx)
+    if not bucket:
+        return None, alpha, beta, -1
+
+    best_hint = -1
+    best_hint_depth = -1
+
+    for k, d, v, flag, bm in bucket:
+        if k != key64:
+            continue
+        if bm != -1 and d > best_hint_depth:
+            best_hint = bm
+            best_hint_depth = d
+        if d < depth:
+            continue
+
+        if flag == TT_EXACT:
+            return v, alpha, beta, bm
+        if flag == TT_LOWER:
+            if v > alpha:
+                alpha = v
+        elif flag == TT_UPPER:
+            if v < beta:
+                beta = v
+        if alpha >= beta:
+            return v, alpha, beta, bm
+
+    return None, alpha, beta, best_hint
+
+
+def _tt_store(key64: int, depth: int, value: float, flag: int, best_move: int):
+    idx = key64 & TT_BUCKET_MASK
+    bucket = tt.get(idx)
+    entry = (key64, depth, value, flag, best_move)
+    if bucket is None:
+        tt[idx] = [entry]
+        return
+
+    # Replace same key if deeper/equal.
+    for i, (k, d, _, _, _) in enumerate(bucket):
+        if k == key64:
+            if depth >= d:
+                bucket[i] = entry
+            return
+
+    if len(bucket) < TT_BUCKET_SIZE:
+        bucket.append(entry)
+        return
+
+    # Bucket full: replace the shallowest entry.
+    victim_i = 0
+    victim_depth = bucket[0][1]
+    for i in range(1, len(bucket)):
+        d = bucket[i][1]
+        if d < victim_depth:
+            victim_depth = d
+            victim_i = i
+    bucket[victim_i] = entry
+
 
 import os
 import json
 
-BOOK_FILE_JSON = os.path.join(os.path.dirname(__file__), "opening_book.json")
-BOOK_FILE_JSONL = os.path.join(os.path.dirname(__file__), "opening_book.jsonl")
+# -------------------------
+# Static Opening Book
+# -------------------------
+OPENING_BOOK = None
 
-OPENING_BOOK = {}
-_BOOK_LOADED = False
-
-
-def _parse_key(key: str):
-    me_s, opp_s = key.split(",")
-    return int(me_s), int(opp_s)
-
-
-def _key(me: int, opp: int) -> str:
-    return f"{int(me)},{int(opp)}"
-
-
-def load_book(force: bool = False):
-    """Load opening book into memory.
-
-    Supports 2 formats:
-    - opening_book.json  : a single JSON object mapping "me,opp" -> move
-    - opening_book.jsonl : JSON Lines, each line is {"me": int, "opp": int, "move": int}
-
-    For large books, prefer JSONL during generation; runtime can still load either.
-    """
-    global OPENING_BOOK, _BOOK_LOADED
-    if _BOOK_LOADED and not force:
+def load_opening_book():
+    global OPENING_BOOK
+    if OPENING_BOOK is not None:
         return
-
     OPENING_BOOK = {}
-    # Prefer JSON (faster) if present; else fall back to JSONL.
-    try:
-        if os.path.exists(BOOK_FILE_JSON):
-            with open(BOOK_FILE_JSON, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            for k, v in data.items():
-                me, opp = _parse_key(k)
-                OPENING_BOOK[(me, opp)] = int(v)
-            _BOOK_LOADED = True
-            return
-
-        if os.path.exists(BOOK_FILE_JSONL):
-            with open(BOOK_FILE_JSONL, "r", encoding="utf-8") as f:
+    
+    # Locate opening_book.jsonl in the same directory as this script
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    book_path = os.path.join(current_dir, "opening_book.jsonl")
+    
+    if os.path.exists(book_path):
+        count = 0
+        try:
+            with open(book_path, "r", encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     if not line:
                         continue
-                    obj = json.loads(line)
-                    me = int(obj["me"])
-                    opp = int(obj["opp"])
-                    move = int(obj["move"])
-                    OPENING_BOOK[(me, opp)] = move
-            _BOOK_LOADED = True
-            return
-
-        _BOOK_LOADED = True
-    except Exception as e:
-        # Don't crash the agent if the book is malformed.
-        print(f"Error loading opening book: {e}")
-        _BOOK_LOADED = True
-
-
-def append_to_book_jsonl(me: int, opp: int, move: int, path: str | None = None):
-    """Append one entry to a JSONL book file (fast, no rewrite)."""
-    if path is None:
-        path = BOOK_FILE_JSONL
-    entry = {"me": int(me), "opp": int(opp), "move": int(move)}
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry, separators=(",", ":")))
-        f.write("\n")
+                    data = json.loads(line)
+                    me_book, opp_book, move = data["me"], data["opp"], data["move"]
+                    key64, flip = _canonical_tt_key(me_book, opp_book)
+                    
+                    # Cần lưu lại nước đi đối với trạng thái canonical. 
+                    # Nếu trạng thái (me_book, opp_book) bị lật để thành canonical, thì nước đi cũng phải lật.
+                    canonical_move = 6 - move if flip else move
+                    OPENING_BOOK[key64] = canonical_move
+                    count += 1
+            print(f"[Opening Book] Loaded {count} canonical positions from {book_path}.")
+        except Exception as e:
+            print(f"[Opening Book] Error loading book: {e}")
+    else:
+        print(f"[Opening Book] Warning: {book_path} not found. Proceeding without book.")
 
 
-def save_book_json(path: str | None = None):
-    """Write the in-memory book to a single JSON mapping file."""
-    if path is None:
-        path = BOOK_FILE_JSON
-    data = {_key(k[0], k[1]): int(v) for k, v in OPENING_BOOK.items()}
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False)
-
+searching_depth = 0
 def pvs(me, opp, depth, alpha, beta, deadline):
-    state = (me, opp)
-    state_hash = hash(state) % MAX_TT_SIZE
-
-    # Kiểm tra xem dữ liệu về state có ở trong table không
-    if state_hash in tt:
-        stored_state, res, d = tt[state_hash]
-        if stored_state == state and d >= depth:
-            return res
-            
-    m_state = (mirror_board(me), mirror_board(opp))
-    m_hash = hash(m_state) % MAX_TT_SIZE
-    if m_hash in tt:
-        stored_state, res, d = tt[m_hash]
-        if stored_state == m_state and d >= depth:
-            return res
-
     if is_win(opp):
         return NNF
     if depth == 0 or time.perf_counter() > deadline:
         return get_heuristic_bb(me, opp)
 
+    alpha0, beta0 = alpha, beta
+
+    key64, flip = _canonical_tt_key(me, opp)
+    tt_value, alpha, beta, tt_best = _tt_probe(key64, depth, alpha, beta)
+    if tt_value is not None:
+        return tt_value
+
+    # bestMove từ TT (nếu lưu theo orientation canonical thì cần mirror lại).
+    if tt_best != -1 and flip:
+        tt_best = 6 - tt_best
+
     value = NNF
+    best_move = -1
     first_child = True
 
-    for col in _ordered_moves():
+    # Move ordering: TT best move (nếu hợp lệ) -> center-first order.
+    ordered = []
+    if tt_best != -1:
+        ordered.append(tt_best)
+    for c in MOVE_ORDER:
+        if c != tt_best:
+            ordered.append(c)
+
+    for col in ordered:
         col_mask = 0b111111 << (col * 7)
         occupied = (me | opp) & col_mask
         if occupied & (1 << (col * 7 + 5)):
@@ -149,45 +249,98 @@ def pvs(me, opp, depth, alpha, beta, deadline):
             if alpha < res < beta:
                 res = -pvs(opp, me | new_piece, depth - 1, -beta, -res, deadline)
 
-        value = max(value, res)
+        if res > value:
+            value = res
+            best_move = col
         alpha = max(alpha, value)
         if alpha >= beta:
             break
 
-    # Ghi đè
-    tt[state_hash] = (state, value, depth)
+    # Store to TT with bound type + bestMove.
+    if best_move != -1:
+        store_move = 6 - best_move if flip else best_move
+    else:
+        store_move = -1
+
+    if value <= alpha0:
+        flag = TT_UPPER
+    elif value >= beta0:
+        flag = TT_LOWER
+    else:
+        flag = TT_EXACT
+
+    _tt_store(key64, depth, value, flag, store_move)
     return value
 
 def agent(obs, config):
+    global searching_depth
     start_time = time.perf_counter()
-    deadline = start_time + MAX_THINK_TIME
+    
+    # 1. Determine thinking time budget
+    # First move (step 0 or 1) has a budget of 55 seconds (leaving a 5s safety margin)
+    is_first_turn = (obs.step == 0 or obs.step == 1)
+    if is_first_turn:
+        think_time_budget = 5
+        print(f"[Agent] First turn detected (step {obs.step}). Allocating {think_time_budget}s to deeply search and populate TT.")
+    else:
+        think_time_budget = MAX_THINK_TIME
+        
+    deadline = start_time + think_time_budget
 
     me, opp = encode(obs.board, obs.mark)
-
-    # Load book on first use (important if the file is large).
-    load_book()
-
-    # --- OPENING BOOK LOOKUP ---
-    if (me, opp) in OPENING_BOOK:
-        # Nếu trạng thái có trong bộ sách chuẩn, đánh luôn không cần suy nghĩ
-        return OPENING_BOOK[(me, opp)]
     
-    # Check cả trường hợp bàn cờ đối xứng
-    m_state = (mirror_board(me), mirror_board(opp))
-    if m_state in OPENING_BOOK:
-        # Lật ngược nước đi lấy từ sách
-        return 6 - OPENING_BOOK[m_state]
-    # ---------------------------
+    # Nạp Opening Book nếu chưa nạp
+    load_opening_book()
     
+    # 2. Query Opening Book (Fast Path)
+    key64, flip = _canonical_tt_key(me, opp)
+    if key64 in OPENING_BOOK:
+        best_move = OPENING_BOOK[key64]
+        if flip:
+            best_move = 6 - best_move
+        print(f"[Opening Book Hit] Playing precomputed move: {best_move}")
+        
+        think_time = time.perf_counter() - start_time
+        try:
+            log_system.log_move("OpeningBookAgent", int(best_move), think_time)
+        except Exception:
+            pass
+        return int(best_move)
+        
+    # 3. Query TT directly (even if not in OPENING_BOOK, may be precomputed in TT from turn 1)
+    idx = key64 & TT_BUCKET_MASK
+    bucket = tt.get(idx)
+    if bucket:
+        best_bm = -1
+        best_d = -1
+        for k, d, v, flag, bm in bucket:
+            if k == key64 and bm != -1 and d > best_d:
+                best_bm = bm
+                best_d = d
+        if best_bm != -1:
+            best_move = 6 - best_bm if flip else best_bm
+            print(f"[TT Hit] Playing precomputed move: {best_move} (resolved from Turn 1 computation)")
+            
+            think_time = time.perf_counter() - start_time
+            try:
+                log_system.log_move("OpeningBookAgent", int(best_move), think_time)
+            except Exception:
+                pass
+            return int(best_move)
+
     valid_moves = [c for c in [3, 2, 4, 1, 5, 0, 6] if obs.board[c] == 0]
     if not valid_moves: return 0
-
+    
     center_col = config.columns // 2
     best_move = min(valid_moves, key=lambda c: abs(c - center_col))
-    reachedDepth = 0
+    reachedDepth = 2
+    
+    # First turn search goes much deeper to seed the entire early-game TT tree
+    max_search_depth = 24 if is_first_turn else 20
     
     try:
-        for depth in range(reachedDepth, 20, 2):
+        for depth in range(reachedDepth - 2, max_search_depth, 2):
+            searching_depth = depth
             best_score = NNF
             move_at_this_depth = best_move
             scores = [NNF] * config.columns
@@ -214,10 +367,6 @@ def agent(obs, config):
                         if best_score < score < INF:
                             score = -pvs(opp, me | new_piece, depth, NNF, INF, deadline)
 
-                # if (col == 2 or col == 4):
-                #     score += 1
-                # elif (col == 3):
-                #     score += 2
                 scores[col] = score
                 if score > best_score:
                     best_score = score
@@ -232,11 +381,12 @@ def agent(obs, config):
     except TimeoutError:
         pass
         
+    # 4. (Đã xóa) Book động không còn được build sau khi search nữa vì dùng book tĩnh.
+        
     think_time = time.perf_counter() - start_time
-    print("Principal agent reached depth", reachedDepth)
+    print("[OpeningBook] reached depth", reachedDepth)
     try:
-        log_system.log_move("BitboardAgent", int(best_move), think_time)
+        log_system.log_move("OpeningBookAgent", int(best_move), think_time)
     except Exception:
         pass
-
     return int(best_move)

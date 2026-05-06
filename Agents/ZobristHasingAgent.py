@@ -289,7 +289,7 @@ def agent(obs, config):
     think_time = time.perf_counter() - start_time
     print("Principal agent reached depth", reachedDepth)
     try:
-        log_system.log_move("PrincipalVariationAgent", int(best_move), think_time)
+        log_system.log_move("ZobristHashing", int(best_move), think_time)
     except Exception:
         pass
 

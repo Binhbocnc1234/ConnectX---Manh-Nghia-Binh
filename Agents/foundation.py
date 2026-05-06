@@ -12,7 +12,7 @@ import time
 #     """Raised when minimax search exceeds the global time budget."""
 
 
-MAX_THINK_TIME = 1.85
+MAX_THINK_TIME = 1.2
 INF = 1000
 NNF = -1000
 
