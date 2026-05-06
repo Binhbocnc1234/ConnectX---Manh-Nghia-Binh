@@ -8,7 +8,7 @@ def score_move_a(grid, col, mark, config, start_score, n_steps):
     #Since we have just dropped our piece there is only the possibility of us getting 4 in a row and not the opponent.
     #Thus score can only be +infinity.
     scores = []
-    if len(valid_moves)==0 or n_steps ==0 or score == float("inf"):
+    if len(valid_moves)==0 or n_steps ==0 or score == INF:
         return score
     else :
         for col in valid_moves:
@@ -50,7 +50,7 @@ def get_heuristic(grid, mark, config):
     for i in range(config.inarow):
         #num  = count_windows (grid,i+1,mark,config)
         if (i==(config.inarow-1) and num[i+1] >= 1):
-            return float("inf")
+            return INF
         score += (4**(i))*num[i+1]
     num_opp = count_windows (grid,mark%2+1,config)
     for i in range(config.inarow):
@@ -65,7 +65,7 @@ def get_heuristic_optimised(grid, next_grid, mark, config, row, col, start_score
     num2 = count_windows_optimised(next_grid,mark,config,row,col)
     for i in range(config.inarow):
         if (i==(config.inarow-1) and (num2[i+1]-num1[i+1]) >= 1):
-            return float("inf")
+            return INF
         score += (4**(i))*(num2[i+1]-num1[i+1])
     num1_opp = count_windows_optimised(grid,mark%2+1,config,row,col)
     num2_opp = count_windows_optimised(next_grid,mark%2+1,config,row,col)

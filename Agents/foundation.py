@@ -12,8 +12,9 @@ import time
 #     """Raised when minimax search exceeds the global time budget."""
 
 
-MAX_THINK_TIME = 1
-# SEARCH_DEADLINE = float("inf")
+MAX_THINK_TIME = 1.85
+INF = 1000
+NNF = -1000
 
 
 class Config:

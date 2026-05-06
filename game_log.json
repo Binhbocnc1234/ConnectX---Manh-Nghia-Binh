@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-04-26T09:30:15.810434",
+    "timestamp": "2026-05-03T23:18:38.972356",
     "game": "ConnectX",
     "config": {
       "rows": 6,
@@ -11,341 +11,126 @@
   "moves": [
     {
       "move_number": 0,
-      "agent": "AlphaBetaAgent",
-      "move": 2,
-      "think_time": 1.0001
+      "agent": "PrincipalVariationAgent",
+      "move": 3,
+      "think_time": 1.851
     },
     {
       "move_number": 1,
-      "agent": "BitboardAgent",
-      "move": 1,
-      "think_time": 1.0015
+      "agent": "PrincipalVariationAgent",
+      "move": 2,
+      "think_time": 1.8506
     },
     {
       "move_number": 2,
-      "agent": "AlphaBetaAgent",
-      "move": 1,
-      "think_time": 1.0003
+      "agent": "PrincipalVariationAgent",
+      "move": 4,
+      "think_time": 1.8511
     },
     {
       "move_number": 3,
-      "agent": "BitboardAgent",
-      "move": 1,
-      "think_time": 1.0014
+      "agent": "PrincipalVariationAgent",
+      "move": 3,
+      "think_time": 1.8503
     },
     {
       "move_number": 4,
-      "agent": "AlphaBetaAgent",
-      "move": 3,
-      "think_time": 1.0002
+      "agent": "PrincipalVariationAgent",
+      "move": 4,
+      "think_time": 1.8506
     },
     {
       "move_number": 5,
-      "agent": "BitboardAgent",
-      "move": 2,
-      "think_time": 1.0012
+      "agent": "PrincipalVariationAgent",
+      "move": 4,
+      "think_time": 1.8508
     },
     {
       "move_number": 6,
-      "agent": "AlphaBetaAgent",
-      "move": 1,
-      "think_time": 1.0004
+      "agent": "PrincipalVariationAgent",
+      "move": 3,
+      "think_time": 1.8507
     },
     {
       "move_number": 7,
-      "agent": "BitboardAgent",
-      "move": 2,
-      "think_time": 1.0003
+      "agent": "PrincipalVariationAgent",
+      "move": 3,
+      "think_time": 1.8503
     },
     {
       "move_number": 8,
-      "agent": "AlphaBetaAgent",
-      "move": 2,
-      "think_time": 1.0002
+      "agent": "PrincipalVariationAgent",
+      "move": 5,
+      "think_time": 1.8504
     },
     {
       "move_number": 9,
-      "agent": "BitboardAgent",
-      "move": 4,
-      "think_time": 1.0008
+      "agent": "PrincipalVariationAgent",
+      "move": 6,
+      "think_time": 1.8508
     },
     {
       "move_number": 10,
-      "agent": "AlphaBetaAgent",
-      "move": 4,
-      "think_time": 1.0009
+      "agent": "PrincipalVariationAgent",
+      "move": 5,
+      "think_time": 1.8509
     },
     {
       "move_number": 11,
-      "agent": "BitboardAgent",
+      "agent": "PrincipalVariationAgent",
       "move": 2,
-      "think_time": 1.0008
+      "think_time": 1.8503
     },
     {
       "move_number": 12,
-      "agent": "AlphaBetaAgent",
-      "move": 4,
-      "think_time": 1.0001
+      "agent": "PrincipalVariationAgent",
+      "move": 3,
+      "think_time": 1.8501
     },
     {
       "move_number": 13,
-      "agent": "BitboardAgent",
+      "agent": "PrincipalVariationAgent",
       "move": 4,
-      "think_time": 1.0009
+      "think_time": 1.8506
     },
     {
       "move_number": 14,
-      "agent": "AlphaBetaAgent",
-      "move": 1,
-      "think_time": 1.0003
+      "agent": "PrincipalVariationAgent",
+      "move": 4,
+      "think_time": 1.8505
     },
     {
       "move_number": 15,
-      "agent": "BitboardAgent",
+      "agent": "PrincipalVariationAgent",
       "move": 4,
-      "think_time": 1.001
+      "think_time": 1.8503
     },
     {
       "move_number": 16,
-      "agent": "AlphaBetaAgent",
-      "move": 2,
-      "think_time": 1.0002
+      "agent": "PrincipalVariationAgent",
+      "move": 3,
+      "think_time": 1.8504
     },
     {
       "move_number": 17,
-      "agent": "BitboardAgent",
-      "move": 5,
-      "think_time": 1.0007
+      "agent": "PrincipalVariationAgent",
+      "move": 6,
+      "think_time": 1.6633
     },
     {
       "move_number": 18,
-      "agent": "AlphaBetaAgent",
+      "agent": "PrincipalVariationAgent",
       "move": 5,
-      "think_time": 1.0
-    },
-    {
-      "move_number": 19,
-      "agent": "BitboardAgent",
-      "move": 0,
-      "think_time": 1.0004
-    },
-    {
-      "move_number": 20,
-      "agent": "AlphaBetaAgent",
-      "move": 4,
-      "think_time": 1.0005
-    },
-    {
-      "move_number": 21,
-      "agent": "BitboardAgent",
-      "move": 1,
-      "think_time": 0.1329
-    },
-    {
-      "move_number": 22,
-      "agent": "AlphaBetaAgent",
-      "move": 5,
-      "think_time": 1.0001
-    },
-    {
-      "move_number": 23,
-      "agent": "BitboardAgent",
-      "move": 5,
-      "think_time": 0.0489
-    },
-    {
-      "move_number": 24,
-      "agent": "AlphaBetaAgent",
-      "move": 5,
-      "think_time": 1.0001
-    },
-    {
-      "move_number": 25,
-      "agent": "BitboardAgent",
-      "move": 5,
-      "think_time": 0.0232
-    },
-    {
-      "move_number": 26,
-      "agent": "AlphaBetaAgent",
-      "move": 0,
-      "think_time": 0.9692
-    },
-    {
-      "move_number": 27,
-      "agent": "BitboardAgent",
-      "move": 0,
-      "think_time": 0.0093
-    },
-    {
-      "move_number": 28,
-      "agent": "AlphaBetaAgent",
-      "move": 0,
-      "think_time": 0.4715
-    },
-    {
-      "move_number": 29,
-      "agent": "BitboardAgent",
-      "move": 0,
-      "think_time": 0.0055
-    },
-    {
-      "move_number": 30,
-      "agent": "AlphaBetaAgent",
-      "move": 0,
-      "think_time": 0.2853
-    },
-    {
-      "move_number": 31,
-      "agent": "BitboardAgent",
-      "move": 6,
-      "think_time": 0.0014
-    },
-    {
-      "move_number": 32,
-      "agent": "AlphaBetaAgent",
-      "move": 6,
-      "think_time": 0.074
-    },
-    {
-      "move_number": 33,
-      "agent": "BitboardAgent",
-      "move": 3,
-      "think_time": 0.0007
-    },
-    {
-      "move_number": 34,
-      "agent": "AlphaBetaAgent",
-      "move": 3,
-      "think_time": 0.0325
-    },
-    {
-      "move_number": 35,
-      "agent": "BitboardAgent",
-      "move": 3,
-      "think_time": 1.0008
-    },
-    {
-      "move_number": 36,
-      "agent": "BitboardAgent",
-      "move": 3,
-      "think_time": 1.0009
-    },
-    {
-      "move_number": 37,
-      "agent": "BitboardAgent",
-      "move": 4,
-      "think_time": 1.0014
-    },
-    {
-      "move_number": 38,
-      "agent": "BitboardAgent",
-      "move": 4,
-      "think_time": 1.0007
-    },
-    {
-      "move_number": 39,
-      "agent": "BitboardAgent",
-      "move": 4,
-      "think_time": 1.0007
-    },
-    {
-      "move_number": 40,
-      "agent": "BitboardAgent",
-      "move": 4,
-      "think_time": 1.0006
-    },
-    {
-      "move_number": 41,
-      "agent": "BitboardAgent",
-      "move": 0,
-      "think_time": 0.2809
-    },
-    {
-      "move_number": 42,
-      "agent": "BitboardAgent",
-      "move": 1,
-      "think_time": 0.536
-    },
-    {
-      "move_number": 43,
-      "agent": "BitboardAgent",
-      "move": 1,
-      "think_time": 1.0004
-    },
-    {
-      "move_number": 44,
-      "agent": "BitboardAgent",
-      "move": 5,
-      "think_time": 1.0004
-    },
-    {
-      "move_number": 45,
-      "agent": "BitboardAgent",
-      "move": 5,
-      "think_time": 1.0006
-    },
-    {
-      "move_number": 46,
-      "agent": "BitboardAgent",
-      "move": 5,
-      "think_time": 1.0003
-    },
-    {
-      "move_number": 47,
-      "agent": "BitboardAgent",
-      "move": 6,
-      "think_time": 0.356
-    },
-    {
-      "move_number": 48,
-      "agent": "BitboardAgent",
-      "move": 0,
-      "think_time": 0.2141
-    },
-    {
-      "move_number": 49,
-      "agent": "BitboardAgent",
-      "move": 2,
-      "think_time": 0.0868
-    },
-    {
-      "move_number": 50,
-      "agent": "BitboardAgent",
-      "move": 0,
-      "think_time": 0.0248
-    },
-    {
-      "move_number": 51,
-      "agent": "BitboardAgent",
-      "move": 2,
-      "think_time": 0.0065
-    },
-    {
-      "move_number": 52,
-      "agent": "BitboardAgent",
-      "move": 2,
-      "think_time": 0.0025
-    },
-    {
-      "move_number": 53,
-      "agent": "BitboardAgent",
-      "move": 6,
-      "think_time": 0.0002
+      "think_time": 0.0804
     }
   ],
   "statistics": {
-    "total_moves": 54,
+    "total_moves": 19,
     "agents": {
-      "AlphaBetaAgent": {
-        "total_moves": 18,
-        "total_think_time": 14.8359,
-        "avg_think_time": 0.8242
-      },
-      "BitboardAgent": {
-        "total_moves": 36,
-        "total_think_time": 21.7455,
-        "avg_think_time": 0.604
+      "PrincipalVariationAgent": {
+        "total_moves": 19,
+        "total_think_time": 33.2034,
+        "avg_think_time": 1.7475
       }
     }
   }

@@ -11,7 +11,7 @@ class SearchTimeout(Exception):
 
 
 # MAX_THINK_TIME = 1.85
-SEARCH_DEADLINE = float("inf")
+SEARCH_DEADLINE = INF
 
 
 def _check_timeout():
@@ -46,7 +46,7 @@ def _ordered_moves(valid_moves, config):
 # MINIMAX DECISION TREE LAYER - Quyết định nước đi tối ưu
 # ============================================================================
 
-def score_move_a(grid, col, mark, config, n_steps=1, alpha=float("-inf"), beta=float("inf")):
+def score_move_a(grid, col, mark, config, n_steps=1, alpha=NNF, beta=INF):
     """
     Minimax Layer: Tính điểm khi ĐẾN LƯỢT BẠN.
     
@@ -70,10 +70,10 @@ def score_move_a(grid, col, mark, config, n_steps=1, alpha=float("-inf"), beta=f
     _check_timeout()
     #Since we have just dropped our piece there is only the possibility of us getting 4 in a row and not the opponent.
     #Thus score can only be +infinity.
-    if len(valid_moves)==0 or n_steps ==0 or score == float("inf"):
+    if len(valid_moves)==0 or n_steps ==0 or score == INF:
         return score
     else:
-        value = float("inf")
+        value = INF
         ordered_moves = _ordered_moves(valid_moves, config)
         for next_col in ordered_moves:
             child_score = score_move_b(next_grid, next_col, mark, config, n_steps-1, alpha, beta)
@@ -83,7 +83,7 @@ def score_move_a(grid, col, mark, config, n_steps=1, alpha=float("-inf"), beta=f
                 break
         return value
 
-def score_move_b(grid, col, mark, config, n_steps, alpha=float("-inf"), beta=float("inf")):
+def score_move_b(grid, col, mark, config, n_steps, alpha=NNF, beta=INF):
     """
     Minimax Layer: Tính điểm khi ĐẾN LƯỢT ĐỐI THỦ.
     """
@@ -97,7 +97,7 @@ def score_move_b(grid, col, mark, config, n_steps, alpha=float("-inf"), beta=flo
     if len(valid_moves)==0 or n_steps ==0 or score == float ("-inf"):
         return score
     else:
-        value = float("-inf")
+        value = NNF
         ordered_moves = _ordered_moves(valid_moves, config)
         for next_col in ordered_moves:
             child_score = score_move_a(next_grid, next_col, mark, config, n_steps-1, alpha, beta)
@@ -140,10 +140,10 @@ def agent(obs, config):
     grid = np.asarray(obs.board).reshape(config.rows, config.columns)
     try:
         for depth in range(1, 20):
-            depth_best_score = float("-inf")
+            depth_best_score = NNF
             depth_best_move = best_move
-            alpha = float("-inf")
-            beta = float("inf")
+            alpha = NNF
+            beta = INF
             for col in _ordered_moves(valid_moves, config):
                 _check_timeout()
                 score = score_move_a(grid, col, obs.mark, config, depth, alpha, beta)

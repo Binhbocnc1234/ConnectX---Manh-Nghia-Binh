@@ -3,8 +3,8 @@ import webbrowser
 import os
 import log_system as log_system
 import Agents.AlphaBetaAgent as AlphaBetaAgent
-import Agents.PrincipalVariationAgent as Principal
-import Agents.PremiumAgent as PremiumAgent
+import Agents.ZobristHasingAgent as Zob
+# import Agents.PrincipalVariationAgent_2 as PremiumAgent
 import Agents.BitboardAgent as BitBoardAgent;
 
 # Khởi tạo game log
@@ -16,7 +16,7 @@ env = make("connectx", debug=True)
 # cho bot đánh nhau
 # Agent đầu tiên: piece màu xanh có chữ K, đi trước
 # Agent thứ 2: piece màu xám hình con vịt
-env.run([AlphaBetaAgent.agent, Principal.agent])
+env.run([Zob.agent, Zob.agent])
 
 # render HTML
 html = env.render(mode="html")
@@ -34,3 +34,4 @@ log_system.print_game_summary()
 
 print("Đã mở cửa sổ xem game!")
 
+# zobrist thua bitboard

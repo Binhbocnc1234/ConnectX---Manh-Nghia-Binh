@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 import Agents.AlphaBetaAgent as AlphaBetaAgent
 import Agents.BitboardAgent as BitBoardAgent
-import Agents.PrincipalVariationAgent as Principal
+import Agents.ZobristHasingAgent as Principal
 import log_system
 
 

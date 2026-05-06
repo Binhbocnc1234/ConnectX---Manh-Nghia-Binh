@@ -8,7 +8,7 @@ import log_system
 class SearchTimeout(Exception):
     """Raised when minimax search exceeds the global time budget."""
 
-SEARCH_DEADLINE = float("inf")
+SEARCH_DEADLINE = INF
 
 
 def _check_timeout():
@@ -51,7 +51,7 @@ def get_heuristic(grid, mark, config):
     num = count_windows(grid,mark,config)
     for i in range(config.inarow):
         if (i==(config.inarow-1) and num[i+1] >= 1):
-            return float("inf")
+            return INF
         score += (4**(i))*num[i+1]
     num_opp = count_windows (grid,mark%2+1,config)
     for i in range(config.inarow):
@@ -130,7 +130,7 @@ def score_move_a(grid, col, mark, config,n_steps=1):
     score = get_heuristic(next_grid, mark, config)
     #Since we have just dropped our piece there is only the possibility of us getting 4 in a row and not the opponent.
     #Thus score can only be +infinity.
-    if len(valid_moves)==0 or n_steps ==0 or score == float("inf"):
+    if len(valid_moves)==0 or n_steps ==0 or score == INF:
         return score
     else :
         scores = []
@@ -189,7 +189,7 @@ def agent(obs, config):
 
     center_col = config.columns // 2
     best_move = min(valid_moves, key=lambda c: abs(c - center_col))
-    best_score = float("-inf")
+    best_score = NNF
     scores = {}
 
     grid = np.asarray(obs.board).reshape(config.rows, config.columns)
