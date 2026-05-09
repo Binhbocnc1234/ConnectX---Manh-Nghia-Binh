@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-05-06T21:50:29.823733",
+    "timestamp": "2026-05-08T23:59:56.329030",
     "game": "ConnectX",
     "config": {
       "rows": 6,
@@ -13,13 +13,13 @@
       "move_number": 0,
       "agent": "OpeningBookAgent",
       "move": 3,
-      "think_time": 15.266
+      "think_time": 0.0
     },
     {
       "move_number": 1,
-      "agent": "ZobristHashing",
+      "agent": "OpeningBookAgent",
       "move": 3,
-      "think_time": 1.2007
+      "think_time": 0.0
     },
     {
       "move_number": 2,
@@ -29,185 +29,120 @@
     },
     {
       "move_number": 3,
-      "agent": "ZobristHashing",
-      "move": 3,
-      "think_time": 1.2005
+      "agent": "OpeningBookAgent",
+      "move": 2,
+      "think_time": 0.0
     },
     {
       "move_number": 4,
       "agent": "OpeningBookAgent",
-      "move": 3,
+      "move": 1,
       "think_time": 0.0
     },
     {
       "move_number": 5,
-      "agent": "ZobristHashing",
-      "move": 3,
-      "think_time": 1.2006
+      "agent": "OpeningBookAgent",
+      "move": 1,
+      "think_time": 0.0
     },
     {
       "move_number": 6,
       "agent": "OpeningBookAgent",
-      "move": 2,
-      "think_time": 0.0
+      "move": 5,
+      "think_time": 1.8405
     },
     {
       "move_number": 7,
-      "agent": "ZobristHashing",
-      "move": 1,
-      "think_time": 1.2006
+      "agent": "OpeningBookAgent",
+      "move": 4,
+      "think_time": 1.8403
     },
     {
       "move_number": 8,
       "agent": "OpeningBookAgent",
-      "move": 1,
-      "think_time": 0.0
+      "move": 4,
+      "think_time": 1.8407
     },
     {
       "move_number": 9,
-      "agent": "ZobristHashing",
-      "move": 2,
-      "think_time": 1.2049
+      "agent": "OpeningBookAgent",
+      "move": 4,
+      "think_time": 1.8405
     },
     {
       "move_number": 10,
       "agent": "OpeningBookAgent",
-      "move": 1,
-      "think_time": 0.0
+      "move": 2,
+      "think_time": 1.1731
     },
     {
       "move_number": 11,
-      "agent": "ZobristHashing",
-      "move": 1,
-      "think_time": 1.201
+      "agent": "OpeningBookAgent",
+      "move": 4,
+      "think_time": 0.4213
     },
     {
       "move_number": 12,
       "agent": "OpeningBookAgent",
-      "move": 1,
-      "think_time": 1.2005
+      "move": 5,
+      "think_time": 0.4117
     },
     {
       "move_number": 13,
-      "agent": "ZobristHashing",
+      "agent": "OpeningBookAgent",
       "move": 5,
-      "think_time": 1.2006
+      "think_time": 0.073
     },
     {
       "move_number": 14,
       "agent": "OpeningBookAgent",
-      "move": 2,
-      "think_time": 0.0
+      "move": 0,
+      "think_time": 0.0834
     },
     {
       "move_number": 15,
-      "agent": "ZobristHashing",
-      "move": 2,
-      "think_time": 1.2005
+      "agent": "OpeningBookAgent",
+      "move": 0,
+      "think_time": 0.0171
     },
     {
       "move_number": 16,
       "agent": "OpeningBookAgent",
-      "move": 2,
-      "think_time": 0.0
+      "move": 0,
+      "think_time": 0.0069
     },
     {
       "move_number": 17,
-      "agent": "ZobristHashing",
-      "move": 5,
-      "think_time": 0.8551
+      "agent": "OpeningBookAgent",
+      "move": 6,
+      "think_time": 0.0099
     },
     {
       "move_number": 18,
       "agent": "OpeningBookAgent",
-      "move": 6,
-      "think_time": 0.0
+      "move": 2,
+      "think_time": 0.0013
     },
     {
       "move_number": 19,
-      "agent": "ZobristHashing",
-      "move": 5,
-      "think_time": 0.7118
+      "agent": "OpeningBookAgent",
+      "move": 6,
+      "think_time": 0.0011
     },
     {
       "move_number": 20,
       "agent": "OpeningBookAgent",
-      "move": 5,
-      "think_time": 0.0
-    },
-    {
-      "move_number": 21,
-      "agent": "ZobristHashing",
-      "move": 5,
-      "think_time": 0.6897
-    },
-    {
-      "move_number": 22,
-      "agent": "OpeningBookAgent",
-      "move": 6,
-      "think_time": 0.0
-    },
-    {
-      "move_number": 23,
-      "agent": "ZobristHashing",
       "move": 2,
-      "think_time": 0.2233
-    },
-    {
-      "move_number": 24,
-      "agent": "OpeningBookAgent",
-      "move": 1,
-      "think_time": 0.0001
-    },
-    {
-      "move_number": 25,
-      "agent": "ZobristHashing",
-      "move": 5,
-      "think_time": 0.0078
-    },
-    {
-      "move_number": 26,
-      "agent": "OpeningBookAgent",
-      "move": 0,
-      "think_time": 0.0189
-    },
-    {
-      "move_number": 27,
-      "agent": "ZobristHashing",
-      "move": 6,
-      "think_time": 0.0022
-    },
-    {
-      "move_number": 28,
-      "agent": "OpeningBookAgent",
-      "move": 6,
-      "think_time": 0.0001
-    },
-    {
-      "move_number": 29,
-      "agent": "ZobristHashing",
-      "move": 0,
-      "think_time": 0.0018
-    },
-    {
-      "move_number": 30,
-      "agent": "OpeningBookAgent",
-      "move": 0,
-      "think_time": 0.0001
+      "think_time": 0.0006
     }
   ],
   "statistics": {
-    "total_moves": 31,
+    "total_moves": 21,
     "agents": {
       "OpeningBookAgent": {
-        "total_moves": 16,
-        "total_think_time": 16.4857,
-        "avg_think_time": 1.0304
-      },
-      "ZobristHashing": {
-        "total_moves": 15,
-        "total_think_time": 12.1011,
-        "avg_think_time": 0.8067
+        "total_moves": 21,
+        "total_think_time": 9.5614,
+        "avg_think_time": 0.4553
       }
     }
   }

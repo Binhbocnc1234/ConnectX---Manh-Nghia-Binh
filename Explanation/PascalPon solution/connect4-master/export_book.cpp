@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
     while (head < queue.size()) {
         Node node = queue[head++];
         
-        if (node.p.nbMoves() > 10) continue; // Up to ply 10
+        if (node.p.nbMoves() > 14) continue; // Up to ply 14
         
         uint64_t key = node.p.key3();
         if (visited.count(key)) continue;

@@ -1,7 +1,7 @@
 import numpy as np
 from types import SimpleNamespace
 
-import Agents.ZobristHasingAgent as PrincipalAgent
+import Agents.OpeningBook as PrincipalAgent
 
 
 ROWS = 6

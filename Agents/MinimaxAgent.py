@@ -2,7 +2,7 @@ import random
 import time
 import numpy as np
 from Agents.foundation import *
-import log_system
+import Output.log_system
 
 
 class SearchTimeout(Exception):

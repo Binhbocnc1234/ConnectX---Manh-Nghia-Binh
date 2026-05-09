@@ -3,7 +3,7 @@ import time
 import numpy as np
 from Agents.foundation import *
 from Agents.heuristic import *
-import log_system
+import Output.log_system
 
 
 class SearchTimeout(Exception):

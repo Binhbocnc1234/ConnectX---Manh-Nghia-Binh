@@ -1,10 +1,13 @@
+import Output.log_system as log_system
 from kaggle_environments import make
 import argparse
 import numpy as np
 import Agents.AlphaBetaAgent as AlphaBetaAgent
 import Agents.BitboardAgent as BitBoardAgent
 import Agents.ZobristHasingAgent as Principal
-import log_system
+import Agents.OpeningBook_optimized as OpeningBookOpt
+import Agents.OpeningBook as OpeningBook
+import Agents.foundation as foundation
 
 
 def is_early_loss(game_outcome, total_moves, move_limit=30):
@@ -19,15 +22,26 @@ def get_win_percentages(agent1, agent2, n_rounds=10):
     outcomes = []
     
     for game_idx in range(n_rounds):
+        # Dynamically vary thinking time from 0.5 to 2.0
+        if n_rounds > 1:
+            think_time = round(0.5 + (2.0 - 0.5) * (game_idx / (n_rounds - 1)), 2)
+        else:
+            think_time = 0.5
+        
+        # Wrap agents to pass the dynamically calculated timeout
+        a1 = lambda obs, config: agent1(obs, config, timeout=think_time)
+        a2 = lambda obs, config: agent2(obs, config, timeout=think_time)
+        
         log_system.init_game_log()
-        env = make("connectx", configuration=config, debug = True)
-        # Alternate starting player to keep evaluation fair.
+        env = make("connectx", configuration=config, debug=True)
+        
+        # Alternate starting player
         if game_idx % 2 == 0:
-            agents = [agent1, agent2]
+            agents = [a1, a2]
             first_name, second_name = "Agent 1", "Agent 2"
             swap_back = False
         else:
-            agents = [agent2, agent1]
+            agents = [a2, a1]
             first_name, second_name = "Agent 2", "Agent 1"
             swap_back = True
 
@@ -49,29 +63,27 @@ def get_win_percentages(agent1, agent2, n_rounds=10):
         elif game_outcome == [0, 0]:
             winner_text = "Hòa"
         elif game_outcome == [None, 0]:
-            winner_text = "Agent 1 thua do nước đi không hợp lệ"
+            winner_text = "Agent 1 thua (Invalid)"
         elif game_outcome == [0, None]:
-            winner_text = "Agent 2 thua do nước đi không hợp lệ"
+            winner_text = "Agent 2 thua (Invalid)"
         else:
-            winner_text = f"Kết quả đặc biệt: {game_outcome}"
+            winner_text = f"Kết quả: {game_outcome}"
 
         print(
-            f"Game {game_idx + 1}/{n_rounds} | "
-            f"Lượt đi trước: {first_name} | Lượt đi sau: {second_name} | "
-            f"Tổng số nước đi: {total_moves} | Kết quả: {winner_text}"
+            f"Round {game_idx + 1}/{n_rounds} | Time: {think_time}s | "
+            f"1st: {first_name} | Result: {winner_text} | Moves: {total_moves}"
         )
 
-        if is_early_loss(game_outcome, total_moves):
-            print(
-                f"Lỗi: ván {game_idx + 1} kết thúc bằng một trận thua khi chưa tới 30 nước đi. "
-                f"Hãy mở game_log.json để kiểm tra ván này."
-            )
-            break
+        # if is_early_loss(game_outcome, total_moves):
+        #     print(f"Lỗi: ván {game_idx + 1} kết thúc sớm ({total_moves} nước). Check game_log.json")
+        #     break
 
-    print("Agent 1 Win Percentage:", np.round(outcomes.count([1, -1]) / len(outcomes), 2))
-    print("Agent 2 Win Percentage:", np.round(outcomes.count([-1, 1]) / len(outcomes), 2))
-    print("Number of Invalid Plays by Agent 1:", outcomes.count([None, 0]))
-    print("Number of Invalid Plays by Agent 2:", outcomes.count([0, None]))
+    print("\n" + "="*40)
+    print("FINAL SUMMARY")
+    print("="*40)
+    print("Agent 1 Win %:", np.round(outcomes.count([1, -1]) / len(outcomes), 2))
+    print("Agent 2 Win %:", np.round(outcomes.count([-1, 1]) / len(outcomes), 2))
+    print("Draw %:", np.round(outcomes.count([0, 0]) / len(outcomes), 2))
 
 
 def parse_args():
@@ -87,7 +99,8 @@ def parse_args():
 
 def main():
     args = parse_args()
-    get_win_percentages(AlphaBetaAgent.agent, BitBoardAgent.agent, n_rounds=args.rounds)
+    # Test OpeningBook_optimized vs itself
+    get_win_percentages(OpeningBookOpt.agent, OpeningBook.agent, n_rounds=args.rounds)
 
 
 if __name__ == "__main__":

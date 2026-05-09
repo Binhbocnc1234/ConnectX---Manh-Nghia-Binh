@@ -1,5 +1,5 @@
+from Agents.OpeningBook_optimized import log_system
 import time
-import log_system
 from Agents.foundation import *
 from Agents.heuristic import get_heuristic_bb
 
@@ -229,10 +229,14 @@ def pvs(me, opp, depth, alpha, beta, deadline):
     _tt_store(key64, depth, value, flag, store_move)
     return value
 
-def agent(obs, config):
+def agent(obs, config, timeout=2):
+    print("[ZobristHasingAgent] Start turn", obs.step)
     global searching_depth
     start_time = time.perf_counter()
-    deadline = start_time + MAX_THINK_TIME
+    
+    base_timeout = timeout if timeout is not None else getattr(config, 'timeout', 2)
+    think_time_budget = base_timeout * 0.92
+    deadline = start_time + think_time_budget
 
     me, opp = encode(obs.board, obs.mark)
     
@@ -287,7 +291,7 @@ def agent(obs, config):
         pass
         
     think_time = time.perf_counter() - start_time
-    print("Principal agent reached depth", reachedDepth)
+    print("[ZobristHashingAgent] reached depth", reachedDepth)
     try:
         log_system.log_move("ZobristHashing", int(best_move), think_time)
     except Exception:

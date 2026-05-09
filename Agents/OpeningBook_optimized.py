@@ -1,6 +1,8 @@
-from Agents.OpeningBook_optimized import log_system
 import time
-import Output.log_system
+try:
+    import Output.log_system as log_system
+except Exception:
+    log_system = None
 from Agents.foundation import *
 from Agents.heuristic import get_heuristic_bb
 
@@ -176,33 +178,133 @@ def load_opening_book():
         return
     OPENING_BOOK = {}
     
-    # Locate opening_book.jsonl in the same directory as this script
+    # Use binary format for 10x faster loading
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    book_path = os.path.join(current_dir, "opening_book.jsonl")
+    book_path = os.path.join(current_dir, "opening_book.bin")
     
     if os.path.exists(book_path):
         count = 0
         try:
-            with open(book_path, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    data = json.loads(line)
-                    me_book, opp_book, move = data["me"], data["opp"], data["move"]
-                    key64, flip = _canonical_tt_key(me_book, opp_book)
-                    
-                    # Cần lưu lại nước đi đối với trạng thái canonical. 
-                    # Nếu trạng thái (me_book, opp_book) bị lật để thành canonical, thì nước đi cũng phải lật.
-                    canonical_move = 6 - move if flip else move
-                    OPENING_BOOK[key64] = canonical_move
-                    count += 1
-            print(f"[Opening Book] Loaded {count} canonical positions from {book_path}.")
-        except Exception as e:
-            print(f"[Opening Book] Error loading book: {e}")
-    else:
-        print(f"[Opening Book] Warning: {book_path} not found. Proceeding without book.")
+            import struct
+            with open(book_path, "rb") as f:
+                magic = f.read(4)
+                if magic != b"BK01":
+                    print(f"[Opening Book] Warning: {book_path} is not in expected BK01 binary format.")
+                    return
+                
+                raw_data = f.read()
+            
+            # Each entry is 17 bytes: uint64(me), uint64(opp), uint8(move)
+            entry_size = 17
+            num_entries = len(raw_data) // entry_size
+            
+            for i in range(num_entries):
+                # Progress reporting
+                if i == num_entries // 4:
+                    print("[Opening Book] Loading... 25%")
+                elif i == num_entries // 2:
+                    print("[Opening Book] Loading... 50%")
+                elif i == (num_entries * 3) // 4:
+                    print("[Opening Book] Loading... 75%")
+                
+                offset = i * entry_size
+                me, opp, move = struct.unpack_from("<QQB", raw_data, offset)
+                
+                # Store normal
+                OPENING_BOOK[(me, opp)] = move
+                
+                # Store mirror
+                m_me = mirror_board(me)
+                m_opp = mirror_board(opp)
+                if (m_me, m_opp) != (me, opp):
+                    OPENING_BOOK[(m_me, m_opp)] = 6 - move
+                
+                count += 1
 
+            print("[Opening Book] Loading... 100%")
+            print(f"[Opening Book] Loaded {count} positions ({len(OPENING_BOOK)} entries with mirror) from {book_path} (Binary).")
+        except Exception as e:
+            print(f"[Opening Book] Error loading binary book: {e}")
+    else:
+        # Fallback to old name if bin doesn't exist
+        old_path = os.path.join(current_dir, "small_book_pruned.jsonl")
+        if os.path.exists(old_path):
+            print(f"[Opening Book] Warning: binary book not found, please re-export using export_book_pruned.cpp for faster loading.")
+            # (Old JSONL loading logic removed to keep script clean and encourage binary migration)
+        else:
+            print(f"[Opening Book] Warning: No opening book found at {book_path}")
+
+
+# -------------------------
+# Threat detection helpers
+# -------------------------
+
+def _get_valid_moves(me, opp):
+    """Return list of valid columns in center-first order."""
+    moves = []
+    for col in MOVE_ORDER:
+        if not ((me | opp) & (1 << (col * 7 + 5))):
+            moves.append(col)
+    return moves
+
+
+def _make_move(me, opp, col):
+    """Return new_piece bitmask for playing in col. Returns 0 if col is full."""
+    col_mask = 0b111111 << (col * 7)
+    occupied = (me | opp) & col_mask
+    if occupied & (1 << (col * 7 + 5)):
+        return 0  # full
+    return (occupied + (1 << (col * 7))) & col_mask
+
+
+def _find_winning_move(me, opp):
+    """Check if current player has a winning move. Return col or -1."""
+    for col in MOVE_ORDER:
+        new_piece = _make_move(me, opp, col)
+        if new_piece and is_win(me | new_piece):
+            return col
+    return -1
+
+
+def _find_forced_block(me, opp):
+    """Check if opponent wins next turn. If so, return the blocking col(s).
+    Returns (single_block_col, must_block) where must_block=True if we MUST block.
+    If opponent has 2+ winning moves, we're dead but still return one to delay.
+    Returns (-1, False) if no threat.
+    """
+    threat_cols = []
+    for col in MOVE_ORDER:
+        new_piece = _make_move(opp, me, col)  # opponent plays
+        if new_piece and is_win(opp | new_piece):
+            threat_cols.append(col)
+    
+    if not threat_cols:
+        return -1, False
+    if len(threat_cols) == 1:
+        return threat_cols[0], True
+    # Multiple threats - we're likely lost, but block one
+    return threat_cols[0], True
+
+
+# -------------------------
+# Killer moves heuristic
+# -------------------------
+killer_moves = {}  # depth -> [col, col]
+
+def _record_killer(depth, col):
+    if depth not in killer_moves:
+        killer_moves[depth] = [col, -1]
+    elif killer_moves[depth][0] != col:
+        killer_moves[depth][1] = killer_moves[depth][0]
+        killer_moves[depth][0] = col
+
+def _get_killer(depth):
+    return killer_moves.get(depth, [-1, -1])
+
+
+# -------------------------
+# PVS Search
+# -------------------------
 
 searching_depth = 0
 def pvs(me, opp, depth, alpha, beta, deadline):
@@ -227,12 +329,18 @@ def pvs(me, opp, depth, alpha, beta, deadline):
     best_move = -1
     first_child = True
 
-    # Move ordering: TT best move (nếu hợp lệ) -> center-first order.
+    # Move ordering: TT best -> killer moves -> center-first order.
     ordered = []
     if tt_best != -1:
         ordered.append(tt_best)
+    
+    killers = _get_killer(depth)
+    for k in killers:
+        if k != -1 and k != tt_best:
+            ordered.append(k)
+    
     for c in MOVE_ORDER:
-        if c != tt_best:
+        if c not in ordered:
             ordered.append(c)
 
     for col in ordered:
@@ -256,6 +364,7 @@ def pvs(me, opp, depth, alpha, beta, deadline):
             best_move = col
         alpha = max(alpha, value)
         if alpha >= beta:
+            _record_killer(depth, col)
             break
 
     # Store to TT with bound type + bestMove.
@@ -275,22 +384,25 @@ def pvs(me, opp, depth, alpha, beta, deadline):
     return value
 
 def agent(obs, config, timeout=2):
-    print("[OpeningBook] Start turn", obs.step)
+    print("[OpeningBookOpt] Start turn", obs.step)
     global searching_depth
     start_time = time.perf_counter()
     
     # 1. Determine thinking time budget
+    # Use the passed timeout parameter if available, otherwise fallback to config.timeout
     base_timeout = timeout if timeout is not None else getattr(config, 'timeout', 2)
     overage = getattr(obs, 'remainingOverageTime', 0)
     
     is_first_turn = (obs.step == 0 or obs.step == 1)
     
     if is_first_turn:
-        # First turn: use up to 55s (Kaggle rule)
+        # First turn: Use most of the 60s overage pool if available
         think_time_budget = base_timeout + min(overage, 55.0)
-        print(f"[OpeningBook] First turn. Budget: {think_time_budget:.1f}s")
+        print(f"[OpeningBookOpt] First turn. Budget: {think_time_budget:.1f}s (incl. overage)")
     else:
-        # Normal turns: respect config.timeout
+        # Normal turns: Use actTimeout with a small safety margin
+        # If we have a lot of overage left, we could spend a bit more, but 
+        # usually 2s is enough for depth 20+ with PVS.
         think_time_budget = base_timeout * 0.92
         
     deadline = start_time + think_time_budget
@@ -300,22 +412,34 @@ def agent(obs, config, timeout=2):
     # Nạp Opening Book nếu chưa nạp
     load_opening_book()
     
-    # 2. Query Opening Book (Fast Path)
-    key64, flip = _canonical_tt_key(me, opp)
-    if key64 in OPENING_BOOK:
-        best_move = OPENING_BOOK[key64]
-        if flip:
-            best_move = 6 - best_move
+    # 2. Instant win check
+    win_col = _find_winning_move(me, opp)
+    if win_col != -1:
+        print(f"[Instant Win] Playing column {win_col}")
+        _log_move(win_col, start_time)
+        return win_col
+    
+    # 3. Forced block check (opponent wins next turn)
+    block_col, must_block = _find_forced_block(me, opp)
+    if must_block:
+        # Verify the block doesn't immediately lose
+        # If only one blocking move, we must play it
+        valid = _get_valid_moves(me, opp)
+        if block_col in valid:
+            print(f"[Forced Block] Must block opponent at column {block_col}")
+            _log_move(block_col, start_time)
+            return block_col
+    
+    # 4. Query Opening Book (Fast Path) - key is (me, opp) tuple
+    book_key = (me, opp)
+    if book_key in OPENING_BOOK:
+        best_move = OPENING_BOOK[book_key]
         print(f"[Opening Book Hit] Playing precomputed move: {best_move}")
-        
-        think_time = time.perf_counter() - start_time
-        try:
-            log_system.log_move("OpeningBookAgent", int(best_move), think_time)
-        except Exception:
-            pass
+        _log_move(best_move, start_time)
         return int(best_move)
         
-    # 3. Query TT for a move ordering hint (NOT a blind shortcut)
+    # 5. Query TT for a move ordering hint
+    key64, flip = _canonical_tt_key(me, opp)
     tt_hint_move = -1
     idx = key64 & TT_BUCKET_MASK
     bucket = tt.get(idx)
@@ -328,19 +452,19 @@ def agent(obs, config, timeout=2):
         if tt_hint_move != -1 and flip:
             tt_hint_move = 6 - tt_hint_move
 
-    valid_moves = [c for c in [3, 2, 4, 1, 5, 0, 6] if obs.board[c] == 0]
+    valid_moves = _get_valid_moves(me, opp)
     if not valid_moves: return 0
     
     center_col = config.columns // 2
     # Use TT hint as initial best_move for move ordering if available, otherwise center
     best_move = tt_hint_move if (tt_hint_move != -1 and tt_hint_move in valid_moves) else min(valid_moves, key=lambda c: abs(c - center_col))
-    reachedDepth = 2
+    reachedDepth = 0
     
     # First turn search goes much deeper to seed the entire early-game TT tree
-    max_search_depth = 24 if is_first_turn else 20
+    max_search_depth = 30 if is_first_turn else 24
     
     try:
-        for depth in range(reachedDepth - 2, max_search_depth, 2):
+        for depth in range(0, max_search_depth, 2):
             searching_depth = depth
             best_score = NNF
             move_at_this_depth = best_move
@@ -351,11 +475,12 @@ def agent(obs, config, timeout=2):
                 if time.perf_counter() > deadline:
                     raise TimeoutError
                 
-                col_mask = 0b111111 << (col * 7)
-                occupied = (me | opp) & col_mask
-                new_piece = (occupied + (1 << (col * 7))) & col_mask
+                new_piece = _make_move(me, opp, col)
+                if not new_piece:
+                    continue
                 
                 if is_win(me | new_piece):
+                    _log_move(col, start_time)
                     return col
                 
                 if col == moves[0]:
@@ -376,18 +501,22 @@ def agent(obs, config, timeout=2):
             best_move = move_at_this_depth
             print("At depth:", depth, "Best move:", best_move, scores)
             reachedDepth = depth
-            if best_score == INF:
-                break
+            if best_score >= MATE_SCORE - 42:
+                break  # Found forced win
             
     except TimeoutError:
         pass
         
-    # 4. (Đã xóa) Book động không còn được build sau khi search nữa vì dùng book tĩnh.
-        
     think_time = time.perf_counter() - start_time
-    print("[OpeningBook] reached depth", reachedDepth)
-    try:
-        log_system.log_move("OpeningBookAgent", int(best_move), think_time)
-    except Exception:
-        pass
+    print(f"[OpeningBook_opt] depth {reachedDepth}, move {best_move}, time {think_time:.3f}s")
+    _log_move(best_move, start_time)
     return int(best_move)
+
+
+def _log_move(move, start_time):
+    think_time = time.perf_counter() - start_time
+    # if log_system:
+    #     try:
+    #         log_system.log_move("OpeningBookOpt", int(move), think_time)
+    #     except Exception:
+    #         pass

@@ -87,13 +87,15 @@ def get_heuristic_bb(me, opp, remaining_depth = 0):
     num_opp = count_windows_bb(opp, me)
     for i in range(config.inarow):
         if i == (config.inarow - 1) and num_opp[i + 1] >= 1:
-            return NNF - remaining_depth # thua ngay
+            ply_count = (me | opp).bit_count()
+            return -(MATE_SCORE - ply_count) # thua ngay
         
     # Thắng/thua luôn là ưu tiên tuyệt đối, không để các điểm phụ lấn át.
     num = count_windows_bb(me, opp)
     for i in range(config.inarow):
         if i == (config.inarow - 1) and num[i + 1] >= 1:
-            return INF + remaining_depth  # thắng ngay
+            ply_count = (me | opp).bit_count() + 1
+            return (MATE_SCORE - ply_count)  # thắng ngay
 
     score = 0
     # Phần điểm chính: giống `get_heuristic()`.

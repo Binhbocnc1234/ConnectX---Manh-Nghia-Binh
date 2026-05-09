@@ -1,5 +1,5 @@
 import time
-import log_system
+import Output.log_system
 from Agents.foundation import *
 from Agents.heuristic import get_heuristic_bb
 
