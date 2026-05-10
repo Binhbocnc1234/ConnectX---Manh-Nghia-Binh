@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
@@ -19,6 +20,7 @@
 
 namespace {
 
+// Game constants and search/scoring constants are kept identical to Python logic.
 constexpr int ROWS = 6;
 constexpr int COLUMNS = 7;
 constexpr int INAROW = 4;
@@ -74,6 +76,7 @@ bool zobrist_ready = false;
 std::vector<std::uint64_t> bb_window_masks;
 bool bb_window_masks_ready = false;
 
+// Shared monotonic clock helper used for timeout checks and runtime logging.
 inline double now_seconds() {
     auto now = Clock::now().time_since_epoch();
     return std::chrono::duration<double>(now).count();
@@ -148,6 +151,7 @@ std::uint64_t zobrist_hash(std::uint64_t me, std::uint64_t opp) {
     return h & 0xFFFFFFFFFFFFFFFFULL;
 }
 
+// Canonical key picks original/mirrored orientation with deterministic tie-breaking.
 std::pair<std::uint64_t, bool> canonical_tt_key(std::uint64_t me, std::uint64_t opp) {
     std::uint64_t key = zobrist_hash(me, opp);
     std::uint64_t m_me = mirror_board(me);
@@ -195,6 +199,7 @@ TTProbeResult tt_probe(std::uint64_t key64, int depth, int alpha, int beta) {
     return {false, 0, alpha, beta, best_hint};
 }
 
+// Bucketed transposition-table replacement policy matches Python behavior.
 void tt_store(std::uint64_t key64, int depth, int value, int flag, int best_move) {
     int idx = static_cast<int>(key64 & TT_BUCKET_MASK);
     TTEntry entry{key64, depth, value, flag, best_move};
@@ -223,6 +228,7 @@ void tt_store(std::uint64_t key64, int depth, int value, int flag, int best_move
     bucket[victim_i] = entry;
 }
 
+// Precompute all 4-cell line masks once for fast bitboard heuristic evaluation.
 void ensure_bb_window_masks() {
     if (bb_window_masks_ready) return;
 
@@ -305,6 +311,7 @@ int get_heuristic_bb(std::uint64_t me, std::uint64_t opp) {
     return score;
 }
 
+// Bitboard win detection by directional shift-and-match checks.
 bool is_win(std::uint64_t b) {
     std::uint64_t m = b & (b << 7);
     if (m & (m << 14)) return true;
@@ -341,6 +348,7 @@ std::pair<std::uint64_t, std::uint64_t> encode_board(const int* board, int board
     return {me, opp};
 }
 
+// Threat pre-check helpers to detect immediate wins / forced blocks before deep search.
 std::vector<int> get_valid_moves(std::uint64_t me, std::uint64_t opp) {
     std::vector<int> moves;
     for (int col : MOVE_ORDER) {
@@ -378,6 +386,7 @@ std::pair<int, bool> find_forced_block(std::uint64_t me, std::uint64_t opp) {
     return {threat_cols[0], true};
 }
 
+// Killer-move tracking keeps strong cutoff candidates by depth.
 void record_killer(int depth, int col) {
     auto it = killer_moves.find(depth);
     if (it == killer_moves.end()) {
@@ -394,6 +403,7 @@ std::array<int, 2> get_killer(int depth) {
     return it->second;
 }
 
+// Principal Variation Search with TT bounds, killer ordering and null-window re-search.
 int pvs(std::uint64_t me, std::uint64_t opp, int depth, int alpha, int beta, double deadline) {
     if (is_win(opp)) {
         int ply_count = std::popcount(me | opp);
@@ -586,6 +596,7 @@ int opening_book_opt_agent_impl(
     bool has_overage,
     double overage
 ) {
+    // Keep user-visible stdout flow compatible with the Python implementation.
     std::cout << "[OpeningBookOpt] Start turn " << step << std::endl;
     TimePoint start_time = Clock::now();
 
@@ -661,6 +672,7 @@ int opening_book_opt_agent_impl(
     int max_search_depth = is_first_turn ? 30 : 24;
 
     try {
+        // Iterative deepening loop (depth 0,2,4,...) with per-depth score reporting.
         for (int depth = 0; depth < max_search_depth; depth += 2) {
             int best_score = NNF;
             int move_at_this_depth = best_move;
