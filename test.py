@@ -2,7 +2,7 @@ from kaggle_environments import make
 import webbrowser
 import os
 import Output.log_system as log_system
-import Agents.OpeningBook as OpeningBook
+import Agents.FastAgent as FastAgent
 import Agents.OpeningBook_optimized as OpeningBook_optimized
 import Agents.ZobristHasingAgent as Zob
 import Agents.PremiumAgent as Premium;
@@ -16,7 +16,7 @@ env = make("connectx", debug=True)
 # cho bot đánh nhau
 # Agent đầu tiên: piece màu xanh có chữ K, đi trước
 # Agent thứ 2: piece màu xám hình con vịt
-env.run([OpeningBook_optimized.agent, Zob.agent])
+env.run([OpeningBook_optimized.agent, OpeningBook_optimized.agent])
 
 # render HTML
 html = env.render(mode="html")

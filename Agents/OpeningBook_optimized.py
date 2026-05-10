@@ -239,6 +239,30 @@ def load_opening_book():
 # Threat detection helpers
 # -------------------------
 
+BOTTOM_ROW = sum(1 << (c * 7) for c in range(7))
+COLUMN_HEADERS = BOTTOM_ROW << 6
+VALID_CELLS = COLUMN_HEADERS - BOTTOM_ROW
+
+def _find_threats(b):
+    """Tìm tất cả các ô trống mà nếu b đánh vào sẽ tạo thành 4 quân liên tiếp."""
+    threats = 0
+    # Dọc: ô phía trên 3 quân thẳng đứng
+    pairs = b & (b << 1)
+    triple = pairs & (pairs << 1)
+    threats |= triple << 1
+    
+    # Ngang + 2 đường chéo
+    for stride in (7, 6, 8):
+        pairs = b & (b << stride)
+        triple = pairs & (pairs << stride)
+        threats |= (b >> stride) & (pairs << stride)       # Kiểu X_XX
+        threats |= (b << stride) & (pairs >> (2 * stride)) # Kiểu XX_X
+        threats |= triple << stride                        # Kiểu XXX_
+        threats |= triple >> (3 * stride)                  # Kiểu _XXX
+        
+    return threats & VALID_CELLS
+
+
 def _get_valid_moves(me, opp):
     """Return list of valid columns in center-first order."""
     moves = []
@@ -303,17 +327,16 @@ def _get_killer(depth):
 
 
 # -------------------------
-# PVS Search
+# PVS Search, trả về điểm của thế cờ
 # -------------------------
-
 searching_depth = 0
 def pvs(me, opp, depth, alpha, beta, deadline):
     if is_win(opp):
         ply_count = (me | opp).bit_count()
         return -(MATE_SCORE - ply_count)
     if depth == 0 or time.perf_counter() > deadline:
-        return get_heuristic_bb(me, opp)
-
+        return get_heuristic_bb(me, opp, (me | opp).bit_count() % 2)
+    
     alpha0, beta0 = alpha, beta
 
     key64, flip = _canonical_tt_key(me, opp)
@@ -343,13 +366,52 @@ def pvs(me, opp, depth, alpha, beta, deadline):
         if c not in ordered:
             ordered.append(c)
 
+    occupied = me | opp
+    playable_now = (occupied + BOTTOM_ROW) & VALID_CELLS
+
+    # 1. Phát hiện cơ hội thắng ngay lập tức
+    my_threats = _find_threats(me) & ~opp
+    win_now = my_threats & playable_now
+    if win_now:
+        ply_count = occupied.bit_count()
+        return (MATE_SCORE - ply_count - 1)
+
+    # 2. Lọc Safe Moves và phát hiện đe dọa của đối thủ
+    opp_threats = _find_threats(opp) & ~me
+    opp_wins_now = opp_threats & playable_now
+    safe_moves_mask = playable_now & ~(opp_threats >> 1)
+
+    if opp_wins_now:
+        if opp_wins_now & (opp_wins_now - 1): # Đối thủ có >= 2 đường thắng
+            ply_count = occupied.bit_count()
+            return -(MATE_SCORE - ply_count - 2)
+        if not (opp_wins_now & safe_moves_mask): # Nước chặn duy nhất lại tự bóp
+            ply_count = occupied.bit_count()
+            return -(MATE_SCORE - ply_count - 2)
+        safe_moves_mask = opp_wins_now # Bắt buộc phải đánh vào nước chặn này
+    elif safe_moves_mask == 0:
+        ply_count = occupied.bit_count()
+        return -(MATE_SCORE - ply_count - 2) # Không có nước nào an toàn -> thua
+
+    book_key = (me, opp)
+    if book_key in OPENING_BOOK:
+        best_move = OPENING_BOOK[book_key]
+        if (best_move in ordered):
+            ordered = [best_move]
+        else:
+            ordered = []
+
     for col in ordered:
         col_mask = 0b111111 << (col * 7)
-        occupied = (me | opp) & col_mask
-        if occupied & (1 << (col * 7 + 5)):
+        occupied_col = occupied & col_mask
+        if occupied_col & (1 << (col * 7 + 5)):
             continue
 
-        new_piece = (occupied + (1 << (col * 7))) & col_mask
+        new_piece = (occupied_col + (1 << (col * 7))) & col_mask
+        
+        # Bỏ qua các nước đi không nằm trong tập hợp an toàn
+        if not (new_piece & safe_moves_mask):
+            continue
 
         if first_child:
             res = -pvs(opp, me | new_piece, depth - 1, -beta, -alpha, deadline)
@@ -393,18 +455,11 @@ def agent(obs, config, timeout=2):
     base_timeout = timeout if timeout is not None else getattr(config, 'timeout', 2)
     overage = getattr(obs, 'remainingOverageTime', 0)
     
-    is_first_turn = (obs.step == 0 or obs.step == 1)
+    # Greedy time management: Use most of the remaining overage pool if available.
+    # If the opening book hits (fast path), this budget won't be consumed.
+    # If it misses, we greedily search deeper using the overage pool until it runs out.
+    think_time_budget = base_timeout * 0.92 + min(12, overage*3/5) # Keep 1s as absolute safety margin
     
-    if is_first_turn:
-        # First turn: Use most of the 60s overage pool if available
-        think_time_budget = base_timeout + min(overage, 55.0)
-        print(f"[OpeningBookOpt] First turn. Budget: {think_time_budget:.1f}s (incl. overage)")
-    else:
-        # Normal turns: Use actTimeout with a small safety margin
-        # If we have a lot of overage left, we could spend a bit more, but 
-        # usually 2s is enough for depth 20+ with PVS.
-        think_time_budget = base_timeout * 0.92
-        
     deadline = start_time + think_time_budget
 
     me, opp = encode(obs.board, obs.mark)
@@ -461,7 +516,7 @@ def agent(obs, config, timeout=2):
     reachedDepth = 0
     
     # First turn search goes much deeper to seed the entire early-game TT tree
-    max_search_depth = 30 if is_first_turn else 24
+    max_search_depth = min(24, 42 - (me | opp).bit_count())
     
     try:
         for depth in range(0, max_search_depth, 2):
@@ -503,7 +558,7 @@ def agent(obs, config, timeout=2):
             reachedDepth = depth
             if best_score >= MATE_SCORE - 42:
                 break  # Found forced win
-            
+
     except TimeoutError:
         pass
         
@@ -515,8 +570,8 @@ def agent(obs, config, timeout=2):
 
 def _log_move(move, start_time):
     think_time = time.perf_counter() - start_time
-    # if log_system:
-    #     try:
-    #         log_system.log_move("OpeningBookOpt", int(move), think_time)
-    #     except Exception:
-    #         pass
+    if log_system:
+        try:
+            log_system.log_move("OpeningBookOpt", int(move), think_time)
+        except Exception:
+            pass

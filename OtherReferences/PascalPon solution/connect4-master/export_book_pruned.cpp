@@ -1,4 +1,6 @@
 #include "OpeningBook.hpp"
+#include "Solver.hpp"
+#include "Position.hpp"
 #include "Position.hpp"
 #include <iostream>
 #include <vector>
@@ -21,8 +23,8 @@ struct Node {
 
 int main(int argc, char** argv) {
     // --- THIẾT LẬP THAM SỐ HARDCODE ---
-    int max_ply = 12;          // Độ sâu tối đa
-    int prune_threshold = 7;   // Ngưỡng điểm: Nếu abs(best_score) >= prune_threshold thì không mở rộng nhánh con
+    int max_ply = 13;          // Độ sâu tối đa
+    int prune_threshold = 4;   // Ngưỡng điểm: Nếu abs(best_score) >= prune_threshold thì không mở rộng nhánh con
     std::string book_in = "..\\7x6.book";         // File đầu vào
     std::string file_out = "opening_book.bin";    // File nhị phân đầu ra (ngay cạnh exe)
 
@@ -32,6 +34,8 @@ int main(int argc, char** argv) {
 
     OpeningBook book(Position::WIDTH, Position::HEIGHT);
     book.load(book_in);
+    Solver solver;
+    solver.loadBook(book_in);
 
     std::ofstream out(file_out, std::ios::binary);
     if (!out.is_open()) {
@@ -48,16 +52,23 @@ int main(int argc, char** argv) {
 
     queue.push_back({Position(), 0, 0});
 
-    int count = 0;
+    int count = 0; // Số lượng book hits (best_move != -1)
     int head = 0;
+    int misses = 0;
+    int max_reached_depth = 0;
 
     // Ưu tiên cột giữa
     int move_order[7] = {3, 2, 4, 1, 5, 0, 6};
 
     while (head < (int)queue.size()) {
         Node node = queue[head++];
+        
+        int current_depth = node.p.nbMoves();
+        if (current_depth > max_reached_depth) {
+            max_reached_depth = current_depth;
+        }
 
-        if (node.p.nbMoves() > max_ply) continue;
+        if (current_depth > max_ply) continue;
 
         uint64_t key = node.p.key3();
         if (visited.count(key)) continue;
@@ -85,6 +96,13 @@ int main(int argc, char** argv) {
                         best_move = c;
                     }
                 }
+                // else if (current_depth >= 13){
+                //     int score = -solver.solve(child, false);
+                //     if (score > best_score) {
+                //         best_score = score;
+                //         best_move = c;
+                //     }
+                // }
             }
         }
 
@@ -95,6 +113,8 @@ int main(int argc, char** argv) {
             uint8_t mv = static_cast<uint8_t>(best_move);
             out.write(reinterpret_cast<const char*>(&mv), 1);
             count++;
+        } else {
+            misses++;
         }
 
         // 3. Prune: Nếu thế cờ đã rõ ràng, không mở rộng con
@@ -121,8 +141,14 @@ int main(int argc, char** argv) {
             }
         }
 
-        if (count % 100000 == 0 && count > 0) {
-            std::cerr << "Processed " << count << " positions... Queue: " << (queue.size() - head) << std::endl;
+        if (head % 100000 == 0 && head > 0) {
+            double hit_rate = (double)count / head * 100.0;
+            std::cerr << "Processed " << head << " positions | "
+                      << "Hits: " << count << " (" << hit_rate << "%) | "
+                      << "Misses: " << misses << " | "
+                      << "Max Depth: " << max_reached_depth << " | "
+                      << "Queue: " << (queue.size() - head) << std::endl;
+            out.flush(); // Cứu dữ liệu nếu bị ngắt ngang
         }
     }
 

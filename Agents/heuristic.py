@@ -64,49 +64,72 @@ def count_windows(grid, piece, config):
     return num_windows
 
 
-def get_heuristic_bb(me, opp, remaining_depth = 0):
+# Giá trị cơ bản của từng loại window.
+# 1 quân gần như vô hại.
+# 3 quân rất mạnh nhưng vẫn chưa phải thắng chắc.
+# Giá trị cơ bản của từng loại window.
+WINDOW_WEIGHTS = (0, 1, 4, 30)
+
+def get_heuristic_bb(me, opp, parity):
     """
-    Heuristic cho bitboard.
-
-    Cách đọc:
-    - `me` là bitboard của người chơi hiện tại.
-    - `opp` là bitboard của đối thủ.
-    - Hàm này mô phỏng tinh thần của `get_heuristic()`:
-      + thắng/thua là ưu tiên tuyệt đối
-      + sau đó mới cộng/trừ điểm theo số window tiềm năng
-
-    Ý tưởng chính:
-    - Nếu `me` đã có 4-in-a-row thì trả về `inf` ngay.
-    - Nếu `opp` đã có 4-in-a-row thì trả về `-inf` ngay.
-    - Nếu chưa có ván thắng/thua, chấm điểm theo các window:
-      + window càng nhiều quân của mình thì càng tốt
-      + window càng nhiều quân của đối thủ thì càng xấu
+    Hàm heuristic nâng cao sử dụng Bitboard, có tính đến:
+    - Parity (Nhịp độ): Người đi đầu (0) kiểm soát hàng 0,2,4. Người đi sau (1) kiểm soát hàng 1,3,5.
+    - Threat Analysis: Đánh giá cửa thắng 3 quân dựa trên tính Immediate và Parity.
+    - Coi như 'opp' là người đi tiếp theo (để phòng thủ chặt chẽ).
     """
-
-    # Kiểm tra nguy cơ thua ngay từ góc nhìn của đối thủ.
-    num_opp = count_windows_bb(opp, me)
-    for i in range(config.inarow):
-        if i == (config.inarow - 1) and num_opp[i + 1] >= 1:
-            ply_count = (me | opp).bit_count()
-            return -(MATE_SCORE - ply_count) # thua ngay
-        
-    # Thắng/thua luôn là ưu tiên tuyệt đối, không để các điểm phụ lấn át.
-    num = count_windows_bb(me, opp)
-    for i in range(config.inarow):
-        if i == (config.inarow - 1) and num[i + 1] >= 1:
-            ply_count = (me | opp).bit_count() + 1
-            return (MATE_SCORE - ply_count)  # thắng ngay
+    occupied = me | opp
+    ply_count = occupied.bit_count()
+    
+    # Parity của mỗi bên
+    my_parity = parity
+    opp_parity = 1 - parity
 
     score = 0
-    # Phần điểm chính: giống `get_heuristic()`.
-    # num[i + 1] = số window có đúng (i + 1) quân của mình.
-    for i in range(config.inarow):
-        score += (4 ** i) * num[i + 1]
-    # Trừ điểm cho window tiềm năng của đối thủ.
-    for i in range(config.inarow):
-        score -= (4 ** i) * num_opp[i + 1]
-    return score
+    
+    # Duyệt toàn bộ window masks
+    for mask in _get_bb_window_masks():
+        me_count = (mask & me).bit_count()
+        opp_count = (mask & opp).bit_count()
+        
+        if me_count > 0 and opp_count > 0:
+            continue # Window bị chặn
+        
+        if me_count == 4: return MATE_SCORE - ply_count
+        if opp_count == 4: return -(MATE_SCORE - ply_count)
+        
+        if me_count > 0:
+            if me_count == 3:
+                # Phân tích Threat của mình
+                empty_mask = mask & ~me
+                bit_idx = empty_mask.bit_length() - 1
+                row = bit_idx % 7
+                # Parity bonus: Nếu hàng này thuộc quyền kiểm soát của mình
+                if row % 2 == my_parity:
+                    score += (5 - row) * 10
+                
+                # Immediate check: Nếu có thể đánh ngay (dù là opp đi tiếp)
+                is_immediate = (row == 0) or (occupied & (1 << (bit_idx - 1)))
+                if is_immediate:
+                    score += 30
+            score += WINDOW_WEIGHTS[me_count]
+                
+        elif opp_count > 0:
+            if opp_count == 3:
+                # Phân tích Threat của đối thủ (đang giả định opp đi tiếp)
+                empty_mask = mask & ~opp
+                bit_idx = empty_mask.bit_length() - 1
+                row = bit_idx % 7
+                # Parity penalty
+                if row % 2 == opp_parity:
+                    score -= (5 - row) * 10
+                
+                # Immediate penalty: CỰC KỲ NGUY HIỂM nếu opp đi tiếp
+                is_immediate = (row == 0) or (occupied & (1 << (bit_idx - 1)))
+                if is_immediate:
+                    score -= 30
+            score -= WINDOW_WEIGHTS[opp_count]
 
+    return score
 
 def _get_bb_window_masks():
     """
@@ -174,6 +197,7 @@ def _get_bb_window_masks():
 
 
 def count_windows_bb(me, opp):
+    """ Đếm số lượng window chứa quân mình và không chứa quân địch. Vì nếu chứa quân địch thì không thể kết nối được nữa"""
     num_windows = [0] * (config.inarow + 1)
     for mask in _get_bb_window_masks():
         if (mask & opp) != 0:

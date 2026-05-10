@@ -10,7 +10,7 @@ Tài liệu này giải thích cấu trúc tổng thể của thư mục dự á
 *   **`test.py`**: Script chạy thử nghiệm môi trường Kaggle cơ bản. Cho phép cho 2 Agents đấu với nhau (ví dụ: `OpeningBook.agent` đấu với `ZobristHasingAgent.agent`) và render ra giao diện HTML để xem lại ván đấu.
 *   **`vs_human_test.py`**: Script mở giao diện terminal để con người tự đánh với Agent. Dùng để test độ khó và xem cách Agent phòng thủ/tấn công.
 *   **`mass_test.py`**: Script cho hàng loạt các Agent đấu với nhau nhiều ván (ví dụ: đánh 100 ván) để thống kê tỷ lệ Thắng/Thua/Hòa. Dùng để xếp hạng sức mạnh các Agent nội bộ.
-*   **`log_system.py` & `game_log.json`**: Hệ thống logging dùng để theo dõi, đo đạc thời gian suy nghĩ (thinking time) của Agent ở từng lượt (ply). Rất quan trọng để tối ưu hóa, đảm bảo Agent không bị timeout (quá thời gian quy định của Kaggle).
+* Bạn hoàn toàn có thể tùy chỉnh file test một chút để phù hợp. Ví dụ như ở file 'test.py', bạn có thể thay đổi thành 2 agent khác. Để sử dụng python, bạn cần gõ "conda activate myenvironment"
 *   **`KnowledgeBase.md`**: File tài liệu hiện tại, lưu trữ kiến thức và cấu trúc project.
 *   **`README.md`**: File giới thiệu chung về project Kaggle ConnectX.
 
@@ -38,11 +38,11 @@ Nơi chứa toàn bộ trí tuệ nhân tạo (AI) của project. Các Agent ở
     4.  **Tối ưu hóa thứ tự nước đi (Killer Moves Heuristic)**: Áp dụng bảng killer moves để ưu tiên các nước đi gây ra cắt tỉa alpha-beta mạnh mẽ, giúp search sâu hơn thêm 2-4 plies trong cùng khoảng thời gian.
 
 ### 2.3. Database Khai Cuộc
-*   **`opening_book.jsonl`**: Đây là file cơ sở dữ liệu khổng lồ (khoảng 55MB) lưu trữ hơn 1 triệu thế cờ khai cuộc từ Ply 0 đến Ply 10. File này được trích xuất từ "Perfect Solver" của Pascal Pons. Nó là "vũ khí bí mật" giúp Agent đi cực kỳ hoàn hảo ở giai đoạn đầu trận.
+*   **`opening_book.jsonl and opening_book.bin`**: Đây là file cơ sở dữ liệu khổng lồ (khoảng 55MB) lưu trữ hơn 1 triệu thế cờ khai cuộc từ Ply 0 đến Ply 10. File này được trích xuất từ "Perfect Solver" của Pascal Pons. Nó là "vũ khí bí mật" giúp Agent đi cực kỳ hoàn hảo ở giai đoạn đầu trận.
 
 ---
 
-## 3. Thư mục `Explanation/` (Tài liệu & Nghiên cứu)
+## 3. Thư mục `OtherReferences/` (Tài liệu & Nghiên cứu)
 Đây là khu vực "R&D" (Research & Development), chứa các tài nguyên, mã nguồn tham khảo và sổ tay Jupyter Notebook để đọc và hiểu về lý thuyết Connect 4.
 
 *   **`PascalPon solution/`**: Thư mục chứa mã nguồn C++ của Pascal Pons (tác giả của Connect 4 Solver hoàn hảo nhất thế giới). Chúng ta đã viết thêm các công cụ C++ trong này:
@@ -58,7 +58,7 @@ Nơi chứa toàn bộ trí tuệ nhân tạo (AI) của project. Các Agent ở
 ## 4. Các thư mục khác
 *   **`Submissions/`**: Thư mục dùng để chứa các file Agent đã được đóng gói sẵn sàng đem nộp lên Kaggle (những file được nén thành `.tar.gz` hoặc `.py` bao gồm cả bộ thư viện).
 *   **`Slides/`**: Chứa bài thuyết trình, báo cáo cho môn học hoặc cho dự án.
-
+*   **`Output/`** Chứa `log_system.py` & `game_log.json`: Hệ thống logging dùng để theo dõi, đo đạc thời gian suy nghĩ (thinking time) của Agent ở từng lượt (ply). Rất quan trọng để tối ưu hóa, đảm bảo Agent không bị timeout (quá thời gian quy định của Kaggle).
 ---
 
 ## 5. Luồng thực thi của Agent tối ưu nhất (`OpeningBook_optimized.py`)
@@ -67,7 +67,7 @@ Luồng thực thi của phiên bản tối ưu nhất được thiết kế đ�
 Khi môi trường truyền trạng thái bàn cờ (`obs`) vào hàm `agent(obs, config)`, quy trình diễn ra như sau:
 
 **Bước 1: Tính toán thời gian & Nạp Dữ liệu**
-*   Xác định **Thinking Time Budget**: Nếu đây là lượt đầu tiên (Turn 1), Agent sẽ tận dụng triệt để `remainingOverageTime` (ví dụ lên đến 55 giây) để tính toán sâu sắc và xây dựng bảng băm cho các thế cờ tiếp theo. Với các nước đi sau, ngân sách được linh hoạt điều chỉnh xung quanh 1.85s đến 2.35s dựa vào lượng thời gian dự phòng còn dư.
+*   Xác định **Thinking Time Budget**: Theo luật chơi
 *   Kiểm tra và tự động nạp `opening_book.jsonl` vào RAM nếu chưa nạp. Hàm `encode` sẽ phân tích ma trận bàn cờ thành 2 số nguyên 64-bit (`me` và `opp`).
 
 **Bước 2: Kiểm tra thắng nhanh & Chặn đe dọa (Forced-move Block)**

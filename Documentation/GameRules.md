@@ -37,7 +37,10 @@ An Agent receives:
   - `2` = Player 2's checker
 
 - **Current Player**: `1` or `2`
-- Have 2 seconds for each moves, the first turn of each agent will have 60 seconds to think instead of 2
+- **Time Management**:
+  - **Base Timeout**: 2 seconds per move.
+  - **Overage Pool**: 60 seconds total bank for the entire game.
+  - **Logic**: If a move takes more than 2 seconds, the excess time is deducted from the 60s pool. If the pool reaches zero, the agent times out and loses.
 
 ### Output
 
