@@ -34,14 +34,26 @@ jobs:
           file Agents/_engine.so
           ldd Agents/_engine.so || echo "ldd check skipped (some symbols may be unresolved)"
 
-      - name: Commit and push _engine.so if changed
+      - name: Upload _engine.so as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: _engine.so
+          path: Agents/_engine.so
+          if-no-files-found: error
+
+      - name: Check if changed
+        id: check_changed
         run: |
-          git config user.email "action@github.com"
-          git config user.name "GitHub Action"
           git add Agents/_engine.so
           if git diff --cached --quiet; then
-            echo "No changes to _engine.so"
+            echo "changed=false" >> $GITHUB_OUTPUT
           else
-            git commit -m "Build: Update _engine.so for Linux [automated]"
-            git push
+            echo "changed=true" >> $GITHUB_OUTPUT
           fi
+
+      - name: Notify - Download from Actions tab
+        if: steps.check_changed.outputs.changed == 'true'
+        run: |
+          echo "✅ _engine.so built successfully!"
+          echo "📥 Download from Actions tab → this workflow → Artifacts"
+          echo "📝 Then commit manually: git add Agents/_engine.so && git commit -m 'Build: _engine.so for Linux'"
