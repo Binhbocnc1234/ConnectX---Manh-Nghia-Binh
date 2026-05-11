@@ -7,11 +7,10 @@ Tài liệu này giải thích cấu trúc tổng thể của thư mục dự á
 ## 1. Thư mục gốc (Root Directory)
 Đây là nơi chứa các script chạy môi trường (environment scripts) dùng để test, đánh giá và chơi với Agent.
 
-*   **`test.py`**: Script chạy thử nghiệm môi trường Kaggle cơ bản. Cho phép cho 2 Agents đấu với nhau (ví dụ: `OpeningBook.agent` đấu với `ZobristHasingAgent.agent`) và render ra giao diện HTML để xem lại ván đấu.
+*   **`test.py`**: Script chạy thử nghiệm môi trường Kaggle cơ bản. Cho phép cho 2 Agents đấu với nhau (ví dụ: `OpeningBook.agent` đấu với `ZobristHasingAgent.agent`) và render ra giao diện HTML để xem lại ván đấu. 
 *   **`vs_human_test.py`**: Script mở giao diện terminal để con người tự đánh với Agent. Dùng để test độ khó và xem cách Agent phòng thủ/tấn công.
 *   **`mass_test.py`**: Script cho hàng loạt các Agent đấu với nhau nhiều ván (ví dụ: đánh 100 ván) để thống kê tỷ lệ Thắng/Thua/Hòa. Dùng để xếp hạng sức mạnh các Agent nội bộ.
-* Bạn hoàn toàn có thể tùy chỉnh file test một chút để phù hợp. Ví dụ như ở file 'test.py', bạn có thể thay đổi thành 2 agent khác. Để sử dụng python, bạn cần gõ "conda activate myenvironment"
-*   **`KnowledgeBase.md`**: File tài liệu hiện tại, lưu trữ kiến thức và cấu trúc project.
+* Bạn hoàn toàn có thể tùy chỉnh file test một chút để phù hợp. Ví dụ như ở file 'test.py', bạn có thể thay đổi thành 2 agent khác. Để sử dụng python, bạn cần gõ "conda activate myenvironment", sau đó gõ "python test.py"
 *   **`README.md`**: File giới thiệu chung về project Kaggle ConnectX.
 
 ---

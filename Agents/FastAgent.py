@@ -1,97 +1,132 @@
 """
-FastAgent.py - Python bridge to C++ engine.
+FastAgent.py - Python bridge to C++ engine shared library.
 
-Giao tiep voi C++ qua stdin/stdout subprocess:
-  Python -> C++: "<me_hex> <opp_hex> <deadline_ms>\\n"
-  C++    -> Python: "<best_col>\\n"
+Gộp engine_bridge.py + FastAgent.py thành 1 file.
+- Chỉ load C++ _engine.so đã build sẵn khi chạy agent
+- Giữ helper build riêng để dùng thủ công khi cần
 
 De su dung:
-  env.run([FastAgent.agent, opponent])
+    env.run([FastAgent.agent, opponent])
 """
+import ctypes
 import subprocess
-import os
 import time
+from pathlib import Path
+from threading import Lock
 
 try:
     import Output.log_system as log_system
 except Exception:
     log_system = None
 
-_PROC = None
+_ENGINE_LOCK = Lock()
+_ENGINE_LIB = None
 
 
-def _find_engine():
-    """Tim file engine.exe (Windows) hoac engine (Linux)."""
-    d = os.path.dirname(os.path.abspath(__file__))
-    for name in ("engine.exe", "engine"):
-        p = os.path.join(d, name)
-        if os.path.isfile(p):
-            return p
-    return None
+def _engine_paths():
+    agents_dir = Path(__file__).resolve().parent
+    source_path = agents_dir / "engine.cpp"
+    library_path = agents_dir / "_engine.so"
+    return agents_dir, source_path, library_path
 
 
-def _get_engine():
-    """Lay subprocess engine, khoi dong neu chua chay."""
-    global _PROC
-    if _PROC is None or _PROC.poll() is not None:
-        path = _find_engine()
-        if path is None:
+def build_engine_shared_library(force: bool = False):
+    agents_dir, source_path, library_path = _engine_paths()
+    if not force and library_path.exists() and library_path.stat().st_mtime >= source_path.stat().st_mtime:
+        return str(library_path)
+
+    cmd = [
+        "g++",
+        "-std=c++20",
+        "-O3",
+        "-shared",
+        "-fPIC",
+        str(source_path),
+        "-o",
+        str(library_path),
+    ]
+    try:
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as exc:
+        message = exc.stderr.strip() or exc.stdout.strip() or str(exc)
+        raise RuntimeError(f"Failed to build C++ engine: {message}") from exc
+
+    return str(library_path)
+
+
+def _load_engine():
+    global _ENGINE_LIB
+    if _ENGINE_LIB is not None:
+        return _ENGINE_LIB
+
+    with _ENGINE_LOCK:
+        if _ENGINE_LIB is not None:
+            return _ENGINE_LIB
+
+        agents_dir, _, library_path = _engine_paths()
+        if not library_path.exists():
             raise FileNotFoundError(
-                "[FastAgent] engine.exe not found. "
-                "Compile: g++ -O3 -o Agents/engine.exe Agents/engine.cpp"
+                f"C++ engine library not found: {library_path}. "
+                f"Build it once with build_engine_shared_library()."
             )
-        _PROC = subprocess.Popen(
-            [path],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=None,   # None = pass-through to terminal (giup debug)
-            text=True,
-            bufsize=1,     # line-buffered
-        )
-    return _PROC
+
+        lib = ctypes.CDLL(str(library_path))
+        lib.opening_book_opt_set_base_dir.argtypes = [ctypes.c_char_p]
+        lib.opening_book_opt_set_base_dir.restype = None
+        lib.opening_book_opt_agent.argtypes = [
+            ctypes.POINTER(ctypes.c_int),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_double,
+            ctypes.c_int,
+            ctypes.c_double,
+        ]
+        lib.opening_book_opt_agent.restype = ctypes.c_int
+        lib.opening_book_opt_set_base_dir(str(agents_dir).encode("utf-8"))
+
+        _ENGINE_LIB = lib
+        return _ENGINE_LIB
 
 
-def encode(board, mark):
-    """
-    Chuyen board dang list (kaggle) sang hai bitboard (me, opp).
+def run_opening_book_opt(obs, config, timeout=2):
+    """Gọi hàm C++ tính nước đi tối ưu."""
+    lib = _load_engine()
 
-    Kaggle board: board[row*7 + col], row 0 = hang tren cung.
-    Bitboard: bit col*7+row, row 0 = hang duoi cung (bottom).
-    """
-    me, opp = 0, 0
-    rows, cols = 6, 7
-    for col in range(cols):
-        for row in range(rows):
-            # Kaggle: row 0 = top  =>  bit row = bottom => kaggle_row = 5 - row
-            kaggle_idx = (rows - 1 - row) * cols + col
-            bit = col * 7 + row
-            val = board[kaggle_idx]
-            if val == mark:
-                me  |= (1 << bit)
-            elif val != 0:
-                opp |= (1 << bit)
-    return me, opp
+    board = list(obs.board)
+    board_size = len(board)
+    board_array = (ctypes.c_int * board_size)(*board)
+
+    timeout_has_value = 1 if timeout is not None else 0
+    timeout_value = float(timeout if timeout is not None else getattr(config, "timeout", 2))
+
+    has_overage = 1 if hasattr(obs, "remainingOverageTime") else 0
+    overage_value = float(getattr(obs, "remainingOverageTime", 0))
+
+    move = lib.opening_book_opt_agent(
+        board_array,
+        board_size,
+        int(obs.mark),
+        int(getattr(obs, "step", 0)),
+        int(getattr(config, "columns", 7)),
+        timeout_has_value,
+        timeout_value,
+        has_overage,
+        overage_value,
+    )
+    return int(move)
 
 
 def agent(obs, config):
+    """Hàm agent được gọi bởi Kaggle environment."""
     start = time.perf_counter()
-    step  = obs.step
-
-    me, opp = encode(obs.board, obs.mark)
-
-    # Tinh deadline (ms tu Unix epoch)
-    # Dung 1.8s co dinh + 1/3 overage (giu lai buffer an toan)
-    base    = getattr(config, "timeout", 2)
-    overage = getattr(obs,    "remainingOverageTime", 0)
-    budget  = base * 0.88 + min(10.0, overage / 3.0)
-    deadline = int((time.time() + budget) * 1000)
+    step = obs.step
 
     col = 3  # fallback
     try:
-        proc = _get_engine()
-        proc.stdin.write(f"{me:016x} {opp:016x} {deadline}\n")
-        proc.stdin.flush()
-        col = int(proc.stdout.readline().strip())
+        col = run_opening_book_opt(obs, config, timeout=getattr(config, "timeout", 2))
     except Exception as e:
         print(f"[FastAgent] Engine error at step {step}: {e}")
 

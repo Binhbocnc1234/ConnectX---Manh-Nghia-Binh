@@ -28,13 +28,9 @@
       body {
         height: 100%;
         font-family: sans-serif;
+        margin: 0px;
       }
       canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
         /* image-rendering: -moz-crisp-edges;
         image-rendering: -webkit-crisp-edges;
         image-rendering: pixelated;
@@ -53,26 +49,29 @@
       };
     </script>
     <script src="https://unpkg.com/styled-components@3.5.0-0/dist/styled-components.min.js"></script>
-    <link rel="canonical" href="someurl" />
   </head>
   <body>
     <script>
       
 window.kaggle = {
   "debug": true,
-  "autoplay": true,
+  "playing": true,
   "step": 0,
   "controls": true,
   "environment": {
+    "id": "3ab7bcb4-4d23-11f1-a022-2cea7f26e10b",
     "name": "connectx",
     "title": "ConnectX",
     "description": "Classic Connect in a row but configurable.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "configuration": {
+      "episodeSteps": 1000,
+      "actTimeout": 2,
+      "runTimeout": 1200,
       "columns": 7,
       "rows": 6,
       "inarow": 4,
-      "steps": 1000,
+      "agentTimeout": 60,
       "timeout": 2
     },
     "specification": {
@@ -86,6 +85,24 @@ window.kaggle = {
         2
       ],
       "configuration": {
+        "episodeSteps": {
+          "description": "Maximum number of steps in the episode.",
+          "type": "integer",
+          "minimum": 1,
+          "default": 1000
+        },
+        "actTimeout": {
+          "description": "Maximum runtime (seconds) to obtain an action from an agent.",
+          "type": "number",
+          "minimum": 0,
+          "default": 2
+        },
+        "runTimeout": {
+          "description": "Maximum runtime (seconds) of an episode (not necessarily DONE).",
+          "type": "number",
+          "minimum": 0,
+          "default": 1200
+        },
         "columns": {
           "description": "The number of columns on the board",
           "type": "integer",
@@ -104,28 +121,46 @@ window.kaggle = {
           "default": 4,
           "minimum": 1
         },
-        "steps": {
-          "description": "Maximum number of steps the environment can run.",
-          "type": "integer",
-          "minimum": 1,
-          "default": 1000
+        "agentTimeout": {
+          "description": "Obsolete field kept for backwards compatibility, please use observation.remainingOverageTime.",
+          "type": "number",
+          "minimum": 0,
+          "default": 60
         },
         "timeout": {
-          "description": "Seconds an agent can run before timing out.",
+          "description": "Obsolete copy of actTimeout maintained for backwards compatibility. May be removed in the future.",
           "type": "integer",
-          "minimum": 1,
-          "default": 2
+          "default": 2,
+          "minimum": 0
         }
       },
       "info": {},
       "observation": {
+        "remainingOverageTime": {
+          "description": "Total remaining banked time (seconds) that can be used in excess of per-step actTimeouts -- agent is disqualified with TIMEOUT status when this drops below 0.",
+          "shared": false,
+          "type": "number",
+          "minimum": 0,
+          "default": 60
+        },
+        "step": {
+          "description": "Current step within the episode.",
+          "type": "integer",
+          "shared": true,
+          "minimum": 0,
+          "default": 0
+        },
         "board": {
           "description": "Serialized grid (rows x columns). 0 = Empty, 1 = P1, 2 = P2",
           "type": "array",
+          "shared": true,
           "default": []
         },
         "mark": {
-          "default": 0,
+          "defaults": [
+            1,
+            2
+          ],
           "description": "Which checkers are the agents.",
           "enum": [
             1,
@@ -134,30 +169,16 @@ window.kaggle = {
         }
       },
       "reward": {
-        "description": "0 = Lost, 0.5 = Draw, 1 = Won",
+        "description": "-1 = Lost, 0 = Draw/Ongoing, 1 = Won",
         "enum": [
+          -1,
           0,
-          0.5,
           1
         ],
-        "default": 0.5,
+        "default": 0,
         "type": [
           "number",
           "null"
-        ]
-      },
-      "reset": {
-        "status": [
-          "ACTIVE",
-          "INACTIVE"
-        ],
-        "observation": [
-          {
-            "mark": 1
-          },
-          {
-            "mark": 2
-          }
         ]
       }
     },
@@ -165,9 +186,11 @@ window.kaggle = {
       [
         {
           "action": 0,
-          "reward": 0.5,
+          "reward": 0,
           "info": {},
           "observation": {
+            "remainingOverageTime": 60,
+            "step": 0,
             "board": [
               0,
               0,
@@ -218,53 +241,10 @@ window.kaggle = {
         },
         {
           "action": 0,
-          "reward": 0.5,
+          "reward": 0,
           "info": {},
           "observation": {
-            "board": [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0
-            ],
+            "remainingOverageTime": 60,
             "mark": 2
           },
           "status": "INACTIVE"
@@ -272,10 +252,12 @@ window.kaggle = {
       ],
       [
         {
-          "action": null,
-          "reward": null,
+          "action": 3,
+          "reward": 0,
           "info": {},
           "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 1,
             "board": [
               0,
               0,
@@ -315,20 +297,34 @@ window.kaggle = {
               0,
               0,
               0,
-              0,
+              1,
               0,
               0,
               0
             ],
             "mark": 1
           },
-          "status": "ERROR"
+          "status": "INACTIVE"
         },
         {
           "action": 0,
-          "reward": 0.5,
+          "reward": 0,
           "info": {},
           "observation": {
+            "remainingOverageTime": 60,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 2,
             "board": [
               0,
               0,
@@ -361,18 +357,2641 @@ window.kaggle = {
               0,
               0,
               0,
+              2,
               0,
               0,
               0,
               0,
               0,
               0,
-              0,
-              0,
+              1,
               0,
               0,
               0
             ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 3,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 3,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 3,
+            "board": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 4,
+            "board": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 3,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 3,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 5,
+            "board": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 6,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 3,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 2,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 7,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 8,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 1,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 1,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 9,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 10,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 1,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 1,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 11,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 12,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 1,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 2,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 13,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 49.911455000000004,
+            "step": 14,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 2,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 2,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 15,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 22.565899,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 16,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              2,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 5,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 10.711392000000002,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 2,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 17,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              2,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 10.711392000000002,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 18,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              2,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              2,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 5,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 4.434249000000001,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 5,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 19,
+            "board": [
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              1,
+              0,
+              1,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              2,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              2,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 4.434249000000001,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 20,
+            "board": [
+              0,
+              0,
+              2,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              1,
+              0,
+              1,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              2,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              2,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 2,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 1,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 21,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              1,
+              0,
+              1,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              2,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              2,
+              0
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 22,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              1,
+              0,
+              1,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              2,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 6,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 6,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 23,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              1,
+              0,
+              1,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              2,
+              1,
+              0,
+              2,
+              1,
+              1,
+              0,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 24,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              1,
+              0,
+              1,
+              2,
+              0,
+              1,
+              1,
+              2,
+              0,
+              2,
+              1,
+              0,
+              2,
+              1,
+              1,
+              0,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 6,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 6,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 25,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              1,
+              0,
+              2,
+              2,
+              1,
+              0,
+              1,
+              2,
+              0,
+              1,
+              1,
+              2,
+              0,
+              2,
+              1,
+              0,
+              2,
+              1,
+              1,
+              0,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 26,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              1,
+              0,
+              2,
+              2,
+              1,
+              0,
+              1,
+              2,
+              0,
+              1,
+              1,
+              2,
+              0,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              0,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 6,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 27,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              1,
+              0,
+              2,
+              2,
+              1,
+              0,
+              1,
+              2,
+              0,
+              1,
+              1,
+              2,
+              0,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              0,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 28,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              1,
+              0,
+              2,
+              2,
+              1,
+              0,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              0,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              0,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 29,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              1,
+              1,
+              2,
+              2,
+              1,
+              0,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              0,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              0,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 30,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              2,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              1,
+              1,
+              2,
+              2,
+              1,
+              0,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              0,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              0,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 6,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 4,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 31,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              2,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              1,
+              1,
+              2,
+              2,
+              1,
+              0,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              0,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 32,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              2,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              1,
+              1,
+              2,
+              2,
+              1,
+              0,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 4,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 4,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 33,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              2,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              2,
+              0,
+              0,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 34,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              2,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              2,
+              2,
+              0,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 4,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 4,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 35,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              0,
+              0,
+              2,
+              0,
+              2,
+              1,
+              1,
+              1,
+              0,
+              1,
+              0,
+              1,
+              1,
+              2,
+              2,
+              0,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 36,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              2,
+              0,
+              2,
+              0,
+              2,
+              1,
+              1,
+              1,
+              0,
+              1,
+              0,
+              1,
+              1,
+              2,
+              2,
+              0,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 4,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 37,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              2,
+              0,
+              2,
+              0,
+              2,
+              1,
+              1,
+              1,
+              0,
+              1,
+              1,
+              1,
+              1,
+              2,
+              2,
+              0,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 38,
+            "board": [
+              0,
+              1,
+              2,
+              2,
+              2,
+              0,
+              2,
+              2,
+              2,
+              1,
+              1,
+              1,
+              0,
+              1,
+              1,
+              1,
+              1,
+              2,
+              2,
+              0,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 39,
+            "board": [
+              1,
+              1,
+              2,
+              2,
+              2,
+              0,
+              2,
+              2,
+              2,
+              1,
+              1,
+              1,
+              0,
+              1,
+              1,
+              1,
+              1,
+              2,
+              2,
+              0,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "INACTIVE"
+        },
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "ACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 0,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 40,
+            "board": [
+              1,
+              1,
+              2,
+              2,
+              2,
+              0,
+              2,
+              2,
+              2,
+              1,
+              1,
+              1,
+              0,
+              1,
+              1,
+              1,
+              1,
+              2,
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "ACTIVE"
+        },
+        {
+          "action": 5,
+          "reward": 0,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
+            "mark": 2
+          },
+          "status": "INACTIVE"
+        }
+      ],
+      [
+        {
+          "action": 5,
+          "reward": 1,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 39.966007000000005,
+            "step": 41,
+            "board": [
+              1,
+              1,
+              2,
+              2,
+              2,
+              0,
+              2,
+              2,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              2,
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              2,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1,
+              2,
+              2
+            ],
+            "mark": 1
+          },
+          "status": "DONE"
+        },
+        {
+          "action": 0,
+          "reward": -1,
+          "info": {},
+          "observation": {
+            "remainingOverageTime": 2.495576000000001,
             "mark": 2
           },
           "status": "DONE"
@@ -380,15 +2999,348 @@ window.kaggle = {
       ]
     ],
     "rewards": [
-      null,
-      0.5
+      1,
+      -1
     ],
     "statuses": [
-      "ERROR",
+      "DONE",
       "DONE"
     ],
-    "schema_version": 1
+    "schema_version": 1,
+    "info": {}
   },
+  "logs": [
+    [],
+    [],
+    [
+      {
+        "duration": 12.088545,
+        "stdout": "[FastAgent] step=0 col=3 time=12.073s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 39.434101,
+        "stdout": "[OpeningBookOpt] Start turn 1\n[Opening Book] Loading... 25%\n[Opening Book] Loading... 50%\n[Opening Book] Loading... 75%\n[Opening Book] Loading... 100%\n[Opening Book] Loaded 11057682 positions (22113705 entries with mirror) from E:\\My program\\Homework\\Kaggle-ConnectX-Minimax\\Agents\\opening_book.bin (Binary).\n[Opening Book Hit] Playing precomputed move: 3\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.011223,
+        "stdout": "[FastAgent] step=2 col=3 time=0.002s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.009595,
+        "stdout": "[OpeningBookOpt] Start turn 3\n[Opening Book Hit] Playing precomputed move: 3\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.009872,
+        "stdout": "[FastAgent] step=4 col=3 time=0.001s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.009822,
+        "stdout": "[OpeningBookOpt] Start turn 5\n[Opening Book Hit] Playing precomputed move: 3\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.010525,
+        "stdout": "[FastAgent] step=6 col=2 time=0.001s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.008926,
+        "stdout": "[OpeningBookOpt] Start turn 7\n[Opening Book Hit] Playing precomputed move: 1\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.009868,
+        "stdout": "[FastAgent] step=8 col=1 time=0.001s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.009744,
+        "stdout": "[OpeningBookOpt] Start turn 9\n[Opening Book Hit] Playing precomputed move: 1\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.012179,
+        "stdout": "[FastAgent] step=10 col=1 time=0.002s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.008616,
+        "stdout": "[OpeningBookOpt] Start turn 11\n[Opening Book Hit] Playing precomputed move: 1\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.016173,
+        "stdout": "[FastAgent] step=12 col=2 time=0.002s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.009661,
+        "stdout": "[OpeningBookOpt] Start turn 13\n[Opening Book Hit] Playing precomputed move: 2\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 11.945448,
+        "stdout": "[FastAgent] step=14 col=2 time=11.936s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 13.854507,
+        "stdout": "[OpeningBookOpt] Start turn 15\nAt depth: 0 Best move: 5 [-4, 4, 2, -1000000, 1, 5, 0]\nAt depth: 2 Best move: 5 [-99981, -99981, 6, -1000000, 8, 9, -99981]\nAt depth: 4 Best move: 5 [-99981, -99981, 13, -1000000, 9, 19, -99981]\nAt depth: 6 Best move: 5 [-99981, -99981, 6, -1000000, 7, 8, -99981]\nAt depth: 8 Best move: 5 [-99981, -99981, 8, -1000000, 22, 23, -99981]\nAt depth: 10 Best move: 5 [-99981, -99981, 8, -1000000, 8, 10, -99981]\nAt depth: 12 Best move: 5 [-99981, -99981, 13, -1000000, 13, 13, -99981]\nAt depth: 14 Best move: 5 [-99981, -99981, 10, -1000000, 11, 11, -99981]\nAt depth: 16 Best move: 5 [-99981, -99981, 8, -1000000, 8, 8, -99981]\nAt depth: 18 Best move: 5 [-99981, -99981, -99981, -1000000, 4, 4, -99981]\n[OpeningBook_opt] depth 18, move 5, time 13.841s\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.025129,
+        "stdout": "[FastAgent] step=16 col=2 time=0.013s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 8.277143,
+        "stdout": "[OpeningBookOpt] Start turn 17\nAt depth: 0 Best move: 5 [1, 6, 10, -1000000, 1, 10, 4]\nAt depth: 2 Best move: 5 [13, 0, 12, -1000000, 4, 19, 13]\nAt depth: 4 Best move: 5 [13, 0, 24, -1000000, 4, 24, 13]\nAt depth: 6 Best move: 5 [11, 4, 19, -1000000, 4, 19, 7]\nAt depth: 8 Best move: 5 [9, 9, 19, -1000000, 4, 19, 13]\nAt depth: 10 Best move: 5 [15, 6, 18, -1000000, 4, 18, 15]\nAt depth: 12 Best move: 5 [25, 21, 26, -1000000, 4, 26, 25]\nAt depth: 14 Best move: 5 [34, 34, 34, -1000000, 4, 34, 34]\nAt depth: 16 Best move: 5 [24, 21, 24, -1000000, 4, 24, 24]\n[OpeningBook_opt] depth 16, move 5, time 8.267s\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.480395,
+        "stdout": "[FastAgent] step=18 col=5 time=0.471s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 3.938673,
+        "stdout": "[OpeningBookOpt] Start turn 19\nAt depth: 0 Best move: 6 [-7, -2, 5, -1000000, -7, 2, 19]\nAt depth: 2 Best move: 6 [-9, -9, -6, -1000000, -11, -9, -4]\nAt depth: 4 Best move: 6 [-9, -9, -6, -1000000, -11, -9, -2]\nAt depth: 6 Best move: 6 [-9, -9, -6, -1000000, -11, -9, -1]\nAt depth: 8 Best move: 2 [-9, -9, -6, -1000000, -11, -9, -20]\nAt depth: 10 Best move: 2 [-9, -9, -6, -1000000, -11, -9, -7]\nAt depth: 12 Best move: 2 [-9, -9, -6, -1000000, -11, -9, -7]\nAt depth: 14 Best move: 2 [-9, -9, -6, -1000000, -11, -9, -7]\nAt depth: 16 Best move: 2 [-9, -9, -6, -1000000, -11, -9, -7]\nAt depth: 18 Best move: 2 [-9, -11, -7, -1000000, -29, -9, -7]\nAt depth: 20 Best move: 2 [-99959, -99959, -99959, -1000000, -99959, -99959, -99959]\nAt depth: 22 Best move: 2 [-99959, -99959, -99959, -1000000, -99959, -99959, -99959]\n[OpeningBook_opt] depth 22, move 2, time 3.929s\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.015189,
+        "stdout": "[FastAgent] step=20 col=1 time=0.006s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.245278,
+        "stdout": "[OpeningBookOpt] Start turn 21\nAt depth: 0 Best move: 6 [-2, -1000000, -1000000, -1000000, -2, 7, 24]\nAt depth: 2 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99959, -99961, 0]\nAt depth: 4 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99959, -99961, -26]\nAt depth: 6 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99959, -99961, -33]\nAt depth: 8 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99959, -99961, -49]\nAt depth: 10 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99959, -99961, -105]\nAt depth: 12 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99959, -99961, -99959]\nAt depth: 14 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99959, -99961, -99959]\nAt depth: 16 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99959, -99961, -99959]\nAt depth: 18 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99959, -99961, -99959]\nAt depth: 20 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99959, -99961, -99959]\n[OpeningBook_opt] depth 20, move 6, time 0.236s\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.015566,
+        "stdout": "[FastAgent] step=22 col=6 time=0.007s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.068407,
+        "stdout": "[OpeningBookOpt] Start turn 23\nAt depth: 0 Best move: 5 [-7, -1000000, -1000000, -1000000, -7, 2, 1]\nAt depth: 2 Best move: 6 [-99961, -1000000, -1000000, -1000000, -99961, -11, 3]\nAt depth: 4 Best move: 6 [-99961, -1000000, -1000000, -1000000, -99961, -99961, -3]\nAt depth: 6 Best move: 6 [-99961, -1000000, -1000000, -1000000, -99961, -99961, -5]\nAt depth: 8 Best move: 6 [-99961, -1000000, -1000000, -1000000, -99961, -99961, -10]\nAt depth: 10 Best move: 6 [-99961, -1000000, -1000000, -1000000, -99961, -99961, -20]\nAt depth: 12 Best move: 6 [-99961, -1000000, -1000000, -1000000, -99961, -99961, -80]\nAt depth: 14 Best move: 6 [-99961, -1000000, -1000000, -1000000, -99961, -99961, -51]\nAt depth: 16 Best move: 6 [-99961, -1000000, -1000000, -1000000, -99961, -99961, -99959]\nAt depth: 18 Best move: 6 [-99961, -1000000, -1000000, -1000000, -99961, -99961, -99959]\n[OpeningBook_opt] depth 18, move 6, time 0.058s\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.015664,
+        "stdout": "[FastAgent] step=24 col=6 time=0.005s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.018157,
+        "stdout": "[OpeningBookOpt] Start turn 25\nAt depth: 0 Best move: 5 [-26, -1000000, -1000000, -1000000, -56, 3, -23]\nAt depth: 2 Best move: 5 [-99959, -1000000, -1000000, -1000000, -99973, -10, -99959]\nAt depth: 4 Best move: 5 [-99959, -1000000, -1000000, -1000000, -99973, -20, -99959]\nAt depth: 6 Best move: 0 [-99959, -1000000, -1000000, -1000000, -99973, -99967, -99959]\nAt depth: 8 Best move: 0 [-99959, -1000000, -1000000, -1000000, -99973, -99967, -99959]\nAt depth: 10 Best move: 0 [-99959, -1000000, -1000000, -1000000, -99973, -99967, -99959]\nAt depth: 12 Best move: 0 [-99959, -1000000, -1000000, -1000000, -99973, -99967, -99959]\nAt depth: 14 Best move: 0 [-99959, -1000000, -1000000, -1000000, -99973, -99967, -99959]\nAt depth: 16 Best move: 0 [-99959, -1000000, -1000000, -1000000, -99973, -99967, -99959]\n[OpeningBook_opt] depth 16, move 0, time 0.008s\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.014979,
+        "stdout": "[FastAgent] step=26 col=6 time=0.005s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.049679,
+        "stdout": "[OpeningBookOpt] Start turn 27\nAt depth: 0 Best move: 5 [-26, -1000000, -1000000, -1000000, -59, -3, -26]\nAt depth: 2 Best move: 0 [-5, -1000000, -1000000, -1000000, -99971, -49, -99959]\nAt depth: 4 Best move: 0 [-8, -1000000, -1000000, -1000000, -99971, -99961, -99959]\nAt depth: 6 Best move: 0 [-8, -1000000, -1000000, -1000000, -99971, -99961, -99959]\nAt depth: 8 Best move: 0 [-80, -1000000, -1000000, -1000000, -99971, -99961, -99959]\nAt depth: 10 Best move: 0 [-51, -1000000, -1000000, -1000000, -99971, -99961, -99959]\nAt depth: 12 Best move: 0 [-99959, -1000000, -1000000, -1000000, -99971, -99961, -99959]\nAt depth: 14 Best move: 0 [-99959, -1000000, -1000000, -1000000, -99971, -99961, -99959]\n[OpeningBook_opt] depth 14, move 0, time 0.040s\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.014635,
+        "stdout": "[FastAgent] step=28 col=0 time=0.005s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.022015,
+        "stdout": "[OpeningBookOpt] Start turn 29\nAt depth: 0 Best move: 5 [-31, -1000000, -1000000, -1000000, -61, -5, -28]\nAt depth: 2 Best move: 6 [-21, -1000000, -1000000, -1000000, -99969, -51, -4]\nAt depth: 4 Best move: 6 [-18, -1000000, -1000000, -1000000, -99969, -80, 0]\nAt depth: 6 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99969, -99963, -99959]\nAt depth: 8 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99969, -99963, -99959]\nAt depth: 10 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99969, -99963, -99959]\nAt depth: 12 Best move: 6 [-99959, -1000000, -1000000, -1000000, -99969, -99963, -99959]\n[OpeningBook_opt] depth 12, move 6, time 0.013s\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.017064,
+        "stdout": "[FastAgent] step=30 col=4 time=0.006s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.010433,
+        "stdout": "[OpeningBookOpt] Start turn 31\n[Forced Block] Must block opponent at column 4\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.011278,
+        "stdout": "[FastAgent] step=32 col=4 time=0.001s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.010111,
+        "stdout": "[OpeningBookOpt] Start turn 33\n[Forced Block] Must block opponent at column 4\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.015731,
+        "stdout": "[FastAgent] step=34 col=4 time=0.006s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.011892,
+        "stdout": "[OpeningBookOpt] Start turn 35\nAt depth: 0 Best move: 4 [-73, -1000000, -1000000, -1000000, -22, -133, -1000000]\nAt depth: 2 Best move: 4 [-99959, -1000000, -1000000, -1000000, -21, -99963, -1000000]\nAt depth: 4 Best move: 4 [-99959, -1000000, -1000000, -1000000, -99959, -99963, -1000000]\nAt depth: 6 Best move: 4 [-99959, -1000000, -1000000, -1000000, -99959, -99963, -1000000]\n[OpeningBook_opt] depth 6, move 4, time 0.001s\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.018224,
+        "stdout": "[FastAgent] step=36 col=0 time=0.005s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.01069,
+        "stdout": "[OpeningBookOpt] Start turn 37\nAt depth: 0 Best move: 0 [-21, -1000000, -1000000, -1000000, -1000000, -84, -1000000]\nAt depth: 2 Best move: 0 [-99959, -1000000, -1000000, -1000000, -1000000, -99961, -1000000]\nAt depth: 4 Best move: 0 [-99959, -1000000, -1000000, -1000000, -1000000, -99961, -1000000]\n[OpeningBook_opt] depth 4, move 0, time 0.001s\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.014168,
+        "stdout": "[FastAgent] step=38 col=0 time=0.004s\n",
+        "stderr": ""
+      },
+      {}
+    ],
+    [
+      {},
+      {
+        "duration": 0.010766,
+        "stdout": "[OpeningBookOpt] Start turn 39\nAt depth: 0 Best move: 5 [-1000000, -1000000, -1000000, -1000000, -1000000, -80, -1000000]\nAt depth: 2 Best move: 5 [-1000000, -1000000, -1000000, -1000000, -1000000, -99959, -1000000]\n[OpeningBook_opt] depth 2, move 5, time 0.000s\n",
+        "stderr": ""
+      }
+    ],
+    [
+      {
+        "duration": 0.012854,
+        "stdout": "[FastAgent] step=40 col=5 time=0.002s\n",
+        "stderr": ""
+      },
+      {}
+    ]
+  ],
   "mode": "html"
 };
 
@@ -408,24 +3360,18 @@ window.kaggle.renderer = // Copyright 2020 Kaggle Inc
 // limitations under the License.
 
 function renderer({
+  act,
+  agents,
+  environment,
+  frame,
+  height = 400,
+  interactive,
+  isInteractive,
   parent,
   step,
-  frame,
-  environment,
+  update,
   width = 400,
-  height = 400,
 }) {
-  // Canvas Setup.
-  let canvas = parent.querySelector("canvas");
-  if (!canvas) {
-    canvas = document.createElement("canvas");
-    parent.appendChild(canvas);
-
-    canvas.addEventListener("click", () => {
-      console.log("canvas click");
-    });
-  }
-
   // Configuration.
   const { rows, columns, inarow } = environment.configuration;
 
@@ -442,6 +3388,23 @@ function renderer({
   const xOffset = Math.max(0, (width - cellSize * columns) / 2);
   const yOffset = Math.max(0, (height - cellSize * rows) / 2);
 
+  // Canvas Setup.
+  let canvas = parent.querySelector("canvas");
+  if (!canvas) {
+    canvas = document.createElement("canvas");
+    parent.appendChild(canvas);
+
+    if (interactive) {
+      canvas.addEventListener("click", evt => {
+        if (!isInteractive()) return;
+        const rect = evt.target.getBoundingClientRect();
+        const col = Math.floor((evt.clientX - rect.left - xOffset) / cellSize);
+        if (col >= 0 && col < columns) act(col);
+      });
+    }
+  }
+  canvas.style.cursor = isInteractive() ? "pointer" : "default";
+
   // Character Paths (based on 100x100 tiles).
   const kPath = new Path2D(
     `M78.3,96.5c-0.1,0.4-0.5,0.6-1.1,0.6H64.9c-0.7,0-1.4-0.3-1.9-1l-20.3-26L37,75.5v20.1 c0,0.9-0.5,1.4-1.4,1.4H26c-0.9,0-1.4-0.5-1.4-1.4V3.9c0-0.9,0.5-1.4,1.4-1.4h9.5C36.5,2.5,37,3,37,3.9v56.5l24.3-24.7 c0.6-0.6,1.3-1,1.9-1H76c0.6,0,0.9,0.2,1.1,0.7c0.2,0.6,0.1,1-0.1,1.2l-25.7,25L78,95.1C78.4,95.5,78.5,95.9,78.3,96.5z`
@@ -457,7 +3420,7 @@ function renderer({
   );
 
   // Canvas setup and reset.
-  const c = canvas.getContext("2d");
+  let c = canvas.getContext("2d");
   canvas.width = width;
   canvas.height = height;
   c.fillStyle = "#000B2A";
@@ -666,11 +3629,35 @@ function renderer({
     for (let d = 0; d < 8; d++) {
       const seq = getSequence(graph[i], d);
       if (seq) {
-        drawLine(seq[0], seq[3]);
+        drawLine(seq[0], seq[inarow - 1]);
         i = board.length;
         break;
       }
     }
+  }
+
+  // Upgrade the legend.
+  if (agents.length && (!agents[0].color || !agents[0].image)) {
+    const getPieceImage = mark => {
+      const pieceCanvas = document.createElement("canvas");
+      parent.appendChild(pieceCanvas);
+      pieceCanvas.style.marginLeft = "10000px";
+      pieceCanvas.width = 100;
+      pieceCanvas.height = 100;
+      c = pieceCanvas.getContext("2d");
+      c.translate(10, 10);
+      c.scale(0.8, 0.8);
+      drawPiece(mark);
+      const dataUrl = pieceCanvas.toDataURL();
+      parent.removeChild(pieceCanvas);
+      return dataUrl;
+    };
+
+    agents.forEach(agent => {
+      agent.color = getColor(agent.index + 1);
+      agent.image = getPieceImage(agent.index + 1);
+    });
+    update({ agents });
   }
 };
 
@@ -705,7 +3692,7 @@ function renderer({
       `;
 
       const Logo = styled(
-        props => h`
+        (props) => h`
         <a href="https://kaggle.com" target="_blank" className=${props.className}>
           <svg width="62px" height="20px" viewBox="0 0 62 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
             <g fill="#1EBEFF" fill-rule="nonzero">
@@ -723,11 +3710,12 @@ function renderer({
         display: inline-flex;
       `;
 
-      const Header = styled(props => {
+      const Header = styled((props) => {
         const { environment } = useContext(Context);
 
         return h`<div className=${props.className} >
           <${Logo} />
+          <span><b>Left / Right Arrow:</b> Increase / Decrease Step</span><span><b>0-9 Row Keys:</b> Playback Speed</span><span><b>Space:</b> Pause / Play</span>
           ${environment.title}
         </div>`;
       })`
@@ -743,25 +3731,16 @@ function renderer({
         width: 100%;
       `;
 
-      const Viewer = styled(props => {
-        const {
-          animate,
-          debug,
-          playing,
-          renderer,
-          step,
-          speed,
-          environment,
-        } = useContext(Context);
+      const Renderer = styled((props) => {
+        const context = useContext(Context);
+        const { animate, debug, playing, renderer, speed } = context;
         const ref = preact.createRef();
-        const stepRef = useRef(-1);
-        stepRef.current = step;
 
         useEffect(async () => {
           if (!ref.current) return;
 
-          const renderFrame = async (start, startStep, lastFrame) => {
-            if (startStep !== stepRef.current) return;
+          const renderFrame = async (start, step, lastFrame) => {
+            if (step !== context.step) return;
             if (lastFrame === 1) {
               if (!animate) return;
               start = Date.now();
@@ -773,54 +3752,137 @@ function renderer({
             try {
               if (debug) console.time("render");
               await renderer({
-                parent: ref.current,
-                environment,
-                step,
+                ...context,
                 frame,
-                width: ref.current.clientWidth,
                 height: ref.current.clientHeight,
-                styled,
-                preact,
                 hooks: preactHooks,
+                parent: ref.current,
+                preact,
+                styled,
+                width: ref.current.clientWidth,
               });
-            } catch (e) {
-              console.log(
-                "Frame:",
-                frame,
-                "Step:",
-                step,
-                "Environment:",
-                environment,
-                "Error:",
-                e
-              );
+            } catch (error) {
+              if (debug) console.error(error);
+              console.log({ ...context, frame, error });
             } finally {
               if (debug) console.timeEnd("render");
             }
-            window.requestAnimationFrame(() =>
-              renderFrame(start, startStep, frame)
-            );
+            window.requestAnimationFrame(() => renderFrame(start, step, frame));
           };
 
-          await renderFrame(Date.now(), stepRef.current);
-        }, [ref.current, step]);
+          await renderFrame(Date.now(), context.step);
+        }, [ref.current, context.step, context.renderer]);
 
         return h`<div className=${props.className} ref=${ref} />`;
       })`
         align-items: center;
+        box-sizing: border-box;
+        display: flex;
+        height: 100%;
+        left: 0;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        width: 100%;
+      `;
+
+      const Processing = styled((props) => {
+        const { processing } = useContext(Context);
+        const text = processing === true ? "Processing..." : processing;
+        return h`<div className=${props.className}>${text}</div>`;
+      })`
+        bottom: 0;
+        color: #fff;
+        font-size: 12px;
+        left: 0;
+        line-height: 24px;
+        position: absolute;
+        text-align: center;
+        width: 100%;
+      `;
+
+      const Viewer = styled((props) => {
+        const { processing } = useContext(Context);
+        return h`<div className=${props.className}>
+          <${Renderer} />
+          ${processing && h`<${Processing} />`}
+        </div>`;
+      })`
         background-color: #000b2a;
         background-image: radial-gradient(
           circle closest-side,
           #000b49,
           #000b2a
         );
-        box-sizing: border-box;
         display: flex;
         flex: 1;
-        justify-content: center;
-        overflow: auto;
+        overflow: hidden;
         position: relative;
         width: 100%;
+      `;
+
+      // Partitions the elements of arr into subarrays of max length num.
+      const groupIntoSets = (arr, num) => {
+        const sets = [];
+        arr.forEach(a => {
+          if (sets.length === 0 || sets[sets.length - 1].length === num) {
+            sets.push([]);
+          }
+          sets[sets.length - 1].push(a);
+        });
+        return sets;
+      }
+
+      // Expects `width` input prop to set proper max-width for agent name span.
+      const Legend = styled((props) => {
+        const { agents, legend } = useContext(Context);
+
+        const agentPairs = groupIntoSets(agents.sort((a, b) => a.index - b.index), 2);
+
+        return h`<div className=${props.className}>
+          ${agentPairs.map(agentList =>
+            h`<ul>
+                ${agentList.map(a =>
+                  h`<li key=${a.id} title="id: ${a.id}" style="color:${a.color || "#FFF"}">
+                      ${a.image && h`<img src=${a.image} />`}
+                      <span>${a.name}</span>
+                    </li>`
+                )}
+              </ul>`)}
+        </div>`;
+      })`
+        background-color: #000b2a;
+        font-family: sans-serif;
+        font-size: 14px;
+        height: 48px;
+        width: 100%;
+
+        ul {
+          align-items: center;
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+        }
+
+        li {
+          align-items: center;
+          display: inline-flex;
+          transition: color 1s;
+        }
+
+        span {
+          max-width: ${p => (p.width || 400) * 0.5 - 36}px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        img {
+          height: 24px;
+          margin-left: 4px;
+          margin-right: 4px;
+          width: 24px;
+        }
       `;
 
       const StepInput = styled.input.attrs({
@@ -894,13 +3956,13 @@ function renderer({
         pointer-events: none;
       `;
 
-      const Controls = styled(props => {
+      const Controls = styled((props) => {
         const { environment, pause, play, playing, setStep, step } = useContext(
           Context
         );
         const value = step + 1;
         const onClick = () => (playing ? pause() : play());
-        const onInput = e => {
+        const onInput = (e) => {
           pause();
           setStep(parseInt(e.target.value) - 1);
         };
@@ -926,7 +3988,7 @@ function renderer({
         width: 100%;
       `;
 
-      const Info = styled(props => {
+      const Info = styled((props) => {
         const {
           environment,
           playing,
@@ -952,7 +4014,7 @@ function renderer({
         font-size: 12px;
       `;
 
-      const Settings = styled(props => {
+      const Settings = styled((props) => {
         const { environment, pause, play, playing, setStep, step } = useContext(
           Context
         );
@@ -974,14 +4036,15 @@ function renderer({
         }
       `;
 
-      const Player = styled(props => {
+      const Player = styled((props) => {
         const context = useContext(Context);
-        const { controls, header, loading, settings } = context;
+        const { agents, controls, header, legend, loading, settings, width } = context;
         return h`
           <div className=${props.className}>
             ${loading && h`<${Loading} />`}
             ${!loading && header && h`<${Header} />`}
             ${!loading && h`<${Viewer} />`}
+            ${!loading && legend && h`<${Legend} width=${width}/>`}
             ${!loading && controls && h`<${Controls} />`}
             ${!loading && settings && h`<${Settings} />`}
           </div>`;
@@ -1002,29 +4065,48 @@ function renderer({
         const renderCountRef = useRef(0);
         const [_, setRenderCount] = useState(0);
 
+        // These are bindings to the 0-9 keys and are milliseconds of timeout per step
+        const speeds = [
+          0,
+          3000,
+          1000,
+          500,
+          333, // Default
+          200,
+          100,
+          50,
+          25,
+          10,
+        ];
+
         const contextRef = useRef({
           animate: false,
-          autoplay: false,
+          agents: [],
           controls: false,
           debug: false,
+          environment: { steps: [], info: {} },
           header: window.innerHeight >= 600,
+          height: window.innerHeight,
+          interactive: false,
+          legend: true,
           loading: false,
-          environment: { steps: [] },
           playing: false,
+          processing: false,
           renderer: () => "DNE",
           settings: false,
-          speed: 500,
+          speed: speeds[4],
           step: 0,
+          width: window.innerWidth,
         });
 
         // Context helpers.
         const rerender = (contextRef.current.rerender = () =>
           setRenderCount((renderCountRef.current += 1)));
-        const setStep = (contextRef.current.setStep = newStep => {
+        const setStep = (contextRef.current.setStep = (newStep) => {
           contextRef.current.step = newStep;
           rerender();
         });
-        const setPlaying = (contextRef.current.setPlaying = playing => {
+        const setPlaying = (contextRef.current.setPlaying = (playing) => {
           contextRef.current.playing = playing;
           rerender();
         });
@@ -1044,7 +4126,7 @@ function renderer({
           }
         };
 
-        const play = (contextRef.current.play = continuing => {
+        const play = (contextRef.current.play = (continuing) => {
           const context = contextRef.current;
           if (context.playing && !continuing) return;
           if (!context.playing) setPlaying(true);
@@ -1057,15 +4139,12 @@ function renderer({
           setTimeout(playNext, context.speed);
         });
 
-        const updateContext = o => {
+        const updateContext = (o) => {
           const context = contextRef.current;
           Object.assign(context, o, {
             environment: { ...context.environment, ...(o.environment || {}) },
           });
           rerender();
-
-          // If autoplay, toggle to playing.
-          if (context.autoplay) play();
         };
 
         // First time setup.
@@ -1074,10 +4153,15 @@ function renderer({
           setTimeout(() => {
             // Initialize context with window.kaggle.
             updateContext(window.kaggle || {});
+
+            if (window.kaggle.playing) {
+                play(true);
+            }
+
             // Listen for messages received to update the context.
             window.addEventListener(
               "message",
-              event => {
+              (event) => {
                 // Ensure the environment names match before updating.
                 try {
                   if (
@@ -1090,12 +4174,112 @@ function renderer({
               },
               false
             );
+            // Listen for keyboard commands.
+            window.addEventListener(
+              "keydown",
+              (event) => {
+                const {
+                  interactive,
+                  isInteractive,
+                  playing,
+                  step,
+                  environment,
+                } = contextRef.current;
+                const key = event.keyCode;
+                const zero_key = 48
+                const nine_key = 57
+                if (
+                  interactive ||
+                  isInteractive() ||
+                  (key !== 32 && key !== 37 && key !== 39 && !(key >= zero_key && key <= nine_key))
+                )
+                  return;
+
+                if (key === 32) {
+                  playing ? pause() : play();
+                } else if (key === 39) {
+                  contextRef.current.playing = false;
+                  if (step < environment.steps.length - 1) setStep(step + 1);
+                  rerender();
+                } else if (key === 37) {
+                  contextRef.current.playing = false;
+                  if (step > 0) setStep(step - 1);
+                  rerender();
+                } else if (key >= zero_key && key <= nine_key) {
+                  contextRef.current.speed = speeds[key - zero_key];
+                }
+                event.preventDefault();
+                return false;
+              },
+              false
+            );
           }, 1);
         }, []);
 
         if (contextRef.current.debug) {
           console.log("context", contextRef.current);
         }
+
+        // Ability to update context.
+        contextRef.current.update = updateContext;
+
+        // Ability to communicate with ipython.
+        const execute = (contextRef.current.execute = (source) =>
+          new Promise((resolve, reject) => {
+            try {
+              window.parent.IPython.notebook.kernel.execute(source, {
+                iopub: {
+                  output: (resp) => {
+                    const type = resp.msg_type;
+                    if (type === "stream") return resolve(resp.content.text);
+                    if (type === "error") return reject(new Error(resp.evalue));
+                    return reject(new Error("Unknown message type: " + type));
+                  },
+                },
+              });
+            } catch (e) {
+              reject(new Error("IPython Unavailable: " + e));
+            }
+          }));
+
+        // Ability to return an action from an interactive session.
+        contextRef.current.act = (action) => {
+          const id = contextRef.current.environment.id;
+          updateContext({ processing: true });
+          execute(`
+            import json
+            from kaggle_environments import interactives
+            if "${id}" in interactives:
+                action = json.loads('${JSON.stringify(action)}')
+                env, trainer = interactives["${id}"]
+                trainer.step(action)
+                print(json.dumps(env.steps))`)
+            .then((resp) => {
+              try {
+                updateContext({
+                  processing: false,
+                  environment: { steps: JSON.parse(resp) },
+                });
+                play();
+              } catch (e) {
+                updateContext({ processing: resp.split("\n")[0] });
+                console.error(resp, e);
+              }
+            })
+            .catch((e) => console.error(e));
+        };
+
+        // Check if currently interactive.
+        contextRef.current.isInteractive = () => {
+          const context = contextRef.current;
+          const steps = context.environment.steps;
+          return (
+            context.interactive &&
+            !context.processing &&
+            context.step === steps.length - 1 &&
+            steps[context.step].some((s) => s.status === "ACTIVE")
+          );
+        };
 
         return h`
           <${Context.Provider} value=${contextRef.current}>
