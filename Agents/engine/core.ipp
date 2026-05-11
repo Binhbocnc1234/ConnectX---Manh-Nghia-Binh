@@ -288,11 +288,26 @@ std::array<int, INAROW + 1> count_windows_bb(std::uint64_t me, std::uint64_t opp
     return num_windows;
 }
 
-int get_heuristic_bb(std::uint64_t me, std::uint64_t opp) {
+bool is_win(std::uint64_t b);
+std::uint64_t make_move(std::uint64_t me, std::uint64_t opp, int col);
+int find_winning_move(std::uint64_t me, std::uint64_t opp);
+
+int get_heuristic_bb(std::uint64_t me, std::uint64_t opp, int remaining_depth) {
+    int ply_count = std::popcount(me | opp);
+
+    int immediate_win_col = find_winning_move(me, opp);
+    if (immediate_win_col != -1) {
+        return MATE_SCORE - (ply_count + 1);
+    }
+
+    int immediate_threat_col = find_winning_move(opp, me);
+    if (immediate_threat_col != -1) {
+        return -(MATE_SCORE - ply_count);
+    }
+
     auto num_opp = count_windows_bb(opp, me);
     for (int i = 0; i < INAROW; ++i) {
         if (i == (INAROW - 1) && num_opp[i + 1] >= 1) {
-            int ply_count = std::popcount(me | opp);
             return -(MATE_SCORE - ply_count);
         }
     }
@@ -300,14 +315,19 @@ int get_heuristic_bb(std::uint64_t me, std::uint64_t opp) {
     auto num = count_windows_bb(me, opp);
     for (int i = 0; i < INAROW; ++i) {
         if (i == (INAROW - 1) && num[i + 1] >= 1) {
-            int ply_count = std::popcount(me | opp) + 1;
-            return (MATE_SCORE - ply_count);
+            return (MATE_SCORE - (ply_count + 1));
         }
     }
 
     int score = 0;
     for (int i = 0; i < INAROW; ++i) score += ipow(4, i) * num[i + 1];
     for (int i = 0; i < INAROW; ++i) score -= ipow(4, i) * num_opp[i + 1];
+
+    int board_parity = (((ROWS * COLUMNS) - ply_count) & 1) ? 1 : -1;
+    int horizon_parity = (remaining_depth & 1) ? 1 : -1;
+    int threat_balance = num[INAROW - 1] - num_opp[INAROW - 1];
+    score += (board_parity + horizon_parity) * threat_balance;
+
     return score;
 }
 
@@ -410,7 +430,7 @@ int pvs(std::uint64_t me, std::uint64_t opp, int depth, int alpha, int beta, dou
         return -(MATE_SCORE - ply_count);
     }
     if (depth == 0 || now_seconds() > deadline) {
-        return get_heuristic_bb(me, opp);
+        return get_heuristic_bb(me, opp, depth);
     }
 
     int alpha0 = alpha;

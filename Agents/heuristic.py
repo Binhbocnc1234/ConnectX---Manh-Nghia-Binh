@@ -83,19 +83,25 @@ def get_heuristic_bb(me, opp, remaining_depth = 0):
       + window càng nhiều quân của đối thủ thì càng xấu
     """
 
+    ply_count = (me | opp).bit_count()
+
+    # Immediate win/threat check theo luật rơi quân (gravity-aware).
+    if _find_immediate_winning_move(me, opp) != -1:
+        return (MATE_SCORE - (ply_count + 1))
+    if _find_immediate_winning_move(opp, me) != -1:
+        return -(MATE_SCORE - ply_count)
+
     # Kiểm tra nguy cơ thua ngay từ góc nhìn của đối thủ.
     num_opp = count_windows_bb(opp, me)
     for i in range(config.inarow):
         if i == (config.inarow - 1) and num_opp[i + 1] >= 1:
-            ply_count = (me | opp).bit_count()
             return -(MATE_SCORE - ply_count) # thua ngay
         
     # Thắng/thua luôn là ưu tiên tuyệt đối, không để các điểm phụ lấn át.
     num = count_windows_bb(me, opp)
     for i in range(config.inarow):
         if i == (config.inarow - 1) and num[i + 1] >= 1:
-            ply_count = (me | opp).bit_count() + 1
-            return (MATE_SCORE - ply_count)  # thắng ngay
+            return (MATE_SCORE - (ply_count + 1))  # thắng ngay
 
     score = 0
     # Phần điểm chính: giống `get_heuristic()`.
@@ -105,7 +111,25 @@ def get_heuristic_bb(me, opp, remaining_depth = 0):
     # Trừ điểm cho window tiềm năng của đối thủ.
     for i in range(config.inarow):
         score -= (4 ** i) * num_opp[i + 1]
+
+    board_parity = 1 if ((config.rows * config.columns - ply_count) & 1) else -1
+    horizon_parity = 1 if (remaining_depth & 1) else -1
+    threat_balance = num[config.inarow - 1] - num_opp[config.inarow - 1]
+    score += (board_parity + horizon_parity) * threat_balance
+
     return score
+
+
+def _find_immediate_winning_move(me, opp):
+    for col in (3, 2, 4, 1, 5, 0, 6):
+        col_mask = 0b111111 << (col * 7)
+        occupied = (me | opp) & col_mask
+        if occupied & (1 << (col * 7 + 5)):
+            continue
+        new_piece = (occupied + (1 << (col * 7))) & col_mask
+        if new_piece and is_win(me | new_piece):
+            return col
+    return -1
 
 
 def _get_bb_window_masks():
@@ -180,5 +204,4 @@ def count_windows_bb(me, opp):
             continue
         num_windows[(mask & me).bit_count()] += 1
     return num_windows
-
 
