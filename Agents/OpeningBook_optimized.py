@@ -1,16 +1,15 @@
-import time
 try:
     import Output.log_system as log_system
 except Exception:
     log_system = None
+
+import time
 from Agents.foundation import *
 from Agents.heuristic import get_heuristic_bb
 
-# https://grokipedia.com/page/Principal_variation_search
 def _ordered_moves():
     """Ưu tiên cột gần trung tâm"""
     return [3, 2, 4, 1, 5, 0, 6]
-
 MOVE_ORDER = _ordered_moves()
 
 

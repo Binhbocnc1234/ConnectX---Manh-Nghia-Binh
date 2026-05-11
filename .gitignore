@@ -3,3 +3,4 @@ Submissions/
 __pycache__/
 connectx.html
 game_log.json
+Agents/_engine.so
