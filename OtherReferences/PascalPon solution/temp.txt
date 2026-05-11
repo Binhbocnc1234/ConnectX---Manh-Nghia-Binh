@@ -1,0 +1,213 @@
+#include "OpeningBook.hpp"
+#include "Solver.hpp"
+#include "Position.hpp"
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+#include <fstream>
+#include <cmath>
+#include <cstdint>
+
+using namespace GameSolver::Connect4;
+
+struct Node {
+    Position p;
+    uint64_t me;
+    uint64_t opp;
+};
+
+// Binary record: 8 bytes me + 8 bytes opp + 1 byte move = 17 bytes per entry
+// File starts with 4-byte magic "BK01" to detect format
+// Python loads using struct.unpack_from('<QQB', buffer, offset)
+
+int main(int argc, char** argv) {
+    // --- THIẾT LẬP THAM SỐ HARDCODE ---
+    int max_ply = 14;          // Độ sâu tối đa
+    int prune_threshold = 4;   // Ngưỡng điểm: Nếu abs(best_score) >= prune_threshold thì không mở rộng nhánh con
+    std::string book_in = "..\\7x6.book";         // File đầu vào
+    std::string file_out = "opening_book.bin";    // File nhị phân đầu ra (ngay cạnh exe)
+
+    std::cerr << "Exporting book up to ply: " << max_ply
+              << ", prune threshold: " << prune_threshold
+              << ", output: " << file_out << std::endl;
+
+    OpeningBook book(Position::WIDTH, Position::HEIGHT);
+    book.load(book_in);
+    
+    Solver solver;
+    solver.loadBook(book_in);
+
+    std::vector<Node> queue;
+    std::unordered_set<uint64_t> visited;
+
+    int count = 0;
+    int head = 0;
+    long long book_hits = 0;
+    long long total_queries = 0;
+
+    std::string state_file = "export_state.bin";
+    bool resumed = false;
+
+    // --- KHÔI PHỤC TRẠNG THÁI ---
+    std::ifstream state_in(state_file, std::ios::binary);
+    if (state_in.is_open()) {
+        state_in.read(reinterpret_cast<char*>(&count), sizeof(count));
+        state_in.read(reinterpret_cast<char*>(&head), sizeof(head));
+        state_in.read(reinterpret_cast<char*>(&book_hits), sizeof(book_hits));
+        state_in.read(reinterpret_cast<char*>(&total_queries), sizeof(total_queries));
+
+        size_t q_size;
+        state_in.read(reinterpret_cast<char*>(&q_size), sizeof(q_size));
+        queue.resize(q_size);
+        state_in.read(reinterpret_cast<char*>(queue.data()), q_size * sizeof(Node));
+        state_in.close();
+
+        // Tái tạo visited set từ queue
+        for (int i = 0; i < head; i++) {
+            if (queue[i].p.nbMoves() <= max_ply) {
+                visited.insert(queue[i].p.key3());
+            }
+        }
+        resumed = true;
+        std::cerr << "Resumed from state! count=" << count << ", queue_size=" << queue.size() << std::endl;
+    }
+
+    if (!resumed) {
+        queue.push_back({Position(), 0, 0});
+    }
+
+    std::ofstream out;
+    if (resumed) {
+        out.open(file_out, std::ios::binary | std::ios::app);
+    } else {
+        out.open(file_out, std::ios::binary | std::ios::trunc);
+        // Write magic header
+        const char magic[4] = {'B', 'K', '0', '1'};
+        out.write(magic, 4);
+    }
+
+    if (!out.is_open()) {
+        std::cerr << "Cannot open output file: " << file_out << std::endl;
+        return 1;
+    }
+    
+    std::vector<char> out_buffer;
+    out_buffer.reserve(50000 * 17);
+
+    // Ưu tiên cột giữa
+    int move_order[7] = {3, 2, 4, 1, 5, 0, 6};
+
+    while (head < (int)queue.size()) {
+        Node node = queue[head++];
+
+        if (node.p.nbMoves() > max_ply) continue;
+
+        uint64_t key = node.p.key3();
+        if (visited.count(key)) continue;
+        visited.insert(key);
+
+        int best_move = -1;
+        int best_score = -1000;
+
+        // 1. Tìm nước đi tốt nhất từ book
+        for (int i = 0; i < 7; i++) {
+            int c = move_order[i];
+            if (node.p.canPlay(c)) {
+                if (node.p.isWinningMove(c)) {
+                    best_move = c;
+                    best_score = 1000;
+                    break;
+                }
+                Position child = node.p;
+                child.playCol(c);
+                int val = book.get(child);
+                int score;
+                
+                total_queries++;
+                if (val != 0) {
+                    book_hits++;
+                    score = -(val + Position::MIN_SCORE - 1);
+                }
+                // else {
+                //     // Fallback to searching if not in book
+                //     score = -solver.solve(child, false);
+                // }
+                
+                if (score > best_score) {
+                    best_score = score;
+                    best_move = c;
+                }
+            }
+        }
+
+        // 2. Ghi nhị phân vào buffer (17 bytes)
+        if (best_move != -1) {
+            const char* me_ptr = reinterpret_cast<const char*>(&node.me);
+            const char* opp_ptr = reinterpret_cast<const char*>(&node.opp);
+            out_buffer.insert(out_buffer.end(), me_ptr, me_ptr + 8);
+            out_buffer.insert(out_buffer.end(), opp_ptr, opp_ptr + 8);
+            out_buffer.push_back(static_cast<char>(best_move));
+            count++;
+
+            // Ghi file và lưu trạng thái theo batch 50000
+            if (count % 50000 == 0) {
+                out.write(out_buffer.data(), out_buffer.size());
+                out.flush();
+                out_buffer.clear();
+                
+                // --- LƯU TRẠNG THÁI ---
+                std::ofstream state_out(state_file, std::ios::binary | std::ios::trunc);
+                if (state_out.is_open()) {
+                    state_out.write(reinterpret_cast<const char*>(&count), sizeof(count));
+                    state_out.write(reinterpret_cast<const char*>(&head), sizeof(head));
+                    state_out.write(reinterpret_cast<const char*>(&book_hits), sizeof(book_hits));
+                    state_out.write(reinterpret_cast<const char*>(&total_queries), sizeof(total_queries));
+
+                    size_t q_size = queue.size();
+                    state_out.write(reinterpret_cast<const char*>(&q_size), sizeof(q_size));
+                    state_out.write(reinterpret_cast<const char*>(queue.data()), q_size * sizeof(Node));
+                    state_out.close();
+                }
+                
+                double hit_rate = total_queries > 0 ? (double)book_hits / total_queries * 100.0 : 0.0;
+                std::cerr << "Processed " << count << " positions... Queue: " << (queue.size() - head) 
+                          << " | Reached depth: " << node.p.nbMoves() 
+                          << " | Book hit rate: " << hit_rate << "%" << std::endl;
+            }
+        }
+
+        // 3. Prune: Nếu thế cờ đã rõ ràng, không mở rộng con
+        bool should_expand = true;
+        if (best_score == 1000 || (best_score != -1000 && std::abs(best_score) >= prune_threshold)) {
+            should_expand = false;
+        }
+
+        if (should_expand) {
+            for (int i = 0; i < 7; i++) {
+                int c = move_order[i];
+                if (node.p.canPlay(c) && !node.p.isWinningMove(c)) {
+                    int r = 0;
+                    for (int bit = 0; bit < 6; bit++) {
+                        if ((node.me | node.opp) & (1ULL << (c * 7 + bit))) r++;
+                        else break;
+                    }
+                    Position child = node.p;
+                    child.playCol(c);
+                    uint64_t child_me  = node.opp;
+                    uint64_t child_opp = node.me | (1ULL << (c * 7 + r));
+                    queue.push_back({child, child_me, child_opp});
+                }
+            }
+        }
+    }
+
+    if (!out_buffer.empty()) {
+        out.write(out_buffer.data(), out_buffer.size());
+        out_buffer.clear();
+    }
+
+    out.close();
+    std::cerr << "Exported " << count << " positions to " << file_out
+              << " (" << (count * 17 + 4) / 1024 / 1024 << " MB)" << std::endl;
+    return 0;
+}

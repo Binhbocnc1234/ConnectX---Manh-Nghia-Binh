@@ -1,0 +1,835 @@
+
+
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#" lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+
+<meta property="og:title" content="Connect&nbsp;4 Solver" />
+<meta property="og:url" content="https://connect4.gamesolver.org/en/" />
+<meta property="og:site_name" content="Game Solver" />
+<meta property="og:image" content="https://connect4.gamesolver.org/image?pos=44433436266" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="700" />
+<meta property="og:image:height" content="600" />
+<meta property="og:type" content="website" />
+<meta property="og:description" content="Optimal solution of a Connect&nbsp;4 game:<ul><li>find the best move</li><li>play against an unbeatable A.I.</li></ul>" />
+<meta property="fb:app_id" content="633063193494750" />
+<meta name="description" content="Optimal solution of a Connect&nbsp;4 game:<ul><li>find the best move</li><li>play against an unbeatable A.I.</li></ul>">
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="msvalidate.01" content="CC0139ECBAC28163AED28ADBDD803830" />
+<meta name="google-adsense-account" content="ca-pub-9376755535289585">
+
+<link rel="canonical" href="https://connect4.gamesolver.org/en/" />
+
+<link rel="alternate" hreflang="fr" href="https://connect4.gamesolver.org/fr/" />
+<link rel="alternate" hreflang="ru" href="https://connect4.gamesolver.org/ru/" />
+<link rel="alternate" hreflang="tr" href="https://connect4.gamesolver.org/tr/" />
+<link rel="alternate" hreflang="se" href="https://connect4.gamesolver.org/se/" />
+<link rel="alternate" hreflang="pt" href="https://connect4.gamesolver.org/pt/" />
+<link rel="alternate" hreflang="es" href="https://connect4.gamesolver.org/es/" />
+<link rel="alternate" hreflang="de" href="https://connect4.gamesolver.org/de/" />
+<link rel="alternate" hreflang="zh" href="https://connect4.gamesolver.org/zh/" />
+<link rel="alternate" hreflang="it" href="https://connect4.gamesolver.org/it/" />
+<link rel="alternate" hreflang="x-default" href="https://connect4.gamesolver.org/" />
+
+<title>Connect&nbsp;4 Solver</title>
+<script src='/jquery-2.1.3.min.js'></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9376755535289585" crossorigin="anonymous"></script>
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  overflow-y: scroll;
+}
+
+div {
+  position: absolute;
+  text-align: center;
+}
+
+@media (orientation:portrait) and (min-aspect-ratio: 2/3)  {
+  #container {
+    width: 66.6666666667vh;
+    height: 100vh;
+    top: 0;
+    left:0;
+    /*left:calc(50vw - 33.3333333333vh);*/
+  }
+  #adslot_right {
+    top: 0;
+    left: 66.6666666667vh;
+    width: 33.3333333333vh;
+  }
+  #adslot_bottom {
+    display: none;
+  }
+  html {font-size: 2.5vh;}
+}
+
+@media (orientation:portrait) and (max-aspect-ratio: 2/3)  {
+  #container {
+    width: 100vw;
+    height: 150vw;
+    top: 0;
+    left:0;
+  }
+  #adslot_bottom {
+    top: 150vw;
+    left: 0;
+    width:100%;
+  }
+  #adslot_right {
+    display: none;
+  }
+  html {font-size: 3.75vw;}
+}
+
+@media (orientation:landscape) and (min-aspect-ratio: 3/2) {
+  #container {
+    width: 150vh;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    /*left: calc(50vw - 75vh);*/
+  }
+  #adslot_right {
+    top: 0;
+    left: 150vh;
+    width: calc(100vw - 150vh);
+  }
+  #adslot_bottom {
+    display: none;
+  }
+  html {font-size: 3.75vh;}
+}
+
+@media (orientation:landscape) and (max-aspect-ratio: 3/2) {
+  #container {
+    width: 100vw;
+    height: 66.6666666667vw;
+    top: 0;
+    left:0;
+  }
+  #adslot_bottom {
+    top: 66.6666666667vw;
+    left: 0;
+    width: 100%;
+  }
+  #adslot_right {
+    display: none;
+  }
+  html {font-size: 2.5vw;}
+}
+
+@media (orientation:portrait) {
+  #nav {
+    left:0%;
+    top:0%;
+    width:100%;
+    height:33.3333333333%;
+  }
+  #board {
+    left:0;
+    top: 33.3333333333%;
+    width: 100%;
+    height: 66.6666666667%;
+  }
+  #title {left:0%;top:0%; width:50%; height:20%;}
+  #description {left:51.25%;top:0%; width:47.25%; height:60%;}
+  #button_div {left:0%; top:20%; width:50%; height:80%;}
+  #player_div {left:50%; top:60%; width:50%; height:40%;}  
+}
+
+@media (orientation:landscape) {
+  #nav {
+    left: 0%;
+    top:0%;
+    width: 33.3333333333%;
+    height:100%; 
+  }
+  #board {
+    left:33.3333333333%;
+    top:0%;
+    width: 66.6666666667%;
+    height: 100%; 
+  }
+  #title {left:0%; top:0%; width:100%; height:10%;}
+  #description {left:2.5%;top:10%; width:95%; height:30%;}  
+  #button_div {left:0%; top:40%; width:100%; height:40%;}
+  #player_div {left:0%; top:80%; width:100%; height:20%;}
+}
+
+
+#lang     {top:0%;}
+#about    {top:25%;}
+#new      {top:50%;} 
+#back     {top:75%;} 
+#player_1 {top:0%;} 
+#player_2 {top:50%;} 
+
+
+div.col0 {left:0%;}
+div.col1 {left:14.285714286%;}
+div.col2 {left:28.571428571%;}
+div.col3 {left:42.857142857%;}
+div.col4 {left:57.142857143%;}
+div.col5 {left:71.428571429%;}
+div.col6 {left:85.714285714%;}
+
+
+
+.button {
+  position: absolute;
+  width:75%;
+  left:0;
+  right:0;
+  padding:0;
+  margin: auto;
+  height: 1.5em;
+  line-height: 1.5em;
+  font-weight: bold;
+  border-style: solid;
+  border-width: 0.2em;
+  border-color: #8685a2;
+  background-color: #a6a5c9;
+  -webkit-border-radius: 1em;
+  -moz-border-radius: 1em;
+  border-radius: 0.5em;
+  cursor: pointer;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.active {
+  opacity: 1;
+}
+
+.inactive {
+  opacity: 0.50;
+  border-color: #ffffff;
+}
+
+.languagepicker {
+  z-index: 1;
+	height: 1.5em;
+  width:75%;    
+	overflow: hidden;
+	transition: height .3s ease;
+	vertical-align: top;
+}
+
+.languagepicker a{
+	color: #000;
+	text-decoration: none;
+}
+
+.languagepicker li {
+	display: block;
+	border-top: 0.05em solid #8685a2;
+  background-color: #a6a5c9;
+}
+
+.languagepicker li:first-child {
+	border: none;
+  background-color: #a6a5c9;
+}
+
+@media (hover: none) {
+  .languagepicker li:first-child a {
+    pointer-events: none;
+    cursor: default;
+  }
+}
+
+.languagepicker:hover {
+	/* don't forget the 0.05em border : nb_line*1.55 - 0.05 */
+	height: 17em;
+}
+
+.languagepicker li img {
+	margin-right: 0.5em;
+	height: 0.75em;
+}
+
+.languagepicker li:hover {
+	background-color:  #d3d3e4;
+}
+
+#description {
+  text-align: left;
+}
+
+#player_1 {
+  background-image:url(/red.svg);
+  background-size: 1.5em 1.5em;
+  background-repeat: no-repeat;
+  background-position:left center;
+}
+#player_2 {
+  background-image:url(/yellow.svg);
+  background-size: 1.5em 1.5em;
+  background-repeat: no-repeat;
+  background-position:left center;
+}
+
+
+html {
+  font-family: Arial, Helvetica, sans-serif;
+}
+h1 {
+  font-size: 1.15em;
+  font-weight: bold;
+  margin: 0;
+}
+
+#solution_header {
+  left:0;
+  top: 85.714285714%;
+  width:100%;
+  height: 1em;
+  line-height: 1em;
+}
+
+#solution {
+  left:0;
+  top: 90.476190476%;
+  height:9.523809524%;
+  width:100%;
+}
+
+#hide_solution_div {
+  left:0;
+  top: 90.476190476%;
+  height:9.523809524%;
+  width:100%;
+  z-index: 50;
+  background-color: white;  
+}
+
+#about_div {
+  top: 0;
+  left: 0;
+  padding: 2.5%;
+  height: 100%;
+  display: none;
+  background-color: white;
+  opacity: 0.95;
+  z-index: 100;
+  text-align: left;
+  overflow-y:auto;
+}
+
+
+.board {
+  background-image:url(/board.svg);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  height:14.285714286%;
+  width:14.285714286%;
+  z-index:2;
+}
+
+.solution {
+  width: 14.285714286%;
+  height: 2em;
+  line-height: 2em;
+  background-image:none;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center; 
+}
+
+.win {
+  background-image:url(/win.png);
+  width:14.285714286%;
+  height:14.285714286%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  z-index:1;
+}
+
+.player1 {
+  background-image:url(/red.svg);
+  width:14.285714286%;
+  height:14.285714286%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  z-index:0;
+}
+.player2 {
+  background-image:url(/yellow.svg);
+  width:14.285714286%;
+  height:14.285714286%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  z-index:0;
+}
+
+</style>
+
+<script>//<![CDATA[ 
+
+
+var stone = [];
+var mark = [];
+var height = [0, 0, 0, 0, 0, 0, 0];
+var moves = [];
+var solutions = [];
+var board = [
+[0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0]];
+var won = false;
+var player_1_auto = false;
+var player_2_auto = false;
+
+
+function auto_play() {
+  if(moves.length % 2) return player_2_auto;
+  else return player_1_auto;
+}
+
+function canplay(col) {
+  if(auto_play()) return false;
+  return !won && height[col] < 6;
+}
+
+function play(col, dont_compute) {
+  board[col][height[col]] = 1 + moves.length % 2;
+  drop(stone[moves.length], col, height[col]);
+  height[col]++;
+  moves.push(col);
+  win();
+  window.history.replaceState(null, null, get_pos_param());
+  if(dont_compute) return;
+  print_solution();
+}
+
+function click_handler(col) {
+  return function () {
+    if(canplay(col)) {
+      play(col);
+      gtag('event', 'game_play');
+    }
+  };
+}
+
+function print_next_player() {
+  if(won) {
+    $("#player_1").removeClass("active").addClass("inactive");
+    $("#player_2").removeClass("active").addClass("inactive");
+  }
+  else if(moves.length % 2 == 0) {
+    $("#player_1").removeClass("inactive").addClass("active");
+    $("#player_2").removeClass("active").addClass("inactive");
+  }
+  else {
+    $("#player_1").removeClass("active").addClass("inactive");
+    $("#player_2").removeClass("inactive").addClass("active");
+  }
+}
+
+function drop(img, x, y) {
+  img.css("left", (x*100/7)+"%");
+  img.css("top", (-100/7)+"%");
+  img.show();
+  img.animate({top: ((5-y)*100/7)+"%"}, 400, "linear", show_win);
+}
+
+function mark_win(x, y, dx, dy) {
+  for (var i = 0; i < 4; i++) {
+    mark[i].css("left", ((x + i * dx)*100/7) + '%');
+    mark[i].css("top", ((5 - (y + i * dy))*100/7) + '%');
+  }
+}
+
+function show_win() {
+  if(won)
+    for(var i = 0; i < 4; i++) {
+      mark[i].show();
+    }
+}
+
+
+function win() {
+  var x = moves[moves.length - 1];
+  var y = height[x] - 1;
+
+  if (y >= 3 && board[x][y - 3] == board[x][y] && board[x][y - 2] == board[x][y] && board[x][y - 1] == board[x][y]) {
+    mark_win(x, y, 0, -1);
+    won = true;
+  }
+  for (var dy = -1; dy <= 1; dy++) {
+    var nb = 0;
+    for (var dx = 1; x + dx < 7 && y + dx * dy < 6 && y + dx * dy >= 0; dx++)
+      if (board[x + dx][y + dx * dy] == board[x][y]) nb++;
+      else break;
+    for (var dx = -1; x + dx >= 0 && y + dx * dy < 6 && y + dx * dy >= 0; dx--)
+      if (board[x + dx][y + dx * dy] == board[x][y]) nb++;
+      else break;
+    if (nb >= 3) {
+      mark_win(x + dx + 1, y + (dx + 1) * dy, 1, dy);
+      won = true;
+    }
+  }
+}
+
+
+function get_pos() {
+  var pos = "";
+  for (var i = 0; i < moves.length; i++) pos = pos + (moves[i] + 1);
+  return pos;
+}
+
+function get_pos_param() {
+  var pos=get_pos();
+  if(pos == "") return location.pathname;
+  else return "?pos=" + pos;
+}
+
+function  print_solution() {
+  print_next_player();                          
+
+  if(won) {
+    var player = moves.length%2 == 0 ? "Yellow" : "Red";
+    var message = "[1] won".replace("[1]", player);
+    $("#solution_header").text(message);
+    $(".solution").text("").css("background-image","none");
+    gtag('event', 'game_end');
+    return;
+  }
+  if(moves.length == 42) {
+    var message = "Draw game";
+    $("#solution_header").text(message);
+    $(".solution").text("").css("background-image","none");
+    gtag('event', 'game_end');
+    return;
+  }
+
+  var json = solutions[moves.length];
+  if(json === undefined || json.pos !== get_pos()) { //TODO check != ??
+    compute_solution();
+    return;
+  }
+
+  if(auto_play()) {
+    var best = -100;
+    var possible = [];
+    for (var i = 0; i < 7; i++) 
+      if(json.score[i] != 100 && json.score[i] > best) {
+        best = json.score[i];
+        possible = [i];
+      }
+      else if(json.score[i] == best) possible.push(i);
+
+    var col = possible[Math.floor((Math.random() * possible.length))];
+    play(col);
+  }
+
+  else {
+
+    var best = -100;
+    for (var i = 0; i < 7; i++)
+      if(json.score[i] != 100 && json.score[i] > best) best = json.score[i];
+
+    var nb_best = 0;
+    for (var i = 0; i < 7; i++)
+      if(best == 0 && json.score[i] == 0) nb_best++;
+      else if(best > 0 && json.score[i] > 0 && json.score[i] != 100) nb_best++;
+
+
+
+    for (var i = 0; i < 7; i++) {
+      if(json.score[i] == 100) {
+        $("#sol" + i).text("").css("background-image","none");
+      }
+      else {
+        $("#sol" + i).text(json.score[i]);
+        if(json.score[i] > 0) {
+          if(json.score[i] == best) $("#sol" + i).css("background-image","url(/up_star.png)");
+          else $("#sol" + i).css("background-image","url(/up.png)");
+        }
+        else if(json.score[i] < 0) {
+          if(json.score[i] == best) $("#sol" + i).css("background-image","url(/down_star.png)");
+          else $("#sol" + i).css("background-image","url(/down.png)");
+        }
+        else {
+          if(json.score[i] == best) $("#sol" + i).css("background-image","url(/neutral_star.png)");
+          else $("#sol" + i).css("background-image","url(/neutral.png)");
+        }
+      }
+    }
+
+    var message;
+    if(best > 0) {
+      var nb_moves = Math.floor((45 - moves.length)/2) - best;
+      if(nb_moves > 1) message = "[1] can win in [2] moves".replace("[2]", nb_moves);
+      else message = "[1] can win in 1 move";
+    }
+    else if(best < 0) {
+      var nb_moves = Math.floor((44 - moves.length)/2) + best;
+      if(nb_moves > 1) message = "[1] loses in [2] moves".replace("[2]", nb_moves);
+      else message = "[1] loses in 1 move";
+    }
+    else {
+      message = "[1] can draw";
+    }
+
+    var player = moves.length%2 == 0 ? "Red" : "Yellow";
+    $("#solution_header").text(message.replace("[1]", player));
+
+  }
+}
+
+function compute_solution() {  
+  $("#solution_header").text("computing solution... ");
+  $(".solution").text("").css("background-image","none");
+  $.getJSON("/solve", {pos: get_pos()}, function(json) {
+      solutions[json.pos.length] = json;
+      print_solution();
+      });
+}
+
+function back(event) {
+  if (moves.length > 0) {
+    var col = moves.pop();
+    height[col]--;
+    stone[moves.length].hide();
+    board[col][height[col]] = 0;
+    if (won) {
+      won = false;
+      $(".win").hide();
+    }
+    if(auto_play()) 
+      back();
+    else {
+      print_solution();
+      if(event == undefined) history.replaceState(null, null, get_pos_param());
+      else history.pushState(null, null, get_pos_param());
+    }
+  }
+  else if(auto_play()) {
+    print_solution();
+  }
+  gtag('event', 'game_back');
+}
+
+function query_param(key) {
+    var match = location.search.match(new RegExp("[?&]"+key+"=([^&]+)(&|$)"));
+    return (match == null) ? "" : match[1];
+}
+
+function reset() {
+  if(moves.length > 0) {
+    moves = [];
+    for(var i =0; i < 7; i++) {
+      height[i] = 0;
+      for(var j =0; j < 6; j++) board[i][j] = 0;
+    }
+    won = false;
+    $(".win").hide();
+    $(".player1").hide();
+    $(".player2").hide();
+    print_solution();
+    history.replaceState(null, null, get_pos_param());
+  }
+  gtag('event', 'game_reset');
+}
+
+function init() {
+  for (var x = 0; x < 7; x++) {
+    for (var y = 0; y < 6; y++) {
+      var v = $("<div/>");
+      v.addClass("board");
+      v.css("left", (x*100/7)+'%');
+      v.css("top",  ((5-y)*100/7)+'%');
+      v.click(click_handler(x));
+      v.appendTo("#board");
+    }
+  } 
+
+  for (i = 0; i < 42; i++) {
+    var v = $("<div/>");
+    if (i % 2 === 0) v.addClass("player1");
+    else v.addClass("player2");
+    v.hide();
+    v.appendTo("#board");
+    stone[i] = v;
+  }
+  for (i = 0; i < 4; i++) {
+    var v = $("<div/>");
+    v.addClass("win");
+    v.hide();
+    v.appendTo("#board");
+    mark[i] = v;
+  }
+
+  var pos = query_param("pos");
+  history.replaceState(null, null, "");
+  history.pushState(null, null, "");
+  $(window).on("popstate", back);
+
+  while(pos.length > 0) {
+    var c = pos.charCodeAt(0) - "1".charCodeAt(0);
+    if(c >= 0 && c <= 6 && canplay(c)) play(c, true);
+    else break;
+    pos = pos.substr(1);
+  }
+  print_solution();
+}
+
+function about() {
+  if($("#about_div").is(":visible")) gtag('event', 'about_hide');
+  else gtag('event', 'about_show');
+  $("#about_div").fadeToggle();
+}
+
+function toggle_solution() {
+  if($("#hide_solution_div").is(":visible")) gtag('event', 'solution_show');
+  else gtag('event', 'solution_hide');
+  $("#hide_solution_div").fadeToggle();
+}
+
+function toggle_player1() {
+  if(player_1_auto) {
+    $("#player_1").text("manual");
+    player_1_auto = false;
+    gtag('event', 'autoplay_off');
+  }
+  else {
+    $("#player_1").text("auto");
+    $("#player_2").text("manual");
+    player_1_auto = true;
+    player_2_auto = false;                                      
+    print_solution();
+    gtag('event', 'autoplay_on');
+  }
+}
+
+function toggle_player2() {
+  if(player_2_auto) {
+    $("#player_2").text("manual");
+    player_2_auto = false;
+    gtag('event', 'autoplay_off');
+  }
+  else {
+    $("#player_2").text("auto");
+    $("#player_1").text("manual");
+    player_2_auto = true;
+    player_1_auto = false;
+    print_solution();
+    gtag('event', 'autoplay_on');
+  }
+}
+
+$(window).load(function(){init();});
+
+//]]>  
+</script>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FKZ19860XT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-FKZ19860XT');
+</script>
+
+</head>
+<body>
+
+<div id="container">
+  <div id="nav" class="ui-widget">
+    <div id="title"><h1>Connect&nbsp;4 Solver</h1>[beta]<a href="https://ludolab.net" style="background-color: orange; font-weight:bold; padding:0.2rem">test the new solver</a></div>
+    <div id="description">Optimal solution of a Connect&nbsp;4 game:<ul><li>find the best move</li><li>play against an unbeatable A.I.</li></ul></div>
+
+    <div id="button_div">
+      <ul id="lang" class="button languagepicker">
+        <li><a id="en_link" href="/en/"><img src="/images/en.svg" alt="en" />en</a></li>
+        
+        <li><a href="/fr/"><img src="/images/fr.svg" alt="fr" />fr</a></li>
+        <li><a href="/ru/"><img src="/images/ru.svg" alt="ru" />ru</a></li>
+        <li><a href="/tr/"><img src="/images/tr.svg" alt="tr" />tr</a></li>
+        <li><a href="/se/"><img src="/images/se.svg" alt="se" />se</a></li>
+        <li><a href="/pt/"><img src="/images/pt.svg" alt="pt" />pt</a></li>
+        <li><a href="/es/"><img src="/images/es.svg" alt="es" />es</a></li>
+        <li><a href="/de/"><img src="/images/de.svg" alt="de" />de</a></li>
+        <li><a href="/zh/"><img src="/images/zh.svg" alt="zh" />zh</a></li>
+        <li><a href="/it/"><img src="/images/it.svg" alt="it" />it</a></li>
+        <li><a onclick="about()">add your language</a></li>
+      </ul>
+      <div id="about" onclick="about()" class="button">about</div>
+      <div id="new" onclick="reset()" class="button">new</div>
+      <div id="back" onclick="back()" class="button">back</div>
+    </div>
+    <div id="player_div">        
+      <div id="player_1" class="button" onclick="toggle_player1()">manual</div>
+      <div id="player_2" class="button" onclick="toggle_player2()">manual</div>
+    </div>
+  </div>
+
+  <div id="board">
+    <div id="hide_solution_div" onclick="toggle_solution()"><a id="hide_solution_link" href="javascript:;">show solution</a></div>
+    <div id="solution_header" onclick="toggle_solution()"></div>
+    <div id="solution" onclick="toggle_solution()">
+      <div id="sol0" class="solution col0"></div>
+      <div id="sol1" class="solution col1"></div>
+      <div id="sol2" class="solution col2"></div>
+      <div id="sol3" class="solution col3"></div>
+      <div id="sol4" class="solution col4"></div>
+      <div id="sol5" class="solution col5"></div>
+      <div id="sol6" class="solution col6"></div>
+    </div>
+  </div>
+
+  <div id="about_div" onclick="about()">
+    <h4>Rules of the Game</h4>
+    <p><a href="https://en.wikipedia.org/wiki/Connect_Four">Connect Four</a> (or <em>Four in a Row</em>) is a two-player strategy game. Each player takes turns dropping a chip of his color into a column. The first player to align four chips wins.</p>
+
+    <h4>History</h4>
+    <p>The Connect 4 game is a solved strategy game: the first player (Red) has a winning strategy allowing him to always win. The game has been independently solved by James Dow Allen and Victor Allis in 1988.</p>
+
+    <h4>Connect 4 Solver</h4>
+    <p>This Connect 4 solver computes the exact outcome of any position assuming both players play perfectly. A score can be displayed for each playable column: winning moves have a positive score and losing moves have a negative score. The absolute value of the score gives you the number of moves <em>before</em> the end of the game. Hence the best moves have the highest scores. You can play against the Artificial Intelligence by toggling the manual/auto mode of a player.</p>
+
+    <h4>The Algorithm</h4>
+    <p>The solver uses <a href="https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning">alpha beta pruning</a>. You can read the following tutorial (with source code) explaining <a href="http://blog.gamesolver.org">how to solve Connect Four</a>.</p>
+
+    <h4>The Author: <a href="https://fr.linkedin.com/in/pascalpons">Pascal Pons</a></h4>
+    <p>Do not hesitate to send me comments, suggestions, or bug reports at <a href="mailto:connect4@gamesolver.org">connect4@gamesolver.org</a>.</p>
+
+    <h4>Translation</h4>
+    <p>You can contribute to the translation of this website in other languages by providing a translated version of this <a href="/i18n.properties">localization file</a>. A big thank you to the translators: <ul><li>(RU) Slava</li><li>(TR) <a href="https://github.com/ek33">Ekrem</a></li><li>(SE) Speeder</li><li>(PT) Nhaar</li><li>(ES) Francisco</li><li>(DE) Lenny5156</li><li>(ZH) Michael</li><li>(IT) <a href="https://www.linkedin.com/in/simone-astarita-4499b11b5/">Simone</a></li></ul></p>
+  </div>
+
+</div>
+<div id="adslot_bottom">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9376755535289585" data-ad-slot="7275059941" 
+    data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+<div id="adslot_right">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9376755535289585" data-ad-slot="5244928444"
+    data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9376755535289585" data-ad-slot="5244928444"
+    data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9376755535289585" data-ad-slot="5244928444"
+    data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"eb19212a48c9413cb5f247a00b5fccc6","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f91f562585e9b8d',t:'MTc3ODM0Mjg2MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

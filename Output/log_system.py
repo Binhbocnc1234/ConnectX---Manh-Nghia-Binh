@@ -10,7 +10,7 @@ import json
 import os
 from datetime import datetime
 
-LOG_FILE = "game_log.json"
+LOG_FILE = "Output/local_test/game_log.json"
 ENABLED = True
 
 def init_game_log():
