@@ -16,7 +16,7 @@ env = make("connectx", debug=True)
 # cho bot đánh nhau
 # Agent đầu tiên: piece màu xanh có chữ K, đi trước
 # Agent thứ 2: piece màu xám hình con vịt
-env.run([OpeningBook_optimized.agent, OpeningBook_optimized.agent])
+env.run([OpeningBook_optimized.agent, Zob.agent])
 
 # render HTML
 html = env.render(mode="html")
