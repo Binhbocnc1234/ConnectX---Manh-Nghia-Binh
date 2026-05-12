@@ -35,6 +35,7 @@ Nơi chứa toàn bộ trí tuệ nhân tạo (AI) của project. Các Agent ở
     2.  **Bộ lọc Đe dọa / Nước đi Bắt buộc (Threat Detection & Forced-move Block)**: Trước khi tốn tài nguyên chạy PVS, Agent sẽ quét nhanh xem có cơ hội thắng ngay (Instant Win) hoặc đối thủ sắp thắng ở lượt tiếp theo để chặn đứng ngay lập tức (Forced-move Block).
     3.  **Lối chơi "Sống còn lâu nhất" (Defensive Survival Delay)**: Khi tất cả các nhánh đi đều dẫn đến thua cuộc, Agent thay vì tự hủy hay chọn bừa, nó sẽ chọn nước đi kéo dài sự sống lâu nhất (làm trì hoãn trận thua tối đa, tăng cơ hội đối phương đi sai).
     4.  **Tối ưu hóa thứ tự nước đi (Killer Moves Heuristic)**: Áp dụng bảng killer moves để ưu tiên các nước đi gây ra cắt tỉa alpha-beta mạnh mẽ, giúp search sâu hơn thêm 2-4 plies trong cùng khoảng thời gian.
+    5. **Sử dụng file .pkl để load book cực nhanh**: Thời gian load chỉ còn dưới 5 giây
 
 ### 2.3. Database Khai Cuộc
 *   **`opening_book.jsonl and opening_book.bin`**: Đây là file cơ sở dữ liệu khổng lồ (khoảng 55MB) lưu trữ hơn 1 triệu thế cờ khai cuộc từ Ply 0 đến Ply 10. File này được trích xuất từ "Perfect Solver" của Pascal Pons. Nó là "vũ khí bí mật" giúp Agent đi cực kỳ hoàn hảo ở giai đoạn đầu trận.
@@ -58,41 +59,6 @@ Nơi chứa toàn bộ trí tuệ nhân tạo (AI) của project. Các Agent ở
 *   **`Submissions/`**: Thư mục dùng để chứa các file Agent đã được đóng gói sẵn sàng đem nộp lên Kaggle (những file được nén thành `.tar.gz` hoặc `.py` bao gồm cả bộ thư viện).
 *   **`Slides/`**: Chứa bài thuyết trình, báo cáo cho môn học hoặc cho dự án.
 *   **`Output/`** Chứa `log_system.py` & `game_log.json`: Hệ thống logging dùng để theo dõi, đo đạc thời gian suy nghĩ (thinking time) của Agent ở từng lượt (ply). Rất quan trọng để tối ưu hóa, đảm bảo Agent không bị timeout (quá thời gian quy định của Kaggle).
----
-
-## 5. Luồng thực thi của Agent tối ưu nhất (`OpeningBook_optimized.py`)
-Luồng thực thi của phiên bản tối ưu nhất được thiết kế để kết hợp sức mạnh tra cứu ngay lập tức (O(1)) của Opening Book và khả năng tìm kiếm sâu sắc của PVS.
-
-Khi môi trường truyền trạng thái bàn cờ (`obs`) vào hàm `agent(obs, config)`, quy trình diễn ra như sau:
-
-**Bước 1: Tính toán thời gian & Nạp Dữ liệu**
-*   Xác định **Thinking Time Budget**: Theo luật chơi
-*   Kiểm tra và tự động nạp `opening_book.jsonl` vào RAM nếu chưa nạp. Hàm `encode` sẽ phân tích ma trận bàn cờ thành 2 số nguyên 64-bit (`me` và `opp`).
-
-**Bước 2: Kiểm tra thắng nhanh & Chặn đe dọa (Forced-move Block)**
-*   **Kiểm tra Thắng ngay**: Nếu có bất kỳ cột nào giúp Agent tạo thành 4 quân liên tiếp ngay lập tức, đi ngay vào cột đó để thắng ván.
-*   **Chặn đe dọa**: Nếu đối phương chuẩn bị thắng ở nước kế tiếp, lập tức đi vào cột chặn đe dọa đó (Forced block) mà không cần search sâu.
-
-**Bước 3: Tìm kiếm Siêu tốc (Fast Path) qua Sách Khai Cuộc**
-*   Agent tính mã băm chuẩn (Canonical Zobrist Hash) của thế cờ hiện tại. Nó sẽ lật ngược bàn cờ (Symmetry) để tính mã băm đối xứng, sau đó chọn mã nhỏ nhất làm `key64`.
-*   Truy vấn trực tiếp `key64` vào từ điển `OPENING_BOOK`.
-*   **Nếu có (Hit):** Agent lập tức trả về nước đi `best_move` (điều chỉnh lại lật phải/trái nếu cần). Bỏ qua toàn bộ bước thuật toán phức tạp phía dưới. Thời gian suy nghĩ gần như bằng 0s.
-
-**Bước 4: Tham vấn Bảng băm (Transposition Table Hint)**
-*   Nếu thế cờ không nằm trong Book (tức là đã bước vào giai đoạn giữa trận / Mid-game), Agent sẽ tra cứu vào Bảng băm `tt` (Transposition Table).
-*   Nếu Bảng băm có lưu kết quả phân tích nhánh này từ các turn trước, nó sẽ lấy `tt_hint_move` làm nước đi ưu tiên cao nhất để xét trước.
-
-**Bước 5: Đào sâu lặp dần với Killer Moves & PVS (Iterative Deepening)**
-*   Agent bắt đầu chạy vòng lặp độ sâu (Depth), tăng dần từ 0, 2, 4, 6... lên tối đa (24 hoặc 30).
-*   Ở mỗi độ sâu, nó sắp xếp các nước đi ưu tiên: Nước gợi ý từ TT ở Bước 4 lên đầu, kế tiếp là nước từ bảng Killer Moves (các nước đi tốt từng gây cắt tỉa ở độ sâu tương ứng), sau đó đến các cột ở giữa bàn cờ (`[3, 2, 4, 1, 5, 0, 6]`).
-*   Gọi hàm đệ quy `pvs()` (Principal Variation Search) với cửa sổ (alpha, beta).
-    *   Trong `pvs()`, nó liên tục kiểm tra TT để tỉa nhánh.
-    *   Dùng hàm heuristic để chấm điểm tại các lá cuối (leaf nodes).
-*   Trong suốt quá trình này, một bộ đếm thời gian liên tục kiểm tra (`time.perf_counter() > deadline`). Nếu hết thời gian cho phép, quá trình tìm kiếm sẽ bị ngắt (TimeoutError) ngay lập tức.
-
-**Bước 6: Trả về Kết quả & Lựa chọn kéo dài sự sống (Survival Delay)**
-*   Sau khi bị ngắt bởi Timeout hoặc tìm thấy kết quả ở độ sâu tối đa, Agent lấy `best_move` của độ sâu hoàn chỉnh gần nhất.
-*   Nếu Agent phát hiện mình ở thế cờ thua không thể cứu vãn (tất cả các nước đi đều có điểm số âm dạng `-999xx`), nó sẽ tự động chọn nước đi có số `ply` lớn nhất, tức là nước đi **kéo dài thời gian sống sót lâu nhất** trên bàn cờ thay vì tự hủy sớm.
 
 ---
 

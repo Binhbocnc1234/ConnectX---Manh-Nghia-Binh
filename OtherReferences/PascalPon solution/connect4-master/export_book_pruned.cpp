@@ -23,10 +23,10 @@ struct Node {
 
 int main(int argc, char** argv) {
     // --- THIẾT LẬP THAM SỐ HARDCODE ---
-    int max_ply = 13;          // Độ sâu tối đa
+    int max_ply = 10;          // Độ sâu tối đa
     int prune_threshold = 4;   // Ngưỡng điểm: Nếu abs(best_score) >= prune_threshold thì không mở rộng nhánh con
     std::string book_in = "..\\7x6.book";         // File đầu vào
-    std::string file_out = "opening_book.bin";    // File nhị phân đầu ra (ngay cạnh exe)
+    std::string file_out = "small_opening_book.bin";    // File nhị phân đầu ra (ngay cạnh exe)
 
     std::cerr << "Exporting book up to ply: " << max_ply
               << ", prune threshold: " << prune_threshold

@@ -30,9 +30,13 @@ def build_with_gcc(force: bool = False) -> bool:
     cmd = [
         "g++",
         "-std=c++20",
-        "-O3",
+        "-O2",
+        "-march=x86-64",
+        "-mtune=generic",
         "-shared",
         "-fPIC",
+        "-static-libstdc++",
+        "-static-libgcc",
         str(source_path),
         "-o",
         str(library_path),
@@ -81,7 +85,7 @@ def build_with_wsl(force: bool = False) -> bool:
         "wsl",
         "bash",
         "-c",
-        f"cd {wsl_path} && g++ -std=c++20 -O3 -shared -fPIC engine.cpp -o _engine.so",
+        f"cd {wsl_path} && g++ -std=c++20 -O2 -march=x86-64 -mtune=generic -shared -fPIC -static-libstdc++ -static-libgcc engine.cpp -o _engine.so",
     ]
     
     print(f"Building via WSL...")

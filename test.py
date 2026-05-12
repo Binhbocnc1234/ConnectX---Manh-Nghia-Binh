@@ -5,7 +5,7 @@ import Output.log_system as log_system
 import Agents.FastAgent as FastAgent
 import Agents.OpeningBook_optimized as OpeningBook_optimized
 import Agents.ZobristHasingAgent as Zob
-import Agents.PremiumAgent as Premium;
+import SubmittedAgent.OpeningBook_optimized as Premium;
 
 # Khởi tạo game log
 log_system.init_game_log()
@@ -16,7 +16,7 @@ env = make("connectx", debug=True)
 # cho bot đánh nhau
 # Agent đầu tiên: piece màu xanh có chữ K, đi trước
 # Agent thứ 2: piece màu xám hình con vịt
-env.run([FastAgent.agent, OpeningBook_optimized.agent])
+env.run([Premium.agent, OpeningBook_optimized.agent])
 
 # render HTML
 html = env.render(mode="html")

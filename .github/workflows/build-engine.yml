@@ -27,7 +27,7 @@ jobs:
       - name: Build C++ engine for Linux
         run: |
           cd Agents
-          g++ -std=c++20 -O3 -shared -fPIC engine.cpp -o _engine.so
+          g++ -std=c++20 -O3 -shared -fPIC -static-libstdc++ -static-libgcc engine.cpp -o _engine.so
 
       - name: Verify ELF header
         run: |

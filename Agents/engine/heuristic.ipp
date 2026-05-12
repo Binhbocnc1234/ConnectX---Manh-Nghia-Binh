@@ -5,6 +5,11 @@ namespace {
 std::vector<std::uint64_t> bb_window_masks;
 bool bb_window_masks_ready = false;
 
+int bit_width_u64(std::uint64_t value) {
+    if (value == 0) return 0;
+    return 64 - __builtin_clzll(value);
+}
+
 void ensure_bb_window_masks() {
     if (bb_window_masks_ready) return;
 
@@ -87,7 +92,7 @@ int get_heuristic_bb(std::uint64_t me, std::uint64_t opp, int parity) {
             float parity_point = 0.5f;
             std::uint64_t empty_mask = mask & ~me;
             if (empty_mask != 0) {
-                int bit_idx = static_cast<int>(std::bit_width(empty_mask) - 1);
+                int bit_idx = bit_width_u64(empty_mask) - 1;
                 int row = bit_idx % 7;
                 bool is_immediate = (row == 0) || ((occupied & (1ULL << (bit_idx - 1))) != 0);
                 if (is_immediate && opp_count >= 3) {
@@ -100,7 +105,7 @@ int get_heuristic_bb(std::uint64_t me, std::uint64_t opp, int parity) {
             float parity_point = 0.5f;
             std::uint64_t empty_mask = mask & ~opp;
             if (empty_mask != 0) {
-                int bit_idx = static_cast<int>(std::bit_width(empty_mask) - 1);
+                int bit_idx = bit_width_u64(empty_mask) - 1;
                 int row = bit_idx % 7;
                 bool is_immediate = (row == 0) || ((occupied & (1ULL << (bit_idx - 1))) != 0);
                 if (is_immediate && opp_count >= 3) {

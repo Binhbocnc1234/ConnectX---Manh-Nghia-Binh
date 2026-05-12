@@ -26,32 +26,8 @@ _ENGINE_LIB = None
 def _engine_paths():
     agents_dir = Path(__file__).resolve().parent
     source_path = agents_dir / "engine.cpp"
-    library_path = agents_dir / "_engine.so"
+    library_path = agents_dir / "engine.dll"
     return agents_dir, source_path, library_path
-
-
-def build_engine_shared_library(force: bool = False):
-    agents_dir, source_path, library_path = _engine_paths()
-    if not force and library_path.exists() and library_path.stat().st_mtime >= source_path.stat().st_mtime:
-        return str(library_path)
-
-    cmd = [
-        "g++",
-        "-std=c++20",
-        "-O3",
-        "-shared",
-        "-fPIC",
-        str(source_path),
-        "-o",
-        str(library_path),
-    ]
-    try:
-        subprocess.run(cmd, check=True, capture_output=True, text=True)
-    except subprocess.CalledProcessError as exc:
-        message = exc.stderr.strip() or exc.stdout.strip() or str(exc)
-        raise RuntimeError(f"Failed to build C++ engine: {message}") from exc
-
-    return str(library_path)
 
 
 def _load_engine():
