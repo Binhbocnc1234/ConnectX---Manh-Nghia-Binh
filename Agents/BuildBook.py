@@ -1,170 +1,174 @@
-import sys
 import os
-import time
 import struct
+import time
+import json
 from collections import deque
 
-# Import our optimized PVS algorithms
-import Agents.foundation as foundation
 from Agents.OpeningBook_optimized import (
-    pvs,
+    analyze,
     _make_move,
-    is_win,
     _canonical_tt_key,
     MOVE_ORDER,
-    NNF,
-    INF,
-    _find_threats,
-    VALID_CELLS,
-    BOTTOM_ROW
+    INVALID_MOVE_SCORE,
 )
 
-# Hardcoded config for building the book
-MAX_PLY = 3          # Start with 6 for testing (Python is slow)
-PRUNE_THRESHOLD = 20  # Only prune if it's a forced mate (MATE_SCORE is 100000)
-SEARCH_DEPTH = 4     # How deep PVS should search at each node
-FILE_OUT = "opening_book.bin"
 
-def solve_position(me, opp, depth_limit):
-    """
-    Wrapper around `pvs` to evaluate all valid moves and find the best one.
-    Returns (best_move, best_score).
-    """
-    best_move = -1
-    best_score = NNF
-    
-    # Fast path: Immediate win
-    for col in MOVE_ORDER:
-        new_piece = _make_move(me, opp, col)
-        if new_piece and is_win(me | new_piece):
-            return col, 1000
-
-    # Fast path: Opponent forced win block
-    threat_cols = []
-    for col in MOVE_ORDER:
-        new_piece = _make_move(opp, me, col)
-        if new_piece and is_win(opp | new_piece):
-            threat_cols.append(col)
-    
-    if len(threat_cols) >= 2:
-        # Unstoppable loss
-        return threat_cols[0], -1000
-    
-    moves_to_search = MOVE_ORDER
-    if len(threat_cols) == 1:
-        # Forced block
-        moves_to_search = [threat_cols[0]]
-    else:
-        # Safe moves filtering for normal moves
-        occupied = me | opp
-        playable_now = (occupied + BOTTOM_ROW) & VALID_CELLS
-        opp_threats = _find_threats(opp) & ~me
-        safe_moves_mask = playable_now & ~(opp_threats >> 1)
-        
-        if safe_moves_mask == 0:
-            return -1, -1000 # No safe moves
-
-    # Search
-    for col in moves_to_search:
-        col_mask = 0b111111 << (col * 7)
-        occupied_col = (me | opp) & col_mask
-        if occupied_col & (1 << (col * 7 + 5)):
-            continue
-            
-        new_piece = (occupied_col + (1 << (col * 7))) & col_mask
-        
-        # Apply safe moves mask if not a forced block
-        if len(threat_cols) == 0 and not (new_piece & safe_moves_mask):
-            continue
-        
-        deadline = time.perf_counter() + 60.0 # 60s per move budget
-        # We call pvs from opponent's perspective
-        res = -pvs(opp, me | new_piece, depth_limit, -INF, -best_score if best_score != NNF else INF, deadline)
-        
-        if res > best_score:
-            best_score = res
-            best_move = col
-
-    return best_move, best_score
-
-def nbMoves(me, opp):
+def nb_moves(me, opp):
     return (me | opp).bit_count()
 
-def main():
-    print(f"--- Python ConnectX Book Builder ---")
-    print(f"Max Ply: {MAX_PLY}, Prune Threshold: {PRUNE_THRESHOLD}, PVS Depth: {SEARCH_DEPTH}")
+
+def export_book(max_ply=12, prune_threshold=120, search_depth=8, timeout_per_node=0.02, file_out=None, format="bin"):
+    """
+    Export opening book in specified format.
     
-    with open(FILE_OUT, "wb") as f:
-        f.write(b"BK01")
-        
-        queue = deque()
-        visited = set()
-        
-        # Start with empty board
-        queue.append((0, 0))
-        
-        count = 0
-        head = 0
-        misses = 0
-        max_reached_depth = 0
-        
-        start_time = time.time()
-        last_log_time = start_time
-        
+    Args:
+        max_ply: Maximum ply (half-moves) to search
+        prune_threshold: Threshold for pruning positions
+        search_depth: Search depth for analyze
+        timeout_per_node: Timeout per node analysis
+        file_out: Output file path (default: opening_book_score.bin or .json based on format)
+        format: "bin" (BK02 binary) or "json" (JSON format)
+    """
+    if file_out is None:
+        ext = ".json" if format == "json" else ".bin"
+        file_out = os.path.join(os.path.dirname(__file__), f"opening_book_score{ext}")
+
+    if format not in ("bin", "json"):
+        raise ValueError(f"Invalid format: {format}. Must be 'bin' or 'json'")
+
+    print("--- Python Book Builder (BK02) ---")
+    print(
+        f"max_ply={max_ply}, prune_threshold={prune_threshold}, "
+        f"search_depth={search_depth}, timeout_per_node={timeout_per_node}s"
+    )
+    print(f"format={format}")
+    print(f"output={file_out}")
+
+    queue = deque()
+    visited = set()
+    queue.append((0, 0))
+
+    processed = 0
+    pruned_count = 0
+    max_reached_depth = 0
+    positions = []  # Store all positions for JSON export
+
+    start = time.time()
+
+    if format == "bin":
+        out = open(file_out, "wb")
+        out.write(b"BK02")
+    else:
+        out = None
+
+    try:
         while queue:
             me, opp = queue.popleft()
-            head += 1
-            
-            depth = nbMoves(me, opp)
+            depth = nb_moves(me, opp)
+
             if depth > max_reached_depth:
                 max_reached_depth = depth
-                
-            if depth > MAX_PLY:
+
+            if depth > max_ply:
                 continue
-                
-            # Use canonical key to check visited (avoid mirror duplicates)
-            key64, flip = _canonical_tt_key(me, opp)
+
+            key64, _ = _canonical_tt_key(me, opp)
             if key64 in visited:
                 continue
             visited.add(key64)
+
+            position_score, col_scores = analyze(
+                me, opp,
+                None,
+                timeout=timeout_per_node,
+                search_depth=search_depth,
+            )
+            low_accurate_position_score, low_acc_col_scores = analyze(
+                me, opp,
+                None,
+                timeout=1,
+                search_depth=search_depth,
+            )
+            score_byte = max(-127, min(127, int(position_score/2)))
             
-            # Evaluate position
-            best_move, best_score = solve_position(me, opp, SEARCH_DEPTH)
-            
-            if best_move != -1:
-                # Write to binary: uint64(me) + uint64(opp) + uint8(move)
-                f.write(struct.pack("<QQB", me, opp, best_move))
-                count += 1
+            if format == "bin":
+                out.write(struct.pack("<QQb", me, opp, score_byte))
             else:
-                misses += 1
-                
-            # Prune if the score is definitive (forced win/loss)
-            should_expand = True
-            if abs(best_score) >= PRUNE_THRESHOLD:
-                should_expand = False
-                
-            if head == 1:
-                print(f"DEBUG Root: move={best_move}, score={best_score}, should_expand={should_expand}")
-                
-            if should_expand:
-                for col in MOVE_ORDER:
-                    new_piece = _make_move(me, opp, col)
-                    if new_piece and not is_win(me | new_piece):
-                        queue.append((opp, me | new_piece))
+                positions.append({
+                    "me": me,
+                    "opp": opp,
+                    "value": int(score_byte)
+                })
             
-            # Logging
-            if head % 100 == 0:
-                now = time.time()
-                if now - last_log_time >= 5.0:  # Print every 5 seconds
-                    hit_rate = (count / head) * 100.0 if head > 0 else 0
-                    q_size = len(queue)
-                    print(f"Processed {head} pos | Hits: {count} ({hit_rate:.1f}%) | Max Depth: {max_reached_depth} | Queue: {q_size}")
-                    f.flush()
-                    last_log_time = now
-                    
-        print(f"\n--- Done ---")
-        print(f"Exported {count} positions to {FILE_OUT}")
-        print(f"Total time: {time.time() - start_time:.1f}s")
+            processed += 1
+
+            should_expand = abs(score_byte - max(-127, min(127, int(low_accurate_position_score/2)))) <= prune_threshold
+            if not should_expand:
+                pruned_count += 1
+            else:
+                for col in [0,1,2,3,4,5,6]:
+
+                    new_piece = _make_move(me, opp, col)
+                    if not new_piece:
+                        continue
+
+                    child_me = opp
+                    child_opp = me | new_piece
+                    queue.append((child_me, child_opp))
+
+            if processed % 100 == 0:
+                prune_rate = (pruned_count / processed) * 100.0 if processed else 0.0
+                print(
+                    f"Processed {processed} | Pruned {pruned_count} ({prune_rate:.1f}%) "
+                    f"| MaxDepth {max_reached_depth} | Queue {len(queue)}"
+                )
+                if format == "bin":
+                    out.flush()
+    
+    finally:
+        if format == "bin" and out:
+            out.close()
+        elif format == "json":
+            with open(file_out, "w") as json_out:
+                for pos in positions:
+                    json_out.write(json.dumps(pos) + "\n")
+
+    size_mb = (processed * 17 + 4) / 1024 / 1024
+    print("\n=== Export Complete ===")
+    print(f"Total positions processed: {processed}")
+    print(f"Positions saved: {processed}")
+    print(f"Positions pruned: {pruned_count}")
+    print(f"Output file: {file_out}")
+    if format == "bin":
+        print(f"Size: {size_mb:.2f} MB")
+        print("Format: BK02 (me: uint64, opp: uint64, score: int8)")
+    else:
+        print("Format: JSONL (one {me, opp, value} per line)")
+    print(f"Elapsed: {time.time() - start:.2f}s")
+
+
+def main():
+    # Hard-coded configuration (no CLI arguments)
+    # Export in BIN format (default, faster and smaller)
+    # export_book(
+    #     max_ply=12,
+    #     prune_threshold=50,
+    #     search_depth=16,
+    #     timeout_per_node=6,
+    #     format="bin",  # Use "bin" or "json"
+    #     file_out=os.path.join(os.path.dirname(__file__), "opening_book_score.bin"),
+    # )
+    
+    # Uncomment below to also export in JSON format:
+    export_book(
+        max_ply=12,
+        prune_threshold=50,
+        search_depth=16,
+        timeout_per_node=6,
+        format="json",
+        file_out=os.path.join(os.path.dirname(__file__), "opening_book_score.json"),
+    )
+
 
 if __name__ == "__main__":
     main()

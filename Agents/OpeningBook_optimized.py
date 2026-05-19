@@ -365,7 +365,7 @@ def pvs(me, opp, depth, alpha, beta, deadline):
         ply_count = (me | opp).bit_count()
         return -(MATE_SCORE - ply_count)
     if depth == 0 or time.perf_counter() > deadline:
-        return get_heuristic_bb(me, opp, (me | opp).bit_count() % 2)
+        return get_heuristic_bb(me, opp)
     
     alpha0, beta0 = alpha, beta
 
@@ -595,6 +595,116 @@ def agent(obs, config, timeout=2):
     _log_move(best_move, start_time)
     return int(best_move)
 
+INVALID_MOVE_SCORE = -10**9
+
+
+def _normalize_score(raw_score):
+    """Map internal search scores to int8-safe range for BK02 export."""
+    if raw_score >= MATE_SCORE - 1000:
+        return 42
+    if raw_score <= -MATE_SCORE + 1000:
+        return -42
+    s = int(raw_score)
+    if s > 127:
+        return 127
+    if s < -127:
+        return -127
+    return s
+
+
+def analyze(me, opp, config=None, timeout=2, search_depth=8):
+    """Return (position_score, col_scores) for the side to move.
+
+    - `col_scores[c]` is score of playing column `c`, or INVALID_MOVE_SCORE if illegal.
+    - `position_score` is max score among legal moves (or losing fallback if none).
+    """
+    # print("[OpeningBookOpt] Start turn", obs.step)
+    global searching_depth
+    start_time = time.perf_counter()
+
+    def _single_move_result(move, score):
+        col_scores = [INVALID_MOVE_SCORE] * 7
+        if 0 <= move < 7:
+            col_scores[move] = int(score)
+        return int(score), col_scores
+
+    
+    deadline = start_time + timeout
+        
+    # 5. Query TT for a move ordering hint
+    key64, flip = _canonical_tt_key(me, opp)
+    tt_hint_move = -1
+    idx = key64 & TT_BUCKET_MASK
+    bucket = tt.get(idx)
+    if bucket:
+        best_d = -1
+        for k, d, v, flag, bm in bucket:
+            if k == key64 and bm != -1 and d > best_d:
+                tt_hint_move = bm
+                best_d = d
+        if tt_hint_move != -1 and flip:
+            tt_hint_move = 6 - tt_hint_move
+
+    valid_moves = _get_valid_moves(me, opp)
+    if not valid_moves:
+        return 0, [INVALID_MOVE_SCORE] * 7
+    
+    center_col = 7 // 2
+    # Use TT hint as initial best_move for move ordering if available, otherwise center
+    best_move = tt_hint_move if (tt_hint_move != -1 and tt_hint_move in valid_moves) else min(valid_moves, key=lambda c: abs(c - center_col))
+    reachedDepth = 0
+    
+    # First turn search goes much deeper to seed the entire early-game TT tree
+    max_search_depth = min(24, 42 - (me | opp).bit_count())
+    scores = [NNF] * 7
+    try:
+        for depth in range(0, max_search_depth, 2):
+            searching_depth = depth
+            best_score = NNF
+            move_at_this_depth = best_move
+            scores = [NNF] * 7
+            moves = [best_move] + [m for m in valid_moves if m != best_move]
+            
+            for col in moves:
+                if time.perf_counter() > deadline:
+                    raise TimeoutError
+                
+                new_piece = _make_move(me, opp, col)
+                if not new_piece:
+                    continue
+                
+                if is_win(me | new_piece):
+                    _log_move(col, start_time)
+                    win_score = MATE_SCORE - (me | opp).bit_count() - 1
+                    return _single_move_result(col, win_score)
+                
+                if col == moves[0]:
+                    score = -pvs(opp, me | new_piece, depth, NNF, INF, deadline)
+                else:
+                    if best_score == NNF:
+                        score = -pvs(opp, me | new_piece, depth, NNF, INF, deadline)
+                    else:
+                        score = -pvs(opp, me | new_piece, depth, -best_score - 1, -best_score, deadline)
+                        if best_score < score < INF:
+                            score = -pvs(opp, me | new_piece, depth, NNF, INF, deadline)
+
+                scores[col] = score
+                if score > best_score:
+                    best_score = score
+                    move_at_this_depth = col
+                    
+            best_move = move_at_this_depth
+            print("At depth:", depth, "Best move:", best_move, scores)
+            reachedDepth = depth
+            if best_score >= MATE_SCORE - 42:
+                break  # Found forced win
+
+    except TimeoutError:
+        pass
+        
+    think_time = time.perf_counter() - start_time
+    print(f"[OpeningBook_opt] depth {reachedDepth}, move {best_move}, time {think_time:.3f}s")
+    return best_score, scores
 
 def _log_move(move, start_time):
     think_time = time.perf_counter() - start_time

@@ -103,14 +103,14 @@ def get_heuristic_bb(me, opp, parity):
             bit_idx = empty_mask.bit_length() - 1
             row = bit_idx % 7
             # Parity bonus: Nếu hàng này thuộc quyền kiểm soát của mình
-            parity = 1
-            if row % 2 == opp_parity:
-                parity += (8 - row)
-            # Immediate check: Nếu có thể đánh ngay (dù là opp đi tiếp)
-            is_immediate = (row == 0) or (occupied & (1 << (bit_idx - 1)))
-            if is_immediate:
-                score += 10*me_count
-            score += WINDOW_WEIGHTS[me_count]*parity
+            parity_bonus = 1
+            if me_count == 3 and row % 2 == my_parity:
+                parity_bonus += (5 - row)
+            # Immediate check: Không có vì opp đi tiếp
+            # is_immediate = (row == 0) or (occupied & (1 << (bit_idx - 1)))
+            # if is_immediate:
+            #     score += 10 * me_count
+            score += WINDOW_WEIGHTS[me_count] * parity_bonus
                 
         elif opp_count > 0:
             # Phân tích Threat của đối thủ (đang giả định opp đi tiếp)
@@ -118,14 +118,14 @@ def get_heuristic_bb(me, opp, parity):
             bit_idx = empty_mask.bit_length() - 1
             row = bit_idx % 7
             # Parity penalty
-            parity = 1
-            if row % 2 == opp_parity:
-                parity += (8 - row)
+            parity_penalty = 1
+            if opp_count == 3 and row % 2 == opp_parity:
+                parity_penalty += (5 - row)
             # Immediate penalty: CỰC KỲ NGUY HIỂM nếu opp đi tiếp
             is_immediate = (row == 0) or (occupied & (1 << (bit_idx - 1)))
             if is_immediate:
-                score -= 20*me_count
-            score -= WINDOW_WEIGHTS[opp_count]*parity*2
+                score -= 20 * opp_count
+            score -= WINDOW_WEIGHTS[opp_count] * parity_penalty * 2
 
     return score
 

@@ -176,19 +176,40 @@ def _book_key(me, opp):
     return (me << 64) | opp
 
 
-def check_book(me, opp):
+# def check_book(me, opp):
+#     if OPENING_BOOK is None:
+#         return None
+#     key = _book_key(me, opp)
+#     move = OPENING_BOOK.get(key)
+#     if move is not None:
+#         return move
+#     m_me = mirror_board(me)
+#     m_opp = mirror_board(opp)
+#     m_move = OPENING_BOOK.get(_book_key(m_me, m_opp))
+#     if m_move is None:
+#         return None
+#     return 6 - m_move
+
+def get_book_score(me, opp):
+    """Lookup score from opening book (BK02 format). Returns score or None."""
     if OPENING_BOOK is None:
         return None
+    
+    # Try direct lookup
     key = _book_key(me, opp)
-    move = OPENING_BOOK.get(key)
-    if move is not None:
-        return move
+    score = OPENING_BOOK.get(key)
+    if score is not None:
+        return score
+    
+    # Try mirrored position
     m_me = mirror_board(me)
     m_opp = mirror_board(opp)
-    m_move = OPENING_BOOK.get(_book_key(m_me, m_opp))
-    if m_move is None:
-        return None
-    return 6 - m_move
+    m_key = _book_key(m_me, m_opp)
+    m_score = OPENING_BOOK.get(m_key)
+    
+    # Note: Score doesn't change sign for mirrored position in symmetric game
+    return m_score
+
 
 def load_opening_book():
     global OPENING_BOOK
@@ -198,32 +219,40 @@ def load_opening_book():
     
     # Use binary format for 10x faster loading
     current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Try score-based book first (BK02)
+    score_book_path = os.path.join(current_dir, "opening_book_score.bin")
+    score_pickle_path = os.path.join(current_dir, "opening_book_score.pkl")
+    
+    # Fall back to old move-based book (BK01)
     book_path = os.path.join(current_dir, "opening_book.bin")
     pickle_path = os.path.join(current_dir, "opening_book.pkl")
 
-    if os.path.exists(pickle_path):
+    # Try score pickle cache first
+    if os.path.exists(score_pickle_path):
         try:
             import pickle
-            with open(pickle_path, "rb") as f:
+            with open(score_pickle_path, "rb") as f:
                 OPENING_BOOK = pickle.load(f)
-            print(f"[Opening Book] Loaded {len(OPENING_BOOK)} positions from {pickle_path} (Pickle).")
+            print(f"[Opening Book] Loaded {len(OPENING_BOOK)} positions from {score_pickle_path} (Pickle, Score-Based).")
             return
         except Exception as e:
-            print(f"[Opening Book] Error loading pickle book: {e}")
+            print(f"[Opening Book] Error loading score pickle: {e}")
     
-    if os.path.exists(book_path):
+    # Try score binary book (BK02 format)
+    if os.path.exists(score_book_path):
         count = 0
         try:
             import struct
-            with open(book_path, "rb") as f:
+            with open(score_book_path, "rb") as f:
                 magic = f.read(4)
-                if magic != b"BK01":
-                    print(f"[Opening Book] Warning: {book_path} is not in expected BK01 binary format.")
+                if magic != b"BK02":
+                    print(f"[Opening Book] Warning: {score_book_path} has unexpected magic {magic}, expected BK02")
                     return
                 
                 raw_data = f.read()
             
-            # Each entry is 17 bytes: uint64(me), uint64(opp), uint8(move)
+            # Each entry is 17 bytes: uint64(me), uint64(opp), int8(score)
             entry_size = 17
             num_entries = len(raw_data) // entry_size
             
@@ -237,14 +266,69 @@ def load_opening_book():
                     print("[Opening Book] Loading... 75%")
                 
                 offset = i * entry_size
-                me, opp, move = struct.unpack_from("<QQB", raw_data, offset)
+                me, opp, score = struct.unpack_from("<QQb", raw_data, offset)  # 'b' = signed byte
                 
-                OPENING_BOOK[_book_key(me, opp)] = move
-                
+                OPENING_BOOK[_book_key(me, opp)] = score
                 count += 1
 
             print("[Opening Book] Loading... 100%")
-            print(f"[Opening Book] Loaded {count} positions ({len(OPENING_BOOK)} entries) from {book_path} (Binary).")
+            print(f"[Opening Book] Loaded {count} positions (Score-Based BK02 format, {len(OPENING_BOOK)} entries) from {score_book_path}.")
+
+            # Save pickle cache for next time
+            try:
+                import pickle
+                with open(score_pickle_path, "wb") as f:
+                    pickle.dump(OPENING_BOOK, f, protocol=pickle.HIGHEST_PROTOCOL)
+                print(f"[Opening Book] Saved pickle cache to {score_pickle_path}.")
+            except Exception as e:
+                print(f"[Opening Book] Error saving score pickle: {e}")
+            return
+        except Exception as e:
+            print(f"[Opening Book] Error loading score binary: {e}")
+    
+    # Fallback to old move-based book (BK01)
+    if os.path.exists(pickle_path):
+        try:
+            import pickle
+            with open(pickle_path, "rb") as f:
+                OPENING_BOOK = pickle.load(f)
+            print(f"[Opening Book] Loaded {len(OPENING_BOOK)} positions from {pickle_path} (Pickle, Move-Based).")
+            return
+        except Exception as e:
+            print(f"[Opening Book] Error loading move pickle: {e}")
+    
+    if os.path.exists(book_path):
+        count = 0
+        try:
+            import struct
+            with open(book_path, "rb") as f:
+                magic = f.read(4)
+                if magic != b"BK01":
+                    print(f"[Opening Book] Warning: {book_path} has unexpected magic, expected BK01")
+                    return
+                
+                raw_data = f.read()
+            
+            # Each entry is 17 bytes: uint64(me), uint64(opp), uint8(move)
+            entry_size = 17
+            num_entries = len(raw_data) // entry_size
+            
+            for i in range(num_entries):
+                if i == num_entries // 4:
+                    print("[Opening Book] Loading... 25%")
+                elif i == num_entries // 2:
+                    print("[Opening Book] Loading... 50%")
+                elif i == (num_entries * 3) // 4:
+                    print("[Opening Book] Loading... 75%")
+                
+                offset = i * entry_size
+                me, opp, move = struct.unpack_from("<QQB", raw_data, offset)
+                
+                OPENING_BOOK[_book_key(me, opp)] = move
+                count += 1
+
+            print("[Opening Book] Loading... 100%")
+            print(f"[Opening Book] Loaded {count} positions (Move-Based BK01 format) from {book_path}.")
 
             try:
                 import pickle
@@ -252,17 +336,11 @@ def load_opening_book():
                     pickle.dump(OPENING_BOOK, f, protocol=pickle.HIGHEST_PROTOCOL)
                 print(f"[Opening Book] Saved pickle cache to {pickle_path}.")
             except Exception as e:
-                print(f"[Opening Book] Error saving pickle book: {e}")
+                print(f"[Opening Book] Error saving move pickle: {e}")
         except Exception as e:
-            print(f"[Opening Book] Error loading binary book: {e}")
+            print(f"[Opening Book] Error loading move binary: {e}")
     else:
-        # Fallback to old name if bin doesn't exist
-        old_path = os.path.join(current_dir, "small_book_pruned.jsonl")
-        if os.path.exists(old_path):
-            print(f"[Opening Book] Warning: binary book not found, please re-export using export_book_pruned.cpp for faster loading.")
-            # (Old JSONL loading logic removed to keep script clean and encourage binary migration)
-        else:
-            print(f"[Opening Book] Warning: No opening book found at {book_path}")
+        print(f"[Opening Book] Warning: No opening book found at {score_book_path} or {book_path}")
 
 
 # -------------------------
@@ -367,6 +445,11 @@ def pvs(me, opp, depth, alpha, beta, deadline):
     if depth == 0 or time.perf_counter() > deadline:
         return get_heuristic_bb(me, opp, (me | opp).bit_count() % 2)
     
+    # Check book score first, fallback to heuristic
+    book_score = get_book_score(me, opp)
+    if book_score is not None:
+        return book_score*200
+    
     alpha0, beta0 = alpha, beta
 
     key64, flip = _canonical_tt_key(me, opp)
@@ -423,12 +506,8 @@ def pvs(me, opp, depth, alpha, beta, deadline):
         ply_count = occupied.bit_count()
         return -(MATE_SCORE - ply_count - 2) # Không có nước nào an toàn -> thua
 
-    best_move = check_book(me, opp)
-    if best_move is not None:
-        if (best_move in ordered):
-            ordered = [best_move]
-        else:
-            ordered = []
+    # Note: Book now contains scores, not moves.
+    # Move ordering comes from TT hints + killer moves + center-first default.
 
     for col in ordered:
         col_mask = 0b111111 << (col * 7)
@@ -515,11 +594,11 @@ def agent(obs, config, timeout=2):
             return block_col
     
     # 4. Query Opening Book (Fast Path) - key is (me, opp) tuple
-    best_move = check_book(me, opp)
-    if best_move is not None:
-        print(f"[Opening Book Hit] Playing precomputed move: {best_move}")
-        _log_move(best_move, start_time)
-        return int(best_move)
+    # best_move = check_book(me, opp)
+    # if best_move is not None:
+    #     print(f"[Opening Book Hit] Playing precomputed move: {best_move}")
+    #     _log_move(best_move, start_time)
+    #     return int(best_move)
         
     # 5. Query TT for a move ordering hint
     key64, flip = _canonical_tt_key(me, opp)
